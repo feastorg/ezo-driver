@@ -28,10 +28,13 @@ It does not define:
 4. The core does not sleep internally.
 5. The core does not depend on Arduino or Linux SDK types.
 6. Library errors and device status remain separate.
+7. The core uses fixed internal buffers, not VLAs or heap allocation.
 
 ## Public Types
 
 ```c
+#define EZO_I2C_MAX_TEXT_RESPONSE_LEN 255
+
 typedef enum {
   EZO_OK = 0,
   EZO_ERR_INVALID_ARGUMENT,
@@ -188,6 +191,7 @@ Rules:
 2. `response_len` reports the payload length excluding the terminating null.
 3. The caller must provide enough space for payload plus terminating null.
 4. If the payload would exactly fill the buffer with no room for the null terminator, the result is `EZO_ERR_BUFFER_TOO_SMALL`.
+5. `buffer_len` must be at most `EZO_I2C_MAX_TEXT_RESPONSE_LEN`.
 
 ## Timing Semantics
 
@@ -203,6 +207,19 @@ v1 default timing classes:
 - calibration: `1200 ms`
 
 These are conservative class-level defaults derived from `_reference/`, not per-device guarantees.
+
+## Numeric Helper Semantics
+
+`ezo_send_command_with_float()` formats fixed-point decimal text without relying on libc floating-point formatting.
+
+`ezo_parse_double()` parses plain decimal text intended for EZO payloads:
+
+- optional leading/trailing ASCII whitespace
+- optional sign
+- optional fractional component
+- no exponent syntax
+
+`ezo_send_command_with_float()` accepts up to 9 decimal places in v1.
 
 ## Canonical Call Flow
 

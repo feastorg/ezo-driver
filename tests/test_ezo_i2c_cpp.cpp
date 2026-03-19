@@ -46,8 +46,14 @@ static void test_cpp_wrapper_tracks_address_changes(void) {
   assert(device.address() == 98);
 }
 
+static void test_cpp_wrapper_requires_explicit_init(void) {
+  ezo_i2c::Device device;
+  assert(device.send_read(NULL) == EZO_ERR_INVALID_ARGUMENT);
+}
+
 int main() {
   test_cpp_wrapper_send_read_and_parse();
   test_cpp_wrapper_tracks_address_changes();
+  test_cpp_wrapper_requires_explicit_init();
   return 0;
 }

@@ -96,6 +96,7 @@ Constraints:
 - public baseline is C++11
 - wrapper should remain thin
 - wrapper is header-only
+- wrapper requires explicit initialization
 
 ### 5. Examples and utilities
 

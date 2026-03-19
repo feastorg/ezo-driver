@@ -18,10 +18,6 @@ class Device {
 public:
   Device() : device_() {}
 
-  Device(uint8_t address, const Transport *transport, void *transport_context) : device_() {
-    init(address, transport, transport_context);
-  }
-
   Result init(uint8_t address, const Transport *transport, void *transport_context) {
     return ezo_device_init(&device_, address, transport, transport_context);
   }

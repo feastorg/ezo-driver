@@ -45,6 +45,44 @@ static void test_send_command_with_float_formats_value(void) {
   assert(memcmp(fake.last_tx_bytes, "rt,25.000", strlen("rt,25.000")) == 0);
 }
 
+static void test_send_command_with_float_rounds_negative_values(void) {
+  ezo_fake_transport_t fake;
+  ezo_i2c_device_t device;
+  ezo_result_t result;
+
+  ezo_fake_transport_init(&fake);
+  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  assert(result == EZO_OK);
+
+  result = ezo_send_command_with_float(&device,
+                                       "t,",
+                                       -1.236,
+                                       2,
+                                       EZO_COMMAND_GENERIC,
+                                       NULL);
+  assert(result == EZO_OK);
+  assert(fake.last_tx_len == strlen("t,-1.24"));
+  assert(memcmp(fake.last_tx_bytes, "t,-1.24", strlen("t,-1.24")) == 0);
+}
+
+static void test_send_command_with_float_rejects_excess_precision(void) {
+  ezo_fake_transport_t fake;
+  ezo_i2c_device_t device;
+  ezo_result_t result;
+
+  ezo_fake_transport_init(&fake);
+  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  assert(result == EZO_OK);
+
+  result = ezo_send_command_with_float(&device,
+                                       "t,",
+                                       1.0,
+                                       10,
+                                       EZO_COMMAND_GENERIC,
+                                       NULL);
+  assert(result == EZO_ERR_INVALID_ARGUMENT);
+}
+
 static void test_read_response_success_and_parse(void) {
   static const uint8_t response[] = {1, '7', '.', '1', '2', 0};
   ezo_fake_transport_t fake;
@@ -178,9 +216,38 @@ static void test_parse_double_rejects_trailing_garbage(void) {
   assert(result == EZO_ERR_PARSE);
 }
 
+static void test_parse_double_accepts_signed_decimal_with_spaces(void) {
+  double value = 0.0;
+  ezo_result_t result = ezo_parse_double("  -12.50  ", 10, &value);
+  assert(result == EZO_OK);
+  assert(value < -12.49 && value > -12.51);
+}
+
+static void test_read_response_rejects_oversized_text_buffer(void) {
+  ezo_fake_transport_t fake;
+  ezo_i2c_device_t device;
+  ezo_device_status_t status = EZO_STATUS_UNKNOWN;
+  ezo_result_t result;
+  char buffer[EZO_I2C_MAX_TEXT_RESPONSE_LEN + 1];
+  size_t response_len = 0;
+
+  ezo_fake_transport_init(&fake);
+  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  assert(result == EZO_OK);
+
+  result = ezo_read_response(&device,
+                             buffer,
+                             sizeof(buffer),
+                             &response_len,
+                             &status);
+  assert(result == EZO_ERR_INVALID_ARGUMENT);
+}
+
 int main(void) {
   test_send_command_records_bytes();
   test_send_command_with_float_formats_value();
+  test_send_command_with_float_rounds_negative_values();
+  test_send_command_with_float_rejects_excess_precision();
   test_read_response_success_and_parse();
   test_read_response_not_ready_is_status_not_error();
   test_read_response_no_data_is_status_not_error();
@@ -188,5 +255,7 @@ int main(void) {
   test_read_response_requires_space_for_null_terminator();
   test_transport_failure_is_not_device_status();
   test_parse_double_rejects_trailing_garbage();
+  test_parse_double_accepts_signed_decimal_with_spaces();
+  test_read_response_rejects_oversized_text_buffer();
   return 0;
 }

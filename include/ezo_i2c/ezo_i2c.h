@@ -8,6 +8,8 @@
 extern "C" {
 #endif
 
+#define EZO_I2C_MAX_TEXT_RESPONSE_LEN 255
+
 typedef enum {
   EZO_OK = 0,
   EZO_ERR_INVALID_ARGUMENT,
