@@ -178,6 +178,17 @@ Rules:
    - result: `EZO_ERR_PARSE`
    - status: `EZO_STATUS_SUCCESS`
 
+## Buffer Semantics
+
+`ezo_read_response()` is text-oriented in v1.
+
+Rules:
+
+1. On success, the response buffer is null-terminated.
+2. `response_len` reports the payload length excluding the terminating null.
+3. The caller must provide enough space for payload plus terminating null.
+4. If the payload would exactly fill the buffer with no room for the null terminator, the result is `EZO_ERR_BUFFER_TOO_SMALL`.
+
 ## Timing Semantics
 
 The core never sleeps.

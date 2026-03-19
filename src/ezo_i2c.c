@@ -267,7 +267,7 @@ ezo_result_t ezo_read_response(ezo_i2c_device_t *device,
     }
     payload_len = i;
 
-    if (payload_len > buffer_len) {
+    if (payload_len >= buffer_len) {
       *response_len = 0;
       return EZO_ERR_BUFFER_TOO_SMALL;
     }
@@ -276,9 +276,7 @@ ezo_result_t ezo_read_response(ezo_i2c_device_t *device,
       memcpy(buffer, &raw[1], payload_len);
     }
 
-    if (payload_len < buffer_len) {
-      buffer[payload_len] = '\0';
-    }
+    buffer[payload_len] = '\0';
 
     *response_len = payload_len;
   }
