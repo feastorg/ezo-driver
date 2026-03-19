@@ -72,6 +72,23 @@ if(EZO_BUILD_TESTS)
     NAME ezo_i2c_cpp_tests
     COMMAND ezo_i2c_cpp_tests
   )
+
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_executable(ezo_i2c_linux_adapter_tests
+      tests/test_linux_adapter.c
+    )
+
+    target_include_directories(ezo_i2c_linux_adapter_tests
+      PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+    )
+
+    add_test(
+      NAME ezo_i2c_linux_adapter_tests
+      COMMAND ezo_i2c_linux_adapter_tests
+    )
+  endif()
 endif()
 
 if(EZO_BUILD_LINUX_ADAPTER)
