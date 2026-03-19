@@ -3,8 +3,8 @@
 
 #include "ezo_i2c/ezo_i2c.h"
 
-#include <cstddef>
-#include <cstdint>
+#include <stddef.h>
+#include <stdint.h>
 
 namespace ezo_i2c {
 
@@ -64,13 +64,13 @@ public:
   }
 
   Result read_response(char *buffer,
-                       std::size_t buffer_len,
-                       std::size_t *response_len,
+                       size_t buffer_len,
+                       size_t *response_len,
                        DeviceStatus *device_status) {
     return ezo_read_response(&device_, buffer, buffer_len, response_len, device_status);
   }
 
-  Result parse_double(const char *buffer, std::size_t buffer_len, double *value_out) const {
+  Result parse_double(const char *buffer, size_t buffer_len, double *value_out) const {
     return ezo_parse_double(buffer, buffer_len, value_out);
   }
 
@@ -90,7 +90,7 @@ inline Result get_timing_hint_for_command_kind(CommandKind kind, TimingHint *tim
   return ezo_get_timing_hint_for_command_kind(kind, timing_hint);
 }
 
-inline Result parse_double(const char *buffer, std::size_t buffer_len, double *value_out) {
+inline Result parse_double(const char *buffer, size_t buffer_len, double *value_out) {
   return ezo_parse_double(buffer, buffer_len, value_out);
 }
 
