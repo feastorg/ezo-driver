@@ -11,6 +11,8 @@ The library is organized as a layered system:
 
 This keeps protocol logic centralized while allowing multiple platforms and language surfaces.
 
+The detailed public contract for the current implementation stage lives in [api-contract.md](./api-contract.md).
+
 ## Architectural Goals
 
 - keep the core independent of platform SDKs
