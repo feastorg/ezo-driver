@@ -13,6 +13,12 @@
     "arduino"
   ],
   "platforms": "*",
+  "build": {
+    "srcFilter": [
+      "+<*>",
+      "-<linux/>"
+    ]
+  },
   "headers": [
     "ezo_i2c.h",
     "ezo_i2c.hpp"
