@@ -1,5 +1,17 @@
+# Build outputs
+build/
+dist/
+out/
 
+# Test and tool artifacts
+coverage/
+*.gcda
+*.gcno
+*.gcov
 
+# Editor and OS noise
+.DS_Store
+Thumbs.db
 
 # Ignore the planning directory, which contains files related
 # to project planning and personal notes that dont need to 
