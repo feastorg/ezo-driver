@@ -238,6 +238,63 @@ Consequences:
 - CMake becomes the primary developer workflow.
 - Arduino/PlatformIO packaging work should stay aligned with, not drive, the core layout.
 
+## ED-013: Public numeric values use `double` in the C API
+
+Date: 2026-03-19
+Status: Accepted
+
+Context:
+
+The public API needs a numeric type for command formatting and parsing that works cleanly on both host and embedded targets.
+
+Decision:
+
+- The public C API will use `double` for numeric send/parse helpers.
+- Embedded targets may still implement `double` with the same precision as `float`, but the public contract remains `double`.
+
+Consequences:
+
+- Host-side users get a conventional numeric API.
+- Arduino-class targets still remain compatible even where `double` aliases `float`.
+
+## ED-014: The transport contract uses one transaction primitive in v1
+
+Date: 2026-03-19
+Status: Accepted
+
+Context:
+
+The transport interface should be as small as possible while still supporting both Arduino and Linux adapters and deterministic test doubles.
+
+Decision:
+
+- The v1 transport contract uses a single callback for write/read bus transactions.
+- Send-only and read-only operations are represented by zero-length read or write sides respectively.
+
+Consequences:
+
+- The core stays simpler and easier to fake in tests.
+- If adapter implementation later proves this shape inadequate, the contract must be revised explicitly rather than split ad hoc.
+
+## ED-015: The core will not replicate legacy read-issued state tracking
+
+Date: 2026-03-19
+Status: Accepted
+
+Context:
+
+The legacy API uses `issued_read` and `NOT_READ_CMD` to enforce a particular object workflow. That behavior is tied to the old API shape rather than the device protocol itself.
+
+Decision:
+
+- The new core will not track legacy "read was previously issued" object state solely to emulate `NOT_READ_CMD`.
+- Caller intent is expressed through explicit API choice and call flow rather than hidden device flags.
+
+Consequences:
+
+- The device object stays smaller and less stateful.
+- The new API remains simpler and avoids preserving legacy behavior that does not improve the protocol model.
+
 ## Locked Baseline
 
 - Compatibility target: new API, not a drop-in replacement
@@ -252,3 +309,6 @@ Consequences:
 - Typed helpers in v1: no
 - First complete milestone: Arduino and Linux
 - Build approach: CMake-first with Arduino metadata and planned PlatformIO support
+- Public numeric type: `double`
+- Transport callback shape: single write/read transaction primitive
+- Legacy read-issued compatibility state: not preserved

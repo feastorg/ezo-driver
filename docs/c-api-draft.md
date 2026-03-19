@@ -1,6 +1,6 @@
 # C API Draft
 
-Status: Draft
+Status: Accepted for header scaffolding
 Phase: 01
 
 ## Purpose
@@ -41,12 +41,9 @@ typedef struct {
   uint8_t address;
   const ezo_i2c_transport_t *transport;
   void *transport_context;
-  uint8_t last_command_kind;
   uint8_t last_device_status;
 } ezo_i2c_device_t;
 ```
-
-`last_command_kind` exists only if needed to support read-specific validation semantics. If later design proves it unnecessary, remove it.
 
 ### Result
 
@@ -80,7 +77,7 @@ typedef enum {
 
 ### Command kind
 
-Used only for timing and optional read-validation semantics.
+Used for timing classification.
 
 ```c
 typedef enum {
@@ -220,7 +217,4 @@ if (status == EZO_STATUS_SUCCESS) {
 
 ## Open Points To Confirm During Header Drafting
 
-1. Whether `last_command_kind` should be retained in the device state.
-2. Whether `double` should remain the numeric type in the public C API or be narrowed to `float` for stricter embedded symmetry.
-3. Whether `ezo_read_response()` should accept an optional raw byte buffer variant in addition to the text buffer path.
-
+1. Whether `ezo_read_response()` should accept an optional raw byte buffer variant in addition to the text buffer path.

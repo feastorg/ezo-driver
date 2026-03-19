@@ -1,6 +1,6 @@
 # Transport Contract
 
-Status: Draft
+Status: Accepted for header scaffolding
 Phase: 01
 
 ## Purpose
@@ -128,7 +128,6 @@ Other library-level results should normally be produced by the core rather than 
 - short reads are allowed and must be reported accurately
 - the core must not assume the buffer is null-terminated
 
-## Open Question
+## Revision Rule
 
 If later adapter implementation shows that Arduino and Linux integrations are materially cleaner with separate `write()` and `read()` callbacks, this document should be revised explicitly in the decision log and architecture docs before code diverges.
-

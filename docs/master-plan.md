@@ -198,15 +198,19 @@ The first complete milestone includes:
 - Arduino metadata
 - PlatformIO support
 
-## Immediate Next Deliverables
+## Current Readiness
 
-Before code is written, the next design artifacts should be:
+The repository now has the required pre-implementation design artifacts:
 
-1. a public C API draft
-2. a transport contract draft
-3. an error/status model draft
-4. a timing semantics draft
-5. a repository layout and build skeleton plan
+1. a repository layout and build skeleton baseline
+2. a public C API draft
+3. a transport contract draft
+4. an error/status model draft
+5. a timing semantics draft
+6. canonical call flows
+7. a reference audit against `_reference/`
+
+The next implementation-stage work should begin with header scaffolding and core skeleton code, not more foundational planning.
 
 ## Key Risks
 

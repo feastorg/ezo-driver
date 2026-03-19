@@ -1,6 +1,6 @@
 # Error And Status Model
 
-Status: Draft
+Status: Accepted for header scaffolding
 Phase: 01
 
 ## Purpose
@@ -138,4 +138,3 @@ if (status != EZO_STATUS_SUCCESS) {
 ## Design Rule
 
 The core must never report a device status failure as a transport failure, and must never report a transport failure as a device status.
-

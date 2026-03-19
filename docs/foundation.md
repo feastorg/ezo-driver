@@ -12,8 +12,12 @@ These documents define the project baseline for implementation work:
 - [vision.md](/mnt/c/Users/Cameron/repos_feast/ezo-i2c-driver/docs/vision.md)
 - [architecture.md](/mnt/c/Users/Cameron/repos_feast/ezo-i2c-driver/docs/architecture.md)
 - [master-plan.md](/mnt/c/Users/Cameron/repos_feast/ezo-i2c-driver/docs/master-plan.md)
-- [planning/README.md](/mnt/c/Users/Cameron/repos_feast/ezo-i2c-driver/planning/README.md)
-- all `planning/phase-*.md` documents for execution sequencing
+- [reference-audit.md](/mnt/c/Users/Cameron/repos_feast/ezo-i2c-driver/docs/reference-audit.md)
+- [c-api-draft.md](/mnt/c/Users/Cameron/repos_feast/ezo-i2c-driver/docs/c-api-draft.md)
+- [transport-contract.md](/mnt/c/Users/Cameron/repos_feast/ezo-i2c-driver/docs/transport-contract.md)
+- [error-status-model.md](/mnt/c/Users/Cameron/repos_feast/ezo-i2c-driver/docs/error-status-model.md)
+- [timing-semantics.md](/mnt/c/Users/Cameron/repos_feast/ezo-i2c-driver/docs/timing-semantics.md)
+- [canonical-call-flows.md](/mnt/c/Users/Cameron/repos_feast/ezo-i2c-driver/docs/canonical-call-flows.md)
 
 If a future implementation decision conflicts with these documents, the decision must be made explicit in the decision log rather than being introduced implicitly in code.
 
@@ -29,7 +33,7 @@ tests/
   fakes/           Fake transports and test doubles
 examples/          Focused usage examples only
 docs/              Product, architecture, and planning documents
-planning/          Detailed execution phases and audits
+planning/          Local planning and scratch material, gitignored by policy
 _reference/        Legacy reference material, read-only by policy
 ```
 
@@ -87,6 +91,6 @@ Phase 00 is considered complete when:
 
 - the repository structure exists
 - directory ownership is explicit
-- `planning/` is versioned and no longer ignored
+- `planning/` is reserved for local planning material and remains outside the tracked contract set
 - `_reference/` is explicitly fenced off as reference-only
 - a minimal CMake entry point exists for later phases

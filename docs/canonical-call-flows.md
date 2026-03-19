@@ -1,6 +1,6 @@
 # Canonical Call Flows
 
-Status: Draft
+Status: Accepted for header scaffolding
 Phase: 01
 
 ## Purpose
@@ -132,4 +132,5 @@ if (result == EZO_ERR_TRANSPORT) {
 2. Timing stays caller-controlled.
 3. Parsing is explicit.
 4. Device-reported unsuccessful states are not collapsed into transport or parse failures.
+5. The API does not preserve the legacy `NOT_READ_CMD` object-state model.
 

@@ -1,6 +1,6 @@
 # Timing Semantics
 
-Status: Draft
+Status: Accepted for header scaffolding
 Phase: 01
 
 ## Purpose
@@ -23,7 +23,8 @@ The core exposes timing requirements, and the caller decides how to wait:
 The reference code effectively uses:
 
 - around `300 ms` for many generic commands
-- around `1000-1200 ms` for read and calibration paths
+- around `815-1000 ms` for many read paths in examples
+- around `1200 ms` in helper code for broad `R` and `CAL` categories
 
 The exact policy in the new driver should be explicit and centralized rather than scattered through examples.
 
@@ -50,12 +51,14 @@ Initial categories:
 
 ## Initial Timing Policy
 
-The exact constants should be finalized during header implementation, but the initial documented intent is:
+The v1 driver will use conservative generic timing hints:
 
 - generic command: `300 ms`
 - read command: `1000 ms`
 - read with temperature compensation: `1000 ms`
 - calibration command: `1200 ms`
+
+These are class-level defaults, not per-device guarantees. The reference repo shows some examples successfully using shorter read windows such as `815 ms`, but v1 will prefer conservative defaults until device-specific timing policy is intentionally added.
 
 If later protocol evidence shows a need for different timing classes, revise the categories explicitly rather than letting examples drift.
 
@@ -105,4 +108,3 @@ ezo_read_response(...);
 ## Design Rule
 
 Timing semantics belong to the documented contract, not to examples, adapters, or hidden implementation delays.
-
