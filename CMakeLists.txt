@@ -13,10 +13,30 @@ option(EZO_BUILD_ARDUINO_ADAPTER "Build Arduino adapter sources" OFF)
 option(EZO_BUILD_LINUX_ADAPTER "Build Linux adapter sources" OFF)
 option(EZO_BUILD_CPP_WRAPPER "Build C++ wrapper integration targets" OFF)
 
-# Phase 00 foundation skeleton:
-# - core sources will live under src/ and public headers under include/
-# - adapters remain isolated in adapters/
-# - tests and examples are opt-in
-# Actual targets are added in later phases once the API and contracts are defined.
+add_library(ezo_i2c_core STATIC
+  src/ezo_i2c.c
+)
 
-message(STATUS "Configured Phase 00 foundation skeleton for ezo_i2c_driver")
+target_include_directories(ezo_i2c_core
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_compile_features(ezo_i2c_core PUBLIC c_std_99)
+
+if(EZO_BUILD_TESTS)
+  add_executable(ezo_i2c_core_tests
+    tests/fakes/ezo_fake_transport.c
+    tests/test_ezo_i2c.c
+  )
+
+  target_include_directories(ezo_i2c_core_tests
+    PRIVATE
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}/include
+  )
+
+  target_link_libraries(ezo_i2c_core_tests PRIVATE ezo_i2c_core)
+endif()
+
+message(STATUS "Configured ezo_i2c_driver core target")
