@@ -57,7 +57,7 @@ Decision:
 
 - C++ support will wrap the C core rather than reimplement it.
 - The public wrapper baseline is C++11.
-- The wrapper should stay thin and may be header-only if that remains practical.
+- The wrapper should stay thin and be header-only.
 
 Consequences:
 
