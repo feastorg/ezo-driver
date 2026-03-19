@@ -39,4 +39,30 @@ if(EZO_BUILD_TESTS)
   target_link_libraries(ezo_i2c_core_tests PRIVATE ezo_i2c_core)
 endif()
 
+if(EZO_BUILD_LINUX_ADAPTER)
+  add_library(ezo_i2c_linux_adapter STATIC
+    adapters/linux/ezo_linux_i2c.c
+  )
+
+  target_include_directories(ezo_i2c_linux_adapter
+    PUBLIC
+      ${CMAKE_CURRENT_SOURCE_DIR}/include
+  )
+
+  target_link_libraries(ezo_i2c_linux_adapter PUBLIC ezo_i2c_core)
+endif()
+
+if(EZO_BUILD_ARDUINO_ADAPTER)
+  add_library(ezo_i2c_arduino_adapter STATIC
+    adapters/arduino/ezo_arduino_wire.cpp
+  )
+
+  target_include_directories(ezo_i2c_arduino_adapter
+    PUBLIC
+      ${CMAKE_CURRENT_SOURCE_DIR}/include
+  )
+
+  target_link_libraries(ezo_i2c_arduino_adapter PUBLIC ezo_i2c_core)
+endif()
+
 message(STATUS "Configured ezo_i2c_driver core target")
