@@ -18,6 +18,7 @@ This repository is a rewrite informed by Atlas Scientific's original reference l
 Current implementation includes:
 
 - shared `ezo.h` surface for results, timing hints, and numeric parsing
+- product identity and metadata for the initial six documented EZO families
 - complete I2C core with text and raw response decoding
 - complete UART core with line-based response handling
 - Arduino integrations for both I2C and UART
@@ -31,6 +32,7 @@ Current support matrix:
 
 - I2C: C core, I2C C++ wrapper, Arduino `TwoWire`, Linux I2C adapter
 - UART: C core, Arduino `Stream`, Linux host POSIX serial adapter
+- Product metadata: initial six documented families at the metadata tier
 - Shared: host-side tests and Arduino compile validation
 
 ## Layout
@@ -60,7 +62,7 @@ cmake -S . -B build -DEZO_BUILD_EXAMPLES=ON -DEZO_BUILD_LINUX_ADAPTER=ON -DEZO_B
 
 ## Validation
 
-- host CI builds and runs C and C++ tests for the shared, I2C, and UART core paths
+- host CI builds and runs C and C++ tests for the shared, I2C, UART, and product-metadata paths
 - Linux I2C and Linux host POSIX UART adapter behavior are covered by host-side tests
 - PlatformIO CI compile-checks Arduino I2C and UART examples for `uno`, `nanoatmega328`, and `esp32dev`
 - Arduino IDE validation is manual by design
@@ -88,6 +90,7 @@ Primary public headers:
 - [`src/ezo_i2c.hpp`](./src/ezo_i2c.hpp)
 - [`src/ezo_i2c_arduino_wire.h`](./src/ezo_i2c_arduino_wire.h)
 - [`src/ezo_i2c_linux_i2c.h`](./src/ezo_i2c_linux_i2c.h)
+- [`src/ezo_product.h`](./src/ezo_product.h)
 - [`src/ezo_uart.h`](./src/ezo_uart.h)
 - [`src/ezo_uart_posix_serial.h`](./src/ezo_uart_posix_serial.h)
 - [`src/ezo_uart_arduino_stream.h`](./src/ezo_uart_arduino_stream.h)
@@ -99,6 +102,7 @@ Primary implementation files:
 - [`src/ezo_i2c.c`](./src/ezo_i2c.c)
 - [`src/ezo_i2c_arduino_wire.cpp`](./src/ezo_i2c_arduino_wire.cpp)
 - [`platform/linux/ezo_i2c_linux_i2c.c`](./platform/linux/ezo_i2c_linux_i2c.c)
+- [`src/ezo_product.c`](./src/ezo_product.c)
 - [`src/ezo_uart.c`](./src/ezo_uart.c)
 - [`platform/linux/ezo_uart_posix_serial.c`](./platform/linux/ezo_uart_posix_serial.c)
 - [`src/ezo_uart_arduino_stream.cpp`](./src/ezo_uart_arduino_stream.cpp)

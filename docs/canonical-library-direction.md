@@ -11,13 +11,14 @@ It is not a phase checklist. It exists so the repo's intended end state is track
 The current baseline is transport-complete for the core library shape:
 
 - shared public `ezo.h` surface
+- formal product identity and metadata layer in `src/ezo_product.*`
 - explicit I2C and UART C driver families
 - thin I2C C++ wrapper
 - Arduino adapters for I2C and UART
 - Linux I2C adapter and Linux host POSIX UART adapter
 - curated EZO product and protocol docs under `docs/ezo/`
 
-That baseline is good enough to stop transport reshaping and move up one level.
+That baseline is good enough to stop transport reshaping and move up into shared parser and typed product work.
 
 ## Core conclusion
 
@@ -54,11 +55,11 @@ The next durable layer above the current baseline should look like this:
 6. thin C++ convenience wrappers where justified
 7. platform adapters
 
-The key missing foundation is the product identity and metadata layer.
+The key missing foundation is no longer product identity. The next missing foundation is the reusable parser and operation infrastructure that typed product modules will need.
 
 ## What the product layer should provide
 
-The canonical library needs a formal product model rather than freeform command strings alone.
+The canonical library now has a formal product model rather than freeform command strings alone.
 
 That layer should eventually cover:
 
@@ -105,11 +106,10 @@ The first milestone should be typed read support. Full typed control and calibra
 
 The current baseline is still missing:
 
-- a correct UART response-sequence model for multi-line and streaming flows
-- richer UART control-token classification beyond `DATA`, `*OK`, and `*ER`
-- formal product metadata and capability tables
+- shared parser and response-sequence infrastructure above the transport cores
 - typed parsers and command builders per product family
-- explicit support tiers for products
+- typed read and control surfaces above the metadata layer
+- a tracked support matrix built on the current support-tier model
 - a matching UART C++ wrapper only if the C surface justifies it
 
 ## Explicit non-goals

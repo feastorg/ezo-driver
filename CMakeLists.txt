@@ -19,6 +19,7 @@ add_library(ezo_core STATIC
   src/ezo.c
   src/ezo_common.c
   src/ezo_i2c.c
+  src/ezo_product.c
   src/ezo_uart.c
 )
 
@@ -93,6 +94,23 @@ if(EZO_BUILD_TESTS)
   add_test(
     NAME ezo_uart_core_tests
     COMMAND ezo_uart_core_tests
+  )
+
+  add_executable(ezo_product_tests
+    tests/test_ezo_product.c
+  )
+
+  target_include_directories(ezo_product_tests
+    PRIVATE
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}/src
+  )
+
+  target_link_libraries(ezo_product_tests PRIVATE ezo_core)
+
+  add_test(
+    NAME ezo_product_tests
+    COMMAND ezo_product_tests
   )
 
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")

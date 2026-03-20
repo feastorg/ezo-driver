@@ -8,6 +8,7 @@ Source of truth:
 - I2C C API: `src/ezo_i2c.h`
 - I2C C++ API: `src/ezo_i2c.hpp`
 - I2C Arduino adapter API: `src/ezo_i2c_arduino_wire.h`
+- product metadata API: `src/ezo_product.h`
 - UART C API: `src/ezo_uart.h`
 - POSIX UART adapter API: `src/ezo_uart_posix_serial.h`
 - UART Arduino adapter API: `src/ezo_uart_arduino_stream.h`
@@ -47,6 +48,35 @@ Shared timing hints remain:
 - optional sign
 - optional fractional part
 - no exponent syntax
+
+## Product Surface
+
+The product metadata API provides:
+
+- product IDs for the initial six documented families
+- static registry lookup for defaults, capabilities, and support tiers
+- device-info parsing for `i` responses
+- product-aware timing lookup by transport and command kind
+
+Primary product entry points:
+
+- `ezo_product_id_from_short_code()`
+- `ezo_parse_device_info()`
+- `ezo_product_get_metadata()`
+- `ezo_product_get_metadata_by_short_code()`
+- `ezo_product_get_timing_hint()`
+- `ezo_product_get_support_tier()`
+- `ezo_product_supports_capability()`
+- `ezo_product_has_command_family()`
+
+Product metadata rules:
+
+1. The registry is static and hand-authored.
+2. Product identity stays separate from the I2C and UART device structs.
+3. Syntactically valid but unsupported `i` responses parse successfully and map to `EZO_PRODUCT_UNKNOWN`.
+4. Default UART-state metadata is bootstrapping guidance only; higher layers still verify or configure runtime state when determinism matters.
+5. Firmware-sensitive defaults may be recorded as query-required instead of as a guessed fact.
+6. The metadata layer is facts and lookups only; it does not add typed product command helpers yet.
 
 ## I2C Surface
 
@@ -187,6 +217,7 @@ Rules:
 Current validation covers:
 
 - I2C core behavior with fake transports
+- product metadata and device-info parsing with host-side tests
 - UART core behavior with fake transports
 - Linux I2C and Linux host POSIX UART adapter behavior on host builds
 - Arduino I2C and UART example compile validation through PlatformIO
