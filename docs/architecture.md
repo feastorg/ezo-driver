@@ -7,9 +7,10 @@ The repo is organized around one canonical library root: `src/`.
 Inside `src/`:
 
 - `ezo_i2c.c`: core C99 implementation
-- `ezo_i2c.h`, `ezo_i2c.hpp`: public umbrella headers
-- `ezo_i2c/`: public namespaced headers
-- `arduino/`: Arduino `TwoWire` adapter implementation
+- `ezo_i2c.h`, `ezo_i2c.hpp`: public core headers
+- `ezo_i2c_arduino_wire.h`: Arduino sketch-facing transport header
+- `ezo_i2c_linux_i2c.h`: host-side Linux transport header
+- `ezo_i2c_arduino_wire.cpp`: Arduino `TwoWire` adapter implementation
 
 Host-only implementation code lives outside `src/`:
 
@@ -102,4 +103,5 @@ A new developer should treat these files as the main entry points:
 - `src/ezo_i2c.h` for the C API
 - `src/ezo_i2c.hpp` for the C++ wrapper
 - `src/ezo_i2c_arduino_wire.h` for Arduino sketch-facing integration
+- `src/ezo_i2c_linux_i2c.h` for Linux-side transport integration
 - `src/ezo_i2c.c` for core behavior

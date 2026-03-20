@@ -1,4 +1,4 @@
-#include "ezo_i2c/linux_i2c.h"
+#include "ezo_i2c_linux_i2c.h"
 
 #include <stddef.h>
 #include <stdint.h>

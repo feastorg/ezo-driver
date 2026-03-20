@@ -65,12 +65,13 @@ Primary public headers:
 - [`src/ezo_i2c.h`](./src/ezo_i2c.h)
 - [`src/ezo_i2c.hpp`](./src/ezo_i2c.hpp)
 - [`src/ezo_i2c_arduino_wire.h`](./src/ezo_i2c_arduino_wire.h)
+- [`src/ezo_i2c_linux_i2c.h`](./src/ezo_i2c_linux_i2c.h)
 
 Primary implementation files:
 
 - [`src/ezo_i2c.c`](./src/ezo_i2c.c)
-- [`src/arduino/ezo_arduino_wire.cpp`](./src/arduino/ezo_arduino_wire.cpp)
-- [`platform/linux/ezo_linux_i2c.c`](./platform/linux/ezo_linux_i2c.c)
+- [`src/ezo_i2c_arduino_wire.cpp`](./src/ezo_i2c_arduino_wire.cpp)
+- [`platform/linux/ezo_i2c_linux_i2c.c`](./platform/linux/ezo_i2c_linux_i2c.c)
 
 ## Docs
 

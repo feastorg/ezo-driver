@@ -4,8 +4,8 @@ Status: accepted
 
 Source of truth:
 
-- public C API: `src/ezo_i2c/ezo_i2c.h`
-- public C++ API: `src/ezo_i2c/ezo_i2c.hpp`
+- public C API: `src/ezo_i2c.h`
+- public C++ API: `src/ezo_i2c.hpp`
 
 This document only records the contract decisions that matter at the repo level. It does not duplicate every declaration from the headers.
 

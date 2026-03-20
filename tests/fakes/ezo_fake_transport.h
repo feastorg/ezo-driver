@@ -1,7 +1,7 @@
 #ifndef TESTS_FAKES_EZO_FAKE_TRANSPORT_H
 #define TESTS_FAKES_EZO_FAKE_TRANSPORT_H
 
-#include "ezo_i2c/ezo_i2c.h"
+#include "ezo_i2c.h"
 
 #include <stddef.h>
 #include <stdint.h>

@@ -1,7 +1,7 @@
 #ifndef EZO_I2C_LINUX_I2C_H
 #define EZO_I2C_LINUX_I2C_H
 
-#include "ezo_i2c/ezo_i2c.h"
+#include "ezo_i2c.h"
 
 #ifdef __cplusplus
 extern "C" {

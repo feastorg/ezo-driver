@@ -1,4 +1,4 @@
-#include "ezo_i2c/ezo_i2c.h"
+#include "ezo_i2c.h"
 
 #include <ctype.h>
 #include <stdint.h>

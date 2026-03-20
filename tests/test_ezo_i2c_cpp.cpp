@@ -1,4 +1,4 @@
-#include "ezo_i2c/ezo_i2c.hpp"
+#include "ezo_i2c.hpp"
 #include "tests/fakes/ezo_fake_transport.h"
 
 #include <cassert>
