@@ -93,7 +93,7 @@ endif()
 
 if(EZO_BUILD_LINUX_ADAPTER)
   add_library(ezo_i2c_linux_adapter STATIC
-    src/linux/ezo_linux_i2c.c
+    platform/linux/ezo_linux_i2c.c
   )
 
   target_include_directories(ezo_i2c_linux_adapter

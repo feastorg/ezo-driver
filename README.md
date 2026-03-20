@@ -24,6 +24,7 @@ Current implementation includes:
 ## Layout
 
 - `src/`: canonical library root for public headers and implementation
+- `platform/`: host-only platform implementation code not intended for Arduino library builds
 - `examples/`: focused Arduino and Linux examples
 - `tests/`: host-side tests and fakes
 - `docs/`: tracked handoff docs
@@ -49,9 +50,7 @@ ctest --test-dir build --output-on-failure
 ## Packaging
 
 - `library.properties`: Arduino tooling metadata
-- `library.json`: PlatformIO metadata and Arduino-specific source filtering
-
-The PlatformIO manifest excludes `src/linux/` from Arduino library builds so host-only code is not compiled for embedded targets.
+- `library.json`: PlatformIO metadata
 
 ## Examples
 
@@ -71,7 +70,7 @@ Primary implementation files:
 
 - [`src/ezo_i2c.c`](./src/ezo_i2c.c)
 - [`src/arduino/ezo_arduino_wire.cpp`](./src/arduino/ezo_arduino_wire.cpp)
-- [`src/linux/ezo_linux_i2c.c`](./src/linux/ezo_linux_i2c.c)
+- [`platform/linux/ezo_linux_i2c.c`](./platform/linux/ezo_linux_i2c.c)
 
 ## Docs
 

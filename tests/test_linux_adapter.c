@@ -1,4 +1,4 @@
-#include "ezo_i2c_linux_i2c.h"
+#include "ezo_i2c/linux_i2c.h"
 
 #include <assert.h>
 #include <stdarg.h>
@@ -87,7 +87,7 @@ ssize_t test_read(int fd, void *buffer, size_t len) {
 #define ioctl test_ioctl
 #define write test_write
 #define read test_read
-#include "../src/linux/ezo_linux_i2c.c"
+#include "../platform/linux/ezo_linux_i2c.c"
 #undef read
 #undef write
 #undef ioctl

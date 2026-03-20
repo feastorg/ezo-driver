@@ -10,10 +10,14 @@ Inside `src/`:
 - `ezo_i2c.h`, `ezo_i2c.hpp`: public umbrella headers
 - `ezo_i2c/`: public namespaced headers
 - `arduino/`: Arduino `TwoWire` adapter implementation
-- `linux/`: Linux adapter implementation
+
+Host-only implementation code lives outside `src/`:
+
+- `platform/linux/`: Linux adapter implementation
 
 Everything else is supporting material:
 
+- `platform/`: non-Arduino platform code
 - `examples/`: small integration examples
 - `tests/`: host-side tests and fakes
 - `docs/`: tracked implementation docs
@@ -89,10 +93,6 @@ Packaging/distribution surfaces:
 
 - `library.properties` for Arduino tooling
 - `library.json` for PlatformIO
-
-PlatformIO-specific rule:
-
-- `library.json` excludes `src/linux/` from Arduino builds so Linux-only code is not compiled for embedded targets
 
 ## Handoff Notes
 
