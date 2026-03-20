@@ -7,7 +7,9 @@ Source of truth:
 - shared C API: `src/ezo.h`
 - I2C C API: `src/ezo_i2c.h`
 - I2C C++ API: `src/ezo_i2c.hpp`
+- I2C Arduino adapter API: `src/ezo_i2c_arduino_wire.h`
 - UART C API: `src/ezo_uart.h`
+- UART Arduino adapter API: `src/ezo_uart_arduino_stream.h`
 
 This document records repo-level contract decisions. It does not duplicate every declaration from the headers.
 
@@ -55,6 +57,7 @@ The I2C API provides:
 - text response reads
 - raw response reads
 - thin C++ wrapper over the same C surface
+- Arduino `TwoWire` adapter surface
 
 Primary I2C C entry points:
 
@@ -69,6 +72,12 @@ Primary I2C C entry points:
 I2C transport contract:
 
 - `write_then_read(context, address, tx_data, tx_len, rx_data, rx_len, rx_received)`
+
+I2C Arduino adapter contract:
+
+- wraps `TwoWire`
+- remains a thin transport shim
+- does not own timing, parsing, or retries
 
 I2C response semantics:
 
@@ -92,6 +101,7 @@ The UART API provides:
 - read helpers for plain read and read-with-temperature-compensation
 - CR-terminated text response reads
 - optional explicit input discard
+- Arduino `Stream` adapter surface
 
 Primary UART C entry points:
 
@@ -108,6 +118,14 @@ UART transport contract:
 - `write_bytes(context, tx_data, tx_len)`
 - `read_bytes(context, rx_data, rx_len, rx_received)`
 - optional `discard_input(context)`
+
+UART Arduino adapter contract:
+
+- wraps `Stream`
+- reports only currently available bytes to the core
+- keeps CR framing policy in the core
+- does not use `String`
+- does not hide delays
 
 UART framing rules:
 
@@ -131,6 +149,7 @@ Rules:
 3. Zero-length or incomplete lines return `EZO_ERR_PROTOCOL`.
 4. Buffer exhaustion before `\r` returns `EZO_ERR_BUFFER_TOO_SMALL`.
 5. v1 does not expose a raw UART response API.
+6. v1 does not expose a UART C++ wrapper.
 
 ## Validation Boundaries
 
@@ -139,11 +158,11 @@ Current validation covers:
 - I2C core behavior with fake transports
 - UART core behavior with fake transports
 - Linux I2C adapter behavior on host builds
-- Arduino I2C example compile validation
+- Arduino I2C and UART example compile validation through PlatformIO
 
 Current gap by design:
 
-- UART platform adapters are not part of the current baseline yet
+- POSIX UART adapter support is not part of the current baseline yet
 
 ## Explicit Non-Goals
 
@@ -153,4 +172,5 @@ Not part of the current baseline:
 - async/state-machine behavior
 - hidden retries or hidden delays
 - compatibility with the legacy Atlas API shape
-- UART Arduino or POSIX adapter packaging
+- POSIX UART adapter
+- UART C++ wrapper

@@ -1,11 +1,12 @@
 {
   "$schema": "https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/schema/library.json",
-  "name": "ezo-i2c-driver",
-  "version": "0.1.0",
-  "description": "Cross-platform EZO I2C driver with a C99 core and Arduino adapter",
+  "name": "ezo-driver",
+  "version": "0.2.0",
+  "description": "Cross-platform Atlas Scientific EZO driver with I2C and UART cores plus Arduino adapters",
   "keywords": [
     "ezo",
     "i2c",
+    "uart",
     "atlas scientific",
     "arduino"
   ],
@@ -14,8 +15,11 @@
   ],
   "platforms": "*",
   "headers": [
+    "ezo.h",
     "ezo_i2c.h",
     "ezo_i2c.hpp",
-    "ezo_i2c_arduino_wire.h"
+    "ezo_i2c_arduino_wire.h",
+    "ezo_uart.h",
+    "ezo_uart_arduino_stream.h"
   ]
 }

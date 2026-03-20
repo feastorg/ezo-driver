@@ -3,8 +3,10 @@
 Cross-platform Atlas Scientific EZO driver with:
 
 - a platform-agnostic C99 core
+- explicit I2C and UART driver families
 - a thin C++11 wrapper for the I2C surface
 - Arduino `TwoWire` integration for I2C
+- Arduino `Stream` integration for UART
 - Linux I2C support
 - host-side tests and Arduino compile CI
 
@@ -16,13 +18,14 @@ Current implementation includes:
 
 - shared `ezo.h` surface for results, timing hints, and numeric parsing
 - complete I2C core with text and raw response decoding
-- UART core with line-based response handling
-- Arduino and Linux integrations for I2C
-- focused Arduino and Linux examples for the I2C path
+- complete UART core with line-based response handling
+- Arduino integrations for both I2C and UART
+- Linux I2C integration
+- focused Arduino and Linux examples
 - host-side C and C++ tests plus fake transport coverage
 - PlatformIO Arduino compile validation in CI
 
-UART platform adapters are intentionally not part of the current baseline yet.
+UART platform support is currently Arduino-only. POSIX UART remains a later follow-up.
 
 ## Layout
 
@@ -46,19 +49,21 @@ ctest --test-dir build --output-on-failure
 ## Validation
 
 - host CI builds and runs C and C++ tests for the shared, I2C, and UART core paths
-- Linux adapter behavior is covered by host-side tests
-- PlatformIO CI compile-checks Arduino I2C examples for `uno`, `nanoatmega328`, and `esp32dev`
+- Linux I2C adapter behavior is covered by host-side tests
+- PlatformIO CI compile-checks Arduino I2C and UART examples for `uno`, `nanoatmega328`, and `esp32dev`
 - Arduino IDE validation is manual by design
 
 ## Packaging
 
-- `library.properties`: Arduino tooling metadata
-- `library.json`: PlatformIO metadata
+- `library.properties`: Arduino tooling metadata for the combined library
+- `library.json`: PlatformIO metadata for the combined library
 
 ## Examples
 
 - [`examples/arduino_smoke/arduino_smoke.ino`](./examples/arduino_smoke/arduino_smoke.ino): minimal I2C C API smoke path
 - [`examples/arduino_read/arduino_read.ino`](./examples/arduino_read/arduino_read.ino): I2C C++ wrapper example
+- [`examples/arduino_uart_smoke/arduino_uart_smoke.ino`](./examples/arduino_uart_smoke/arduino_uart_smoke.ino): minimal UART C API smoke path
+- [`examples/arduino_uart_read/arduino_uart_read.ino`](./examples/arduino_uart_read/arduino_uart_read.ino): UART read flow with explicit timing and parse path
 - [`examples/linux_read.c`](./examples/linux_read.c): minimal Linux I2C transport example
 
 ## Entry Points
@@ -68,18 +73,20 @@ Primary public headers:
 - [`src/ezo.h`](./src/ezo.h)
 - [`src/ezo_i2c.h`](./src/ezo_i2c.h)
 - [`src/ezo_i2c.hpp`](./src/ezo_i2c.hpp)
-- [`src/ezo_uart.h`](./src/ezo_uart.h)
 - [`src/ezo_i2c_arduino_wire.h`](./src/ezo_i2c_arduino_wire.h)
 - [`src/ezo_i2c_linux_i2c.h`](./src/ezo_i2c_linux_i2c.h)
+- [`src/ezo_uart.h`](./src/ezo_uart.h)
+- [`src/ezo_uart_arduino_stream.h`](./src/ezo_uart_arduino_stream.h)
 
 Primary implementation files:
 
 - [`src/ezo.c`](./src/ezo.c)
 - [`src/ezo_common.c`](./src/ezo_common.c)
 - [`src/ezo_i2c.c`](./src/ezo_i2c.c)
-- [`src/ezo_uart.c`](./src/ezo_uart.c)
 - [`src/ezo_i2c_arduino_wire.cpp`](./src/ezo_i2c_arduino_wire.cpp)
 - [`platform/linux/ezo_i2c_linux_i2c.c`](./platform/linux/ezo_i2c_linux_i2c.c)
+- [`src/ezo_uart.c`](./src/ezo_uart.c)
+- [`src/ezo_uart_arduino_stream.cpp`](./src/ezo_uart_arduino_stream.cpp)
 
 ## Docs
 
@@ -95,4 +102,5 @@ Intentionally out of scope for the current baseline:
 - async/state-machine behavior
 - hidden retries or hidden delays
 - compatibility with the legacy Atlas API shape
-- UART Arduino or POSIX platform adapters
+- UART POSIX adapter
+- UART C++ wrapper

@@ -10,9 +10,10 @@ Inside `src/`:
 - `ezo_common.h`, `ezo_common.c`: internal shared formatting and parsing helpers
 - `ezo_i2c.h`, `ezo_i2c.c`: I2C C core
 - `ezo_i2c.hpp`: thin I2C C++ wrapper
-- `ezo_uart.h`, `ezo_uart.c`: UART C core
 - `ezo_i2c_arduino_wire.h`, `ezo_i2c_arduino_wire.cpp`: Arduino `TwoWire` I2C adapter
 - `ezo_i2c_linux_i2c.h`: Linux I2C adapter public header
+- `ezo_uart.h`, `ezo_uart.c`: UART C core
+- `ezo_uart_arduino_stream.h`, `ezo_uart_arduino_stream.cpp`: Arduino `Stream` UART adapter
 
 Host-only implementation code lives outside `src/`:
 
@@ -64,7 +65,7 @@ Everything else is supporting material:
 
 6. Platform integrations
    - convert platform APIs into the transport callback contracts
-   - current integrations: Arduino `TwoWire` and Linux file-descriptor I2C
+   - current integrations: Arduino `TwoWire`, Arduino `Stream`, and Linux file-descriptor I2C
 
 ## Transport Boundary
 
@@ -84,12 +85,14 @@ The public API is split into:
 - shared public helpers in `src/ezo.h`
 - I2C API in `src/ezo_i2c.h` and `src/ezo_i2c.hpp`
 - UART API in `src/ezo_uart.h`
+- Arduino integration headers in `src/ezo_i2c_arduino_wire.h` and `src/ezo_uart_arduino_stream.h`
 
 Current surface:
 
 - shared timing and numeric parsing helpers
 - I2C device init, command send helpers, text reads, raw reads
 - UART device init, command send helpers, line reads, discard hook
+- Arduino I2C and UART adapter shims
 
 Explicit non-goals for the current baseline:
 
@@ -97,15 +100,16 @@ Explicit non-goals for the current baseline:
 - async/state-machine APIs
 - hidden retries or hidden sleeps
 - compatibility with the legacy Atlas API shape
-- UART platform adapters before the core contract settles
+- POSIX UART adapter
+- UART C++ wrapper
 
 ## Validation
 
 Validation is split across:
 
 - host-side C and C++ tests against fake transports
-- Linux adapter behavior tests on host builds
-- PlatformIO Arduino compile coverage for the I2C examples
+- Linux I2C adapter behavior tests on host builds
+- PlatformIO Arduino compile coverage for both I2C and UART examples
 - manual Arduino IDE validation
 
 ## Packaging
@@ -119,7 +123,7 @@ Packaging/distribution surfaces:
 - `library.properties` for Arduino tooling
 - `library.json` for PlatformIO
 
-Current packaging is still centered on the I2C Arduino surface. UART platform packaging belongs to the next phase.
+Arduino packaging now covers both the I2C and UART Arduino-facing headers. Host-only Linux support remains a CMake-side concern.
 
 ## Handoff Notes
 
@@ -129,7 +133,10 @@ A new developer should treat these files as the main entry points:
 - `src/ezo.h` for shared types and helpers
 - `src/ezo_i2c.h` for the I2C C API
 - `src/ezo_i2c.hpp` for the I2C C++ wrapper
+- `src/ezo_i2c_arduino_wire.h` for Arduino I2C integration
+- `src/ezo_i2c_linux_i2c.h` for Linux I2C integration
 - `src/ezo_uart.h` for the UART C API
+- `src/ezo_uart_arduino_stream.h` for Arduino UART integration
 - `src/ezo_common.c` for shared helper behavior
 - `src/ezo_i2c.c` for I2C-specific core behavior
 - `src/ezo_uart.c` for UART-specific core behavior

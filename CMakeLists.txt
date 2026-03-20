@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
   ezo_driver
-  VERSION 0.1.0
+  VERSION 0.2.0
   DESCRIPTION "Cross-platform Atlas Scientific EZO driver"
   LANGUAGES C CXX
 )
@@ -136,6 +136,17 @@ if(EZO_BUILD_ARDUINO_ADAPTER)
   )
 
   target_link_libraries(ezo_i2c_arduino_adapter PUBLIC ezo_core)
+
+  add_library(ezo_uart_arduino_adapter STATIC
+    src/ezo_uart_arduino_stream.cpp
+  )
+
+  target_include_directories(ezo_uart_arduino_adapter
+    PUBLIC
+      ${CMAKE_CURRENT_SOURCE_DIR}/src
+  )
+
+  target_link_libraries(ezo_uart_arduino_adapter PUBLIC ezo_core)
 endif()
 
 if(EZO_BUILD_EXAMPLES AND EZO_BUILD_LINUX_ADAPTER)
