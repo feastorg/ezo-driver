@@ -124,6 +124,11 @@ ezo_result_t ezo_product_get_timing_hint(ezo_product_id_t product_id,
                                          ezo_command_kind_t kind,
                                          ezo_timing_hint_t *timing_hint);
 
+ezo_result_t ezo_product_resolve_timing_hint(ezo_product_id_t product_id,
+                                             ezo_product_transport_t transport,
+                                             ezo_command_kind_t kind,
+                                             ezo_timing_hint_t *timing_hint);
+
 ezo_product_support_t ezo_product_get_support_tier(ezo_product_id_t product_id);
 
 int ezo_product_supports_capability(ezo_product_id_t product_id, uint32_t capability_flag);

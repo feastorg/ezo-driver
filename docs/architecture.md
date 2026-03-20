@@ -12,7 +12,9 @@ Inside `src/`:
 - `ezo_i2c.hpp`: thin I2C C++ wrapper
 - `ezo_i2c_arduino_wire.h`, `ezo_i2c_arduino_wire.cpp`: Arduino `TwoWire` I2C adapter
 - `ezo_i2c_linux_i2c.h`: Linux I2C adapter public header
+- `ezo_parse.h`, `ezo_parse.c`: shared query, CSV, and UART-sequence helpers
 - `ezo_product.h`, `ezo_product.c`: product identity and metadata layer
+- `ezo_schema.h`, `ezo_schema.c`: canonical output schemas and typed reading structs
 - `ezo_uart.h`, `ezo_uart.c`: UART C core
 - `ezo_uart_posix_serial.h`: POSIX UART adapter public header
 - `ezo_uart_arduino_stream.h`, `ezo_uart_arduino_stream.cpp`: Arduino `Stream` UART adapter
@@ -59,18 +61,24 @@ Everything else is supporting material:
 4. Product metadata layer
    - static registry for known products
    - device-info parsing and normalized identification
-   - support tiers, capabilities, defaults, and timing lookup
+   - support tiers, capabilities, defaults, timing lookup, and timing fallback
 
 5. UART core
    - line-oriented send flow
    - CR-terminated single-line read primitive
    - response classification and small sequence-oriented helpers
 
-6. C++ wrapper
+6. Shared product-facing parse/schema layer
+   - borrowed text spans and CSV/query parsing
+   - canonical field-order descriptors per product
+   - typed scalar and multi-output reading structs
+   - transport-neutral sequence state for higher-level UART workflows
+
+7. C++ wrapper
    - thin convenience layer over the I2C C API
    - no separate protocol logic
 
-7. Platform integrations
+8. Platform integrations
    - convert platform APIs into the transport callback contracts
    - current integrations: Arduino `TwoWire`, Arduino `Stream`, Linux file-descriptor I2C, and Linux host POSIX serial
 
@@ -90,8 +98,10 @@ That separation is intentional. The repo does not pretend I2C and UART are the s
 The public API is split into:
 
 - shared public helpers in `src/ezo.h`
+- shared parse helpers in `src/ezo_parse.h`
 - I2C API in `src/ezo_i2c.h` and `src/ezo_i2c.hpp`
 - product metadata API in `src/ezo_product.h`
+- shared schema API in `src/ezo_schema.h`
 - UART API in `src/ezo_uart.h`
 - POSIX UART adapter API in `src/ezo_uart_posix_serial.h`
 - Arduino integration headers in `src/ezo_i2c_arduino_wire.h` and `src/ezo_uart_arduino_stream.h`
@@ -99,8 +109,9 @@ The public API is split into:
 Current surface:
 
 - shared timing and numeric parsing helpers
+- shared query parsing, sequence-state, and schema helpers
 - I2C device init, command send helpers, text reads, raw reads
-- product IDs, metadata lookup, device-info parsing, timing lookup
+- product IDs, metadata lookup, device-info parsing, timing lookup, timing fallback
 - UART device init, command send helpers, line reads, discard hook
 - Arduino I2C and UART adapter shims
 - Linux I2C and Linux host POSIX UART adapters
@@ -143,16 +154,20 @@ A new developer should treat these files as the main entry points:
 - `docs/canonical-library-direction.md` for the long-term product-aware direction beyond the current transport baseline
 - `docs/ezo/README.md` for product-family and protocol context
 - `src/ezo.h` for shared types and helpers
+- `src/ezo_parse.h` for shared text, query, and sequence helpers
 - `src/ezo_i2c.h` for the I2C C API
 - `src/ezo_i2c.hpp` for the I2C C++ wrapper
 - `src/ezo_i2c_arduino_wire.h` for Arduino I2C integration
 - `src/ezo_i2c_linux_i2c.h` for Linux I2C integration
 - `src/ezo_product.h` for product IDs, metadata, and device-info parsing
+- `src/ezo_schema.h` for canonical field-order and typed reading helpers
 - `src/ezo_uart.h` for the UART C API
 - `src/ezo_uart_posix_serial.h` for POSIX UART integration
 - `src/ezo_uart_arduino_stream.h` for Arduino UART integration
 - `src/ezo_common.c` for shared helper behavior
 - `src/ezo_i2c.c` for I2C-specific core behavior
+- `src/ezo_parse.c` for shared query/CSV parsing and UART sequence state
 - `src/ezo_product.c` for the static product registry and lookup logic
+- `src/ezo_schema.c` for canonical product schemas and typed reading helpers
 - `src/ezo_uart.c` for UART-specific core behavior
 - `platform/linux/ezo_uart_posix_serial.c` for POSIX UART adapter behavior

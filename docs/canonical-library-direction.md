@@ -12,13 +12,14 @@ The current baseline is transport-complete for the core library shape:
 
 - shared public `ezo.h` surface
 - formal product identity and metadata layer in `src/ezo_product.*`
+- shared parser, sequence, and schema infrastructure in `src/ezo_parse.*` and `src/ezo_schema.*`
 - explicit I2C and UART C driver families
 - thin I2C C++ wrapper
 - Arduino adapters for I2C and UART
 - Linux I2C adapter and Linux host POSIX UART adapter
 - curated EZO product and protocol docs under `docs/ezo/`
 
-That baseline is good enough to stop transport reshaping and move up into shared parser and typed product work.
+That baseline is good enough to stop transport reshaping and move into typed product modules.
 
 ## Core conclusion
 
@@ -55,7 +56,7 @@ The next durable layer above the current baseline should look like this:
 6. thin C++ convenience wrappers where justified
 7. platform adapters
 
-The key missing foundation is no longer product identity. The next missing foundation is the reusable parser and operation infrastructure that typed product modules will need.
+The key missing foundation is no longer shared parser infrastructure. The next missing foundation is the first set of typed product modules built on top of it.
 
 ## What the product layer should provide
 
@@ -106,9 +107,8 @@ The first milestone should be typed read support. Full typed control and calibra
 
 The current baseline is still missing:
 
-- shared parser and response-sequence infrastructure above the transport cores
 - typed parsers and command builders per product family
-- typed read and control surfaces above the metadata layer
+- typed read and control surfaces above the metadata and schema layers
 - a tracked support matrix built on the current support-tier model
 - a matching UART C++ wrapper only if the C surface justifies it
 

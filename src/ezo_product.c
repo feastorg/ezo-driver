@@ -476,6 +476,26 @@ ezo_result_t ezo_product_get_timing_hint(ezo_product_id_t product_id,
   return EZO_OK;
 }
 
+ezo_result_t ezo_product_resolve_timing_hint(ezo_product_id_t product_id,
+                                             ezo_product_transport_t transport,
+                                             ezo_command_kind_t kind,
+                                             ezo_timing_hint_t *timing_hint) {
+  ezo_result_t result = EZO_OK;
+
+  if (timing_hint == NULL) {
+    return EZO_ERR_INVALID_ARGUMENT;
+  }
+
+  if (product_id != EZO_PRODUCT_UNKNOWN && transport != EZO_PRODUCT_TRANSPORT_UNKNOWN) {
+    result = ezo_product_get_timing_hint(product_id, transport, kind, timing_hint);
+    if (result == EZO_OK) {
+      return EZO_OK;
+    }
+  }
+
+  return ezo_get_timing_hint_for_command_kind(kind, timing_hint);
+}
+
 ezo_product_support_t ezo_product_get_support_tier(ezo_product_id_t product_id) {
   const ezo_product_metadata_t *metadata = ezo_product_get_metadata(product_id);
   return metadata != NULL ? metadata->support_tier : EZO_PRODUCT_SUPPORT_UNKNOWN;

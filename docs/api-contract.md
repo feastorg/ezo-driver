@@ -5,6 +5,8 @@ Status: accepted
 Source of truth:
 
 - shared C API: `src/ezo.h`
+- shared parse API: `src/ezo_parse.h`
+- shared schema API: `src/ezo_schema.h`
 - I2C C API: `src/ezo_i2c.h`
 - I2C C++ API: `src/ezo_i2c.hpp`
 - I2C Arduino adapter API: `src/ezo_i2c_arduino_wire.h`
@@ -65,6 +67,7 @@ Primary product entry points:
 - `ezo_product_get_metadata()`
 - `ezo_product_get_metadata_by_short_code()`
 - `ezo_product_get_timing_hint()`
+- `ezo_product_resolve_timing_hint()`
 - `ezo_product_get_support_tier()`
 - `ezo_product_supports_capability()`
 - `ezo_product_has_command_family()`
@@ -77,6 +80,42 @@ Product metadata rules:
 4. Default UART-state metadata is bootstrapping guidance only; higher layers still verify or configure runtime state when determinism matters.
 5. Firmware-sensitive defaults may be recorded as query-required instead of as a guessed fact.
 6. The metadata layer is facts and lookups only; it does not add typed product command helpers yet.
+7. `ezo_product_resolve_timing_hint()` prefers product-specific timing when the metadata can answer the request and otherwise falls back to the shared command-kind hint.
+
+## Shared Parse And Schema Surface
+
+The shared parse/schema layer provides:
+
+- borrowed text spans for non-owning field views
+- CSV and `?Prefix,...` query parsing helpers
+- a small UART sequence state helper above one-line reads
+- canonical output-schema descriptors for the initial six products
+- scalar and multi-output reading structs
+
+Primary shared entry points:
+
+- `ezo_text_span_t`
+- `ezo_parse_text_span_double()`
+- `ezo_parse_csv_fields()`
+- `ezo_parse_query_response()`
+- `ezo_parse_prefixed_fields()`
+- `ezo_uart_sequence_init()`
+- `ezo_uart_sequence_push_line()`
+- `ezo_uart_sequence_is_complete()`
+- `ezo_schema_get_output_schema()`
+- `ezo_schema_count_enabled_fields()`
+- `ezo_schema_parse_scalar_reading()`
+- `ezo_schema_parse_multi_output_reading()`
+
+Rules:
+
+1. Text spans borrow caller-owned buffers and are not null-terminated copies.
+2. `ezo_parse_query_response()` only handles the shared `?Prefix,...` response shape; it is not a universal parser for every device response.
+3. Query and CSV helpers trim surrounding ASCII whitespace on each field.
+4. Empty CSV fields are preserved as zero-length spans instead of being discarded.
+5. `ezo_uart_sequence_t` tracks sequence state only; it does not read from transports or interpret product-specific workflow meaning.
+6. Output schemas encode canonical field order, not guaranteed runtime configuration.
+7. Multi-output parsing requires an explicit enabled-field mask from the caller or higher layer.
 
 ## I2C Surface
 
@@ -218,6 +257,7 @@ Current validation covers:
 
 - I2C core behavior with fake transports
 - product metadata and device-info parsing with host-side tests
+- shared parse, schema, and timing-resolution behavior with host-side tests
 - UART core behavior with fake transports
 - Linux I2C and Linux host POSIX UART adapter behavior on host builds
 - Arduino I2C and UART example compile validation through PlatformIO
