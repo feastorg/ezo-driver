@@ -3,12 +3,10 @@
 #include <ezo_i2c_arduino_wire.h>
 #include <ezo_i2c.hpp>
 
-namespace {
+static ezo_arduino_wire_context_t wire_context;
+static ezo_i2c::Device ph_device;
 
-ezo_arduino_wire_context_t wire_context;
-ezo_i2c::Device ph_device;
-
-void fail_fast(ezo_result_t result) {
+static void fail_fast(ezo_result_t result) {
   if (result == EZO_OK) {
     return;
   }
@@ -18,8 +16,6 @@ void fail_fast(ezo_result_t result) {
   while (true) {
   }
 }
-
-}  // namespace
 
 void setup() {
   ezo_i2c::TimingHint hint;

@@ -17,8 +17,7 @@ typedef enum {
   EZO_ERR_BUFFER_TOO_SMALL,
   EZO_ERR_TRANSPORT,
   EZO_ERR_PROTOCOL,
-  EZO_ERR_PARSE,
-  EZO_ERR_STATE
+  EZO_ERR_PARSE
 } ezo_result_t;
 
 typedef enum {
