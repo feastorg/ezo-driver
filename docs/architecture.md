@@ -24,7 +24,7 @@ Everything else is supporting material:
 - `platform/`: non-Arduino platform code
 - `examples/`: small integration examples
 - `tests/`: host-side tests and fakes
-- `docs/`: tracked implementation docs
+- `docs/`: tracked implementation docs and curated EZO product/protocol notes
 - `_reference/`: legacy reference only
 
 ## Rules
@@ -130,6 +130,7 @@ Arduino packaging now covers both the I2C and UART Arduino-facing headers. Host-
 A new developer should treat these files as the main entry points:
 
 - `README.md` for first-contact orientation
+- `docs/ezo/README.md` for product-family and protocol context
 - `src/ezo.h` for shared types and helpers
 - `src/ezo_i2c.h` for the I2C C API
 - `src/ezo_i2c.hpp` for the I2C C++ wrapper

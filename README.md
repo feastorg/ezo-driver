@@ -90,6 +90,7 @@ Primary implementation files:
 
 ## Docs
 
+- [`docs/ezo/README.md`](./docs/ezo/README.md): curated EZO product and protocol context for this repo
 - [`docs/architecture.md`](./docs/architecture.md): structure, boundaries, packaging, validation
 - [`docs/api-contract.md`](./docs/api-contract.md): behavioral contract for the public API
 - [`CHANGELOG.md`](./CHANGELOG.md): tracked change history
