@@ -15,6 +15,7 @@ option(EZO_BUILD_ARDUINO_ADAPTER "Build Arduino adapter sources" OFF)
 option(EZO_BUILD_LINUX_ADAPTER "Build Linux adapter sources" OFF)
 
 add_library(ezo_i2c_core STATIC
+  src/ezo_common.c
   src/ezo_i2c.c
 )
 

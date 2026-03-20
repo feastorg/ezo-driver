@@ -6,6 +6,7 @@ The repo is organized around one canonical library root: `src/`.
 
 Inside `src/`:
 
+- `ezo_common.c`, `ezo_common.h`: internal shared formatting and parsing helpers
 - `ezo_i2c.c`: core C99 implementation
 - `ezo_i2c.h`, `ezo_i2c.hpp`: public core headers
 - `ezo_i2c_arduino_wire.h`: Arduino sketch-facing transport header
@@ -35,17 +36,21 @@ Everything else is supporting material:
 
 ## Layers
 
-1. Core
-   - protocol formatting
-   - response decoding
-   - numeric helpers
+1. Shared common layer
+   - fixed-point command formatting
+   - decimal parsing
+   - small transport-neutral helpers
+
+2. I2C core
+   - I2C command send flow
+   - I2C response decoding
    - timing hints
 
-2. C++ wrapper
+3. C++ wrapper
    - header-only convenience layer over the C core
    - no separate protocol logic
 
-3. Platform integrations
+4. Platform integrations
    - convert platform I2C APIs into the transport callback contract
    - current integrations: Arduino `TwoWire`, Linux file descriptor transport
 
@@ -104,4 +109,5 @@ A new developer should treat these files as the main entry points:
 - `src/ezo_i2c.hpp` for the C++ wrapper
 - `src/ezo_i2c_arduino_wire.h` for Arduino sketch-facing integration
 - `src/ezo_i2c_linux_i2c.h` for Linux-side transport integration
-- `src/ezo_i2c.c` for core behavior
+- `src/ezo_common.c` for shared helper behavior
+- `src/ezo_i2c.c` for I2C-specific core behavior
