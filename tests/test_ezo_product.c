@@ -80,10 +80,14 @@ static void test_product_metadata_registry_exposes_defaults_and_support_tiers(vo
   assert(ph->support_tier == EZO_PRODUCT_SUPPORT_TYPED_READ);
 
   assert(ec != NULL);
+  assert(ec->support_tier == EZO_PRODUCT_SUPPORT_TYPED_READ);
   assert(ec->default_output_schema == EZO_PRODUCT_OUTPUT_SCHEMA_QUERY_REQUIRED);
   assert(ec->default_output_count == 0);
 
+  assert(ezo_product_get_support_tier(EZO_PRODUCT_DO) == EZO_PRODUCT_SUPPORT_TYPED_READ);
+
   assert(hum != NULL);
+  assert(hum->support_tier == EZO_PRODUCT_SUPPORT_TYPED_READ);
   assert(hum->default_output_schema == EZO_PRODUCT_OUTPUT_SCHEMA_PRIMARY_ONLY);
   assert(hum->default_output_count == 1);
 

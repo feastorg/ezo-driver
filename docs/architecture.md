@@ -8,6 +8,9 @@ Inside `src/`:
 
 - `ezo.h`, `ezo.c`: shared public results, timing hints, and numeric parsing
 - `ezo_common.h`, `ezo_common.c`: internal shared formatting and parsing helpers
+- `ezo_do.h`, `ezo_do.c`: typed DO product module
+- `ezo_ec.h`, `ezo_ec.c`: typed EC product module
+- `ezo_hum.h`, `ezo_hum.c`: typed HUM product module
 - `ezo_i2c.h`, `ezo_i2c.c`: I2C C core
 - `ezo_i2c.hpp`: thin I2C C++ wrapper
 - `ezo_i2c_arduino_wire.h`, `ezo_i2c_arduino_wire.cpp`: Arduino `TwoWire` I2C adapter
@@ -77,10 +80,13 @@ Everything else is supporting material:
    - typed scalar and multi-output reading structs
    - transport-neutral sequence state for higher-level UART workflows
 
-7. Typed scalar product modules
+7. Typed product modules
    - pH read, temperature, calibration-status, and slope helpers
    - ORP read, calibration, and extended-scale helpers
    - RTD read, scale, and calibration-status helpers
+   - EC multi-output read, output-config, temperature, probe-K, and TDS-factor helpers
+   - DO multi-output read, output-config, temperature, salinity, and pressure helpers
+   - HUM multi-output read and output-config helpers
    - explicit I2C and UART entry points with no fake unified device
 
 8. C++ wrapper
@@ -107,6 +113,7 @@ That separation is intentional. The repo does not pretend I2C and UART are the s
 The public API is split into:
 
 - shared public helpers in `src/ezo.h`
+- multi-output product APIs in `src/ezo_ec.h`, `src/ezo_do.h`, and `src/ezo_hum.h`
 - shared parse helpers in `src/ezo_parse.h`
 - I2C API in `src/ezo_i2c.h` and `src/ezo_i2c.hpp`
 - scalar product APIs in `src/ezo_ph.h`, `src/ezo_orp.h`, and `src/ezo_rtd.h`
@@ -122,15 +129,15 @@ Current surface:
 - shared query parsing, sequence-state, and schema helpers
 - I2C device init, command send helpers, text reads, raw reads
 - product IDs, metadata lookup, device-info parsing, timing lookup, timing fallback
-- typed pH, ORP, and RTD read/query helpers over both transports
+- typed read/query helpers over both transports for pH, ORP, RTD, EC, DO, and HUM
 - UART device init, command send helpers, line reads, discard hook
 - Arduino I2C and UART adapter shims
 - Linux I2C and Linux host POSIX UART adapters
 
 Explicit non-goals for the current baseline:
 
-- typed EC, DO, and HUM helper APIs
 - broad typed control-plane workflows
+- advanced per-product helpers such as calibration transfer and HUM temperature calibration
 - async/state-machine APIs
 - hidden retries or hidden sleeps
 - compatibility with the legacy Atlas API shape
@@ -166,6 +173,9 @@ A new developer should treat these files as the main entry points:
 - `docs/canonical-library-direction.md` for the long-term product-aware direction beyond the current transport baseline
 - `docs/ezo/README.md` for product-family and protocol context
 - `src/ezo.h` for shared types and helpers
+- `src/ezo_do.h` for typed DO helpers
+- `src/ezo_ec.h` for typed EC helpers
+- `src/ezo_hum.h` for typed HUM helpers
 - `src/ezo_parse.h` for shared text, query, and sequence helpers
 - `src/ezo_i2c.h` for the I2C C API
 - `src/ezo_i2c.hpp` for the I2C C++ wrapper
@@ -180,6 +190,9 @@ A new developer should treat these files as the main entry points:
 - `src/ezo_uart_posix_serial.h` for POSIX UART integration
 - `src/ezo_uart_arduino_stream.h` for Arduino UART integration
 - `src/ezo_common.c` for shared helper behavior
+- `src/ezo_do.c` for typed DO helper behavior
+- `src/ezo_ec.c` for typed EC helper behavior
+- `src/ezo_hum.c` for typed HUM helper behavior
 - `src/ezo_i2c.c` for I2C-specific core behavior
 - `src/ezo_orp.c` for typed ORP helper behavior
 - `src/ezo_ph.c` for typed pH helper behavior

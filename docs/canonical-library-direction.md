@@ -13,14 +13,14 @@ The current baseline is transport-complete for the core library shape:
 - shared public `ezo.h` surface
 - formal product identity and metadata layer in `src/ezo_product.*`
 - shared parser, sequence, and schema infrastructure in `src/ezo_parse.*` and `src/ezo_schema.*`
-- typed scalar product modules in `src/ezo_ph.*`, `src/ezo_orp.*`, and `src/ezo_rtd.*`
+- typed product modules in `src/ezo_ph.*`, `src/ezo_orp.*`, `src/ezo_rtd.*`, `src/ezo_ec.*`, `src/ezo_do.*`, and `src/ezo_hum.*`
 - explicit I2C and UART C driver families
 - thin I2C C++ wrapper
 - Arduino adapters for I2C and UART
 - Linux I2C adapter and Linux host POSIX UART adapter
 - curated EZO product and protocol docs under `docs/ezo/`
 
-That baseline is good enough to stop transport reshaping and move into the configurable multi-output product families and broader control-plane work.
+That baseline is good enough to stop transport reshaping and move into the broader shared control-plane work and the remaining advanced per-product surfaces.
 
 ## Core conclusion
 
@@ -57,7 +57,7 @@ The next durable layer above the current baseline should look like this:
 6. thin C++ convenience wrappers where justified
 7. platform adapters
 
-The key missing foundation is no longer the first typed product modules. The next missing foundation is the multi-output product layer and the shared control/admin surface above it.
+The key missing foundation is no longer the multi-output product layer. The next missing foundation is the shared control/admin surface above the current typed modules.
 
 ## What the product layer should provide
 
@@ -88,29 +88,20 @@ This avoids both duplicated product logic and fake universal transport abstracti
 
 ## Rollout order
 
-Not all products should be typed in the same order.
+The typed rollout order is now established:
 
-Start with scalar-output products:
+- scalar-output products first: pH, ORP, RTD
+- configurable multi-output products second: EC, DO, HUM
 
-- pH
-- ORP
-- RTD
-
-Then move to configurable multi-output products:
-
-- EC
-- DO
-- HUM
-
-The first milestone should be typed read support. Full typed control and calibration support can land later.
+The next milestone is not more basic typed reads. The next milestone is broader shared control plus the remaining advanced product-specific helpers.
 
 ## Supporting work still needed
 
 The current baseline is still missing:
 
-- typed EC, DO, and HUM product modules
 - broader typed control and admin surfaces above the metadata and schema layers
 - a tracked support matrix built on the current support-tier model
+- remaining advanced product-specific helpers such as calibration transfer, richer calibration/config surfaces, and HUM temperature calibration
 - a matching UART C++ wrapper only if the C surface justifies it
 
 ## Explicit non-goals

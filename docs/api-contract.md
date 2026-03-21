@@ -5,6 +5,9 @@ Status: accepted
 Source of truth:
 
 - shared C API: `src/ezo.h`
+- DO product API: `src/ezo_do.h`
+- EC product API: `src/ezo_ec.h`
+- HUM product API: `src/ezo_hum.h`
 - shared parse API: `src/ezo_parse.h`
 - shared schema API: `src/ezo_schema.h`
 - I2C C API: `src/ezo_i2c.h`
@@ -82,7 +85,7 @@ Product metadata rules:
 3. Syntactically valid but unsupported `i` responses parse successfully and map to `EZO_PRODUCT_UNKNOWN`.
 4. Default UART-state metadata is bootstrapping guidance only; higher layers still verify or configure runtime state when determinism matters.
 5. Firmware-sensitive defaults may be recorded as query-required instead of as a guessed fact.
-6. The metadata layer is facts and lookups only; it does not add typed product command helpers yet.
+6. The metadata layer is facts and lookups only; typed product helpers live in separate product modules.
 7. `ezo_product_resolve_timing_hint()` prefers product-specific timing when the metadata can answer the request and otherwise falls back to the shared command-kind hint.
 
 ## Shared Parse And Schema Surface
@@ -120,13 +123,16 @@ Rules:
 6. Output schemas encode canonical field order, not guaranteed runtime configuration.
 7. Multi-output parsing requires an explicit enabled-field mask from the caller or higher layer.
 
-## Scalar Product Surface
+## Product Module Surface
 
-The scalar product layer currently provides:
+The product-module layer currently provides:
 
 - typed pH helpers in `src/ezo_ph.h`
 - typed ORP helpers in `src/ezo_orp.h`
 - typed RTD helpers in `src/ezo_rtd.h`
+- typed EC helpers in `src/ezo_ec.h`
+- typed DO helpers in `src/ezo_do.h`
+- typed HUM helpers in `src/ezo_hum.h`
 
 Common shape:
 
@@ -142,7 +148,9 @@ Rules:
 3. Typed read/query helpers assume the device returned the expected success payload shape; callers that need raw status distinctions still use the transport-level APIs directly.
 4. UART helpers may consume more than one line when a product response sequence requires it.
 5. RTD reading helpers require the caller to provide the current temperature scale unless that scale was queried separately first.
-6. Current typed coverage is limited to pH, ORP, and RTD; EC, DO, and HUM remain future product-module work.
+6. Multi-output typed reading helpers require an explicit enabled-output mask from the caller and do not hide an output-configuration query internally.
+7. EC, DO, and HUM output-configuration helpers are product-specific; the shared parse/schema layer does not expose a public generic output-config parser.
+8. Current Phase 5 typed coverage for EC/DO/HUM is limited to typed reads, output selection, and measurement-critical compensation/configuration helpers; broader control/admin and advanced calibration-transfer work remains separate.
 
 ## I2C Surface
 
@@ -285,7 +293,7 @@ Current validation covers:
 - I2C core behavior with fake transports
 - product metadata and device-info parsing with host-side tests
 - shared parse, schema, and timing-resolution behavior with host-side tests
-- typed pH, ORP, and RTD helpers with host-side fake-transport tests
+- typed product helpers for pH, ORP, RTD, EC, DO, and HUM with host-side fake-transport tests
 - UART core behavior with fake transports
 - Linux I2C and Linux host POSIX UART adapter behavior on host builds
 - Arduino I2C and UART example compile validation through PlatformIO
@@ -298,8 +306,8 @@ Current gap by design:
 
 Not part of the current baseline:
 
-- typed EC/DO/HUM helper APIs
 - broad typed control-plane workflows
+- advanced per-product helpers such as calibration transfer and HUM temperature calibration
 - async/state-machine behavior
 - hidden retries or hidden delays
 - compatibility with the legacy Atlas API shape

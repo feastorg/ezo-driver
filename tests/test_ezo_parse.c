@@ -119,8 +119,8 @@ static void test_schema_get_output_schema_uses_canonical_field_order(void) {
   assert(ezo_schema_get_output_schema(EZO_PRODUCT_HUM, &hum_schema) == EZO_OK);
   assert(hum_schema.field_count == 3);
   assert(hum_schema.fields[0] == EZO_MEASUREMENT_FIELD_RELATIVE_HUMIDITY);
-  assert(hum_schema.fields[1] == EZO_MEASUREMENT_FIELD_DEW_POINT);
-  assert(hum_schema.fields[2] == EZO_MEASUREMENT_FIELD_AIR_TEMPERATURE);
+  assert(hum_schema.fields[1] == EZO_MEASUREMENT_FIELD_AIR_TEMPERATURE);
+  assert(hum_schema.fields[2] == EZO_MEASUREMENT_FIELD_DEW_POINT);
 }
 
 static void test_schema_parse_scalar_reading(void) {

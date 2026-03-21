@@ -24,8 +24,8 @@ static const ezo_schema_registry_entry_t ezo_schema_registry[] = {
     {EZO_PRODUCT_HUM,
      3,
      {EZO_MEASUREMENT_FIELD_RELATIVE_HUMIDITY,
-      EZO_MEASUREMENT_FIELD_DEW_POINT,
-      EZO_MEASUREMENT_FIELD_AIR_TEMPERATURE}},
+      EZO_MEASUREMENT_FIELD_AIR_TEMPERATURE,
+      EZO_MEASUREMENT_FIELD_DEW_POINT}},
 };
 
 static const ezo_schema_registry_entry_t *ezo_schema_find_entry(

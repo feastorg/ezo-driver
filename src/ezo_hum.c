@@ -1,0 +1,339 @@
+#include "ezo_hum.h"
+
+#include "ezo_common.h"
+#include "ezo_parse.h"
+#include "ezo_product.h"
+#include "ezo_schema.h"
+
+#include <string.h>
+
+enum {
+  EZO_HUM_RESPONSE_BUFFER_LEN = 64
+};
+
+static ezo_result_t ezo_hum_copy_command(char *buffer, size_t buffer_len, const char *command) {
+  size_t command_len = 0;
+
+  if (buffer == NULL || buffer_len == 0 || command == NULL) {
+    return EZO_ERR_INVALID_ARGUMENT;
+  }
+
+  command_len = strlen(command);
+  if (command_len + 1U > buffer_len) {
+    return EZO_ERR_BUFFER_TOO_SMALL;
+  }
+
+  memcpy(buffer, command, command_len + 1U);
+  return EZO_OK;
+}
+
+static ezo_result_t ezo_hum_send_i2c_command(ezo_i2c_device_t *device,
+                                             const char *command,
+                                             ezo_command_kind_t kind,
+                                             ezo_timing_hint_t *timing_hint) {
+  ezo_timing_hint_t local_hint;
+  ezo_result_t result = ezo_product_resolve_timing_hint(EZO_PRODUCT_HUM,
+                                                        EZO_PRODUCT_TRANSPORT_I2C,
+                                                        kind,
+                                                        timing_hint != NULL ? timing_hint
+                                                                            : &local_hint);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  return ezo_send_command(device, command, kind, NULL);
+}
+
+static ezo_result_t ezo_hum_send_uart_command(ezo_uart_device_t *device,
+                                              const char *command,
+                                              ezo_command_kind_t kind,
+                                              ezo_timing_hint_t *timing_hint) {
+  ezo_timing_hint_t local_hint;
+  ezo_result_t result = ezo_product_resolve_timing_hint(EZO_PRODUCT_HUM,
+                                                        EZO_PRODUCT_TRANSPORT_UART,
+                                                        kind,
+                                                        timing_hint != NULL ? timing_hint
+                                                                            : &local_hint);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  return ezo_uart_send_command(device, command, kind, NULL);
+}
+
+static ezo_result_t ezo_hum_read_i2c_text(ezo_i2c_device_t *device,
+                                          char *buffer,
+                                          size_t buffer_len,
+                                          size_t *response_len) {
+  ezo_device_status_t status = EZO_STATUS_UNKNOWN;
+  ezo_result_t result = ezo_read_response(device, buffer, buffer_len, response_len, &status);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  if (status != EZO_STATUS_SUCCESS) {
+    return EZO_ERR_PROTOCOL;
+  }
+
+  return EZO_OK;
+}
+
+static ezo_result_t ezo_hum_read_uart_line_of_kind(ezo_uart_device_t *device,
+                                                   ezo_uart_response_kind_t expected_kind,
+                                                   char *buffer,
+                                                   size_t buffer_len,
+                                                   size_t *response_len) {
+  ezo_uart_response_kind_t kind = EZO_UART_RESPONSE_UNKNOWN;
+  ezo_result_t result =
+      ezo_uart_read_line(device, buffer, buffer_len, response_len, &kind);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  if (kind != expected_kind) {
+    return EZO_ERR_PROTOCOL;
+  }
+
+  return EZO_OK;
+}
+
+static ezo_result_t ezo_hum_read_uart_data_line(ezo_uart_device_t *device,
+                                                char *buffer,
+                                                size_t buffer_len,
+                                                size_t *response_len) {
+  return ezo_hum_read_uart_line_of_kind(device,
+                                        EZO_UART_RESPONSE_DATA,
+                                        buffer,
+                                        buffer_len,
+                                        response_len);
+}
+
+static ezo_result_t ezo_hum_read_uart_data_then_ok(ezo_uart_device_t *device,
+                                                   char *buffer,
+                                                   size_t buffer_len,
+                                                   size_t *response_len) {
+  char status_buffer[8];
+  size_t status_len = 0;
+  ezo_result_t result = ezo_hum_read_uart_data_line(device, buffer, buffer_len, response_len);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  return ezo_hum_read_uart_line_of_kind(device,
+                                        EZO_UART_RESPONSE_OK,
+                                        status_buffer,
+                                        sizeof(status_buffer),
+                                        &status_len);
+}
+
+static ezo_result_t ezo_hum_parse_output_field(ezo_text_span_t field,
+                                               ezo_hum_output_mask_t *mask_out) {
+  if (mask_out == NULL) {
+    return EZO_ERR_INVALID_ARGUMENT;
+  }
+
+  if (ezo_text_span_equals_cstr(field, "HUM")) {
+    *mask_out = EZO_HUM_OUTPUT_HUMIDITY;
+    return EZO_OK;
+  }
+
+  if (ezo_text_span_equals_cstr(field, "T")) {
+    *mask_out = EZO_HUM_OUTPUT_AIR_TEMPERATURE;
+    return EZO_OK;
+  }
+
+  if (ezo_text_span_equals_cstr(field, "Dew")) {
+    *mask_out = EZO_HUM_OUTPUT_DEW_POINT;
+    return EZO_OK;
+  }
+
+  return EZO_ERR_PARSE;
+}
+
+ezo_result_t ezo_hum_parse_reading(const char *buffer,
+                                   size_t buffer_len,
+                                   ezo_hum_output_mask_t enabled_mask,
+                                   ezo_hum_reading_t *reading_out) {
+  ezo_output_schema_t schema;
+  ezo_multi_output_reading_t reading;
+  ezo_result_t result = EZO_OK;
+
+  if (reading_out == NULL) {
+    return EZO_ERR_INVALID_ARGUMENT;
+  }
+
+  result = ezo_schema_get_output_schema(EZO_PRODUCT_HUM, &schema);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  result = ezo_schema_parse_multi_output_reading(buffer,
+                                                 buffer_len,
+                                                 &schema,
+                                                 enabled_mask,
+                                                 &reading);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  reading_out->present_mask = reading.present_mask;
+  reading_out->relative_humidity_percent = reading.values[0].value;
+  reading_out->air_temperature_c = reading.values[1].value;
+  reading_out->dew_point_c = reading.values[2].value;
+  return EZO_OK;
+}
+
+ezo_result_t ezo_hum_parse_output_config(const char *buffer,
+                                         size_t buffer_len,
+                                         ezo_hum_output_config_t *config_out) {
+  ezo_text_span_t prefix;
+  ezo_text_span_t fields[EZO_SCHEMA_MAX_FIELDS];
+  size_t field_count = 0;
+  size_t i = 0;
+  ezo_result_t result = EZO_OK;
+  ezo_hum_output_mask_t enabled_mask = 0;
+
+  if (config_out == NULL) {
+    return EZO_ERR_INVALID_ARGUMENT;
+  }
+
+  result = ezo_parse_query_response(buffer,
+                                    buffer_len,
+                                    &prefix,
+                                    fields,
+                                    EZO_SCHEMA_MAX_FIELDS,
+                                    &field_count);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  if (!ezo_text_span_equals_cstr(prefix, "?O")) {
+    return EZO_ERR_PARSE;
+  }
+
+  for (i = 0; i < field_count; ++i) {
+    ezo_hum_output_mask_t output = 0;
+    result = ezo_hum_parse_output_field(fields[i], &output);
+    if (result != EZO_OK) {
+      return result;
+    }
+    enabled_mask |= output;
+  }
+
+  config_out->enabled_mask = enabled_mask;
+  return EZO_OK;
+}
+
+ezo_result_t ezo_hum_build_output_command(char *buffer,
+                                          size_t buffer_len,
+                                          ezo_hum_output_mask_t output,
+                                          uint8_t enabled) {
+  switch (output) {
+  case EZO_HUM_OUTPUT_HUMIDITY:
+    return ezo_hum_copy_command(buffer, buffer_len, enabled != 0 ? "O,HUM,1" : "O,HUM,0");
+  case EZO_HUM_OUTPUT_AIR_TEMPERATURE:
+    return ezo_hum_copy_command(buffer, buffer_len, enabled != 0 ? "O,T,1" : "O,T,0");
+  case EZO_HUM_OUTPUT_DEW_POINT:
+    return ezo_hum_copy_command(buffer, buffer_len, enabled != 0 ? "O,Dew,1" : "O,Dew,0");
+  default:
+    return EZO_ERR_INVALID_ARGUMENT;
+  }
+}
+
+ezo_result_t ezo_hum_send_read_i2c(ezo_i2c_device_t *device,
+                                   ezo_timing_hint_t *timing_hint) {
+  return ezo_hum_send_i2c_command(device, "r", EZO_COMMAND_READ, timing_hint);
+}
+
+ezo_result_t ezo_hum_send_output_query_i2c(ezo_i2c_device_t *device,
+                                           ezo_timing_hint_t *timing_hint) {
+  return ezo_hum_send_i2c_command(device, "O,?", EZO_COMMAND_GENERIC, timing_hint);
+}
+
+ezo_result_t ezo_hum_send_output_set_i2c(ezo_i2c_device_t *device,
+                                         ezo_hum_output_mask_t output,
+                                         uint8_t enabled,
+                                         ezo_timing_hint_t *timing_hint) {
+  char command[16];
+  ezo_result_t result = ezo_hum_build_output_command(command, sizeof(command), output, enabled);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  return ezo_hum_send_i2c_command(device, command, EZO_COMMAND_GENERIC, timing_hint);
+}
+
+ezo_result_t ezo_hum_read_response_i2c(ezo_i2c_device_t *device,
+                                       ezo_hum_output_mask_t enabled_mask,
+                                       ezo_hum_reading_t *reading_out) {
+  char buffer[EZO_HUM_RESPONSE_BUFFER_LEN];
+  size_t response_len = 0;
+  ezo_result_t result = ezo_hum_read_i2c_text(device, buffer, sizeof(buffer), &response_len);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  return ezo_hum_parse_reading(buffer, response_len, enabled_mask, reading_out);
+}
+
+ezo_result_t ezo_hum_read_output_config_i2c(ezo_i2c_device_t *device,
+                                            ezo_hum_output_config_t *config_out) {
+  char buffer[EZO_HUM_RESPONSE_BUFFER_LEN];
+  size_t response_len = 0;
+  ezo_result_t result = ezo_hum_read_i2c_text(device, buffer, sizeof(buffer), &response_len);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  return ezo_hum_parse_output_config(buffer, response_len, config_out);
+}
+
+ezo_result_t ezo_hum_send_read_uart(ezo_uart_device_t *device,
+                                    ezo_timing_hint_t *timing_hint) {
+  return ezo_hum_send_uart_command(device, "r", EZO_COMMAND_READ, timing_hint);
+}
+
+ezo_result_t ezo_hum_send_output_query_uart(ezo_uart_device_t *device,
+                                            ezo_timing_hint_t *timing_hint) {
+  return ezo_hum_send_uart_command(device, "O,?", EZO_COMMAND_GENERIC, timing_hint);
+}
+
+ezo_result_t ezo_hum_send_output_set_uart(ezo_uart_device_t *device,
+                                          ezo_hum_output_mask_t output,
+                                          uint8_t enabled,
+                                          ezo_timing_hint_t *timing_hint) {
+  char command[16];
+  ezo_result_t result = ezo_hum_build_output_command(command, sizeof(command), output, enabled);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  return ezo_hum_send_uart_command(device, command, EZO_COMMAND_GENERIC, timing_hint);
+}
+
+ezo_result_t ezo_hum_read_response_uart(ezo_uart_device_t *device,
+                                        ezo_hum_output_mask_t enabled_mask,
+                                        ezo_hum_reading_t *reading_out) {
+  char buffer[EZO_HUM_RESPONSE_BUFFER_LEN];
+  size_t response_len = 0;
+  ezo_result_t result =
+      ezo_hum_read_uart_data_line(device, buffer, sizeof(buffer), &response_len);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  return ezo_hum_parse_reading(buffer, response_len, enabled_mask, reading_out);
+}
+
+ezo_result_t ezo_hum_read_output_config_uart(ezo_uart_device_t *device,
+                                             ezo_hum_output_config_t *config_out) {
+  char buffer[EZO_HUM_RESPONSE_BUFFER_LEN];
+  size_t response_len = 0;
+  ezo_result_t result =
+      ezo_hum_read_uart_data_then_ok(device, buffer, sizeof(buffer), &response_len);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  return ezo_hum_parse_output_config(buffer, response_len, config_out);
+}

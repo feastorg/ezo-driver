@@ -13,6 +13,10 @@ coverage/
 .DS_Store
 Thumbs.db
 
+# build
+build/
+build-*/
+
 # Ignore the planning directory, which contains files related
 # to project planning and personal notes that dont need to 
 # add unnecessary noise to the repository.

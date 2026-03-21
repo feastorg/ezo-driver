@@ -2,6 +2,21 @@
 
 All notable tracked changes to this rewrite will be recorded here.
 
+## [Unreleased]
+
+### Added
+
+- typed EC, DO, and HUM product modules over both I2C and UART
+- explicit output-configuration helpers for the multi-output product families
+- EC temperature/probe-K/TDS-factor helpers, DO temperature/salinity/pressure helpers, and focused Linux I2C examples for EC/DO/HUM
+- host-side fake-transport tests for EC, DO, and HUM
+
+### Changed
+
+- promoted EC, DO, and HUM metadata support tiers to typed-read support
+- aligned the HUM canonical schema order with the product's humidity, air-temperature, then dew-point output order
+- updated the tracked docs and support matrix to reflect full Phase 5 typed coverage
+
 ## [0.3.0] - current baseline
 
 ### Added

@@ -18,6 +18,9 @@ option(EZO_BUILD_POSIX_UART_ADAPTER "Build POSIX UART adapter sources" OFF)
 add_library(ezo_core STATIC
   src/ezo.c
   src/ezo_common.c
+  src/ezo_do.c
+  src/ezo_ec.c
+  src/ezo_hum.c
   src/ezo_i2c.c
   src/ezo_parse.c
   src/ezo_orp.c
@@ -192,6 +195,63 @@ if(EZO_BUILD_TESTS)
     COMMAND ezo_rtd_tests
   )
 
+  add_executable(ezo_ec_tests
+    tests/fakes/ezo_fake_transport.c
+    tests/fakes/ezo_fake_uart_transport.c
+    tests/test_ezo_ec.c
+  )
+
+  target_include_directories(ezo_ec_tests
+    PRIVATE
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}/src
+  )
+
+  target_link_libraries(ezo_ec_tests PRIVATE ezo_core)
+
+  add_test(
+    NAME ezo_ec_tests
+    COMMAND ezo_ec_tests
+  )
+
+  add_executable(ezo_do_tests
+    tests/fakes/ezo_fake_transport.c
+    tests/fakes/ezo_fake_uart_transport.c
+    tests/test_ezo_do.c
+  )
+
+  target_include_directories(ezo_do_tests
+    PRIVATE
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}/src
+  )
+
+  target_link_libraries(ezo_do_tests PRIVATE ezo_core)
+
+  add_test(
+    NAME ezo_do_tests
+    COMMAND ezo_do_tests
+  )
+
+  add_executable(ezo_hum_tests
+    tests/fakes/ezo_fake_transport.c
+    tests/fakes/ezo_fake_uart_transport.c
+    tests/test_ezo_hum.c
+  )
+
+  target_include_directories(ezo_hum_tests
+    PRIVATE
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}/src
+  )
+
+  target_link_libraries(ezo_hum_tests PRIVATE ezo_core)
+
+  add_test(
+    NAME ezo_hum_tests
+    COMMAND ezo_hum_tests
+  )
+
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_executable(ezo_i2c_linux_adapter_tests
       tests/test_linux_adapter.c
@@ -290,6 +350,24 @@ if(EZO_BUILD_EXAMPLES AND EZO_BUILD_LINUX_ADAPTER)
   )
 
   target_link_libraries(ezo_ph_linux_read_example PRIVATE ezo_i2c_linux_adapter)
+
+  add_executable(ezo_ec_linux_read_example
+    examples/linux_ec_read.c
+  )
+
+  target_link_libraries(ezo_ec_linux_read_example PRIVATE ezo_i2c_linux_adapter)
+
+  add_executable(ezo_do_linux_read_example
+    examples/linux_do_read.c
+  )
+
+  target_link_libraries(ezo_do_linux_read_example PRIVATE ezo_i2c_linux_adapter)
+
+  add_executable(ezo_hum_linux_read_example
+    examples/linux_hum_read.c
+  )
+
+  target_link_libraries(ezo_hum_linux_read_example PRIVATE ezo_i2c_linux_adapter)
 endif()
 
 if(EZO_BUILD_EXAMPLES AND EZO_BUILD_POSIX_UART_ADAPTER AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
