@@ -407,62 +407,156 @@ if(EZO_BUILD_ARDUINO_ADAPTER)
   target_link_libraries(ezo_uart_arduino_adapter PUBLIC ezo_core)
 endif()
 
+function(ezo_add_linux_i2c_example target source_path)
+  add_executable(${target}
+    ${source_path}
+  )
+
+  target_link_libraries(${target} PRIVATE ezo_i2c_linux_example_common)
+endfunction()
+
+function(ezo_add_linux_uart_example target source_path)
+  add_executable(${target}
+    ${source_path}
+  )
+
+  target_link_libraries(${target} PRIVATE ezo_uart_linux_example_common)
+endfunction()
+
 if(EZO_BUILD_EXAMPLES AND EZO_BUILD_LINUX_ADAPTER)
-  add_executable(ezo_i2c_linux_read_example
-    examples/linux_read.c
+  add_library(ezo_i2c_linux_example_common STATIC
+    examples/linux/common/example_base.c
+    examples/linux/common/example_i2c.c
+    examples/linux/common/example_product_i2c.c
   )
 
-  target_link_libraries(ezo_i2c_linux_read_example PRIVATE ezo_i2c_linux_adapter)
-
-  add_executable(ezo_ph_linux_read_example
-    examples/linux_ph_read.c
+  target_include_directories(ezo_i2c_linux_example_common
+    PUBLIC
+      ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/common
   )
 
-  target_link_libraries(ezo_ph_linux_read_example PRIVATE ezo_i2c_linux_adapter)
+  target_link_libraries(ezo_i2c_linux_example_common PUBLIC ezo_i2c_linux_adapter)
 
-  add_executable(ezo_ec_linux_read_example
-    examples/linux_ec_read.c
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_raw_command_example
+    examples/linux/i2c/raw/raw_command.c
   )
-
-  target_link_libraries(ezo_ec_linux_read_example PRIVATE ezo_i2c_linux_adapter)
-
-  add_executable(ezo_do_linux_read_example
-    examples/linux_do_read.c
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_inspect_device_example
+    examples/linux/i2c/commissioning/inspect_device.c
   )
-
-  target_link_libraries(ezo_do_linux_read_example PRIVATE ezo_i2c_linux_adapter)
-
-  add_executable(ezo_hum_linux_read_example
-    examples/linux_hum_read.c
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_readiness_check_example
+    examples/linux/i2c/commissioning/readiness_check.c
   )
-
-  target_link_libraries(ezo_hum_linux_read_example PRIVATE ezo_i2c_linux_adapter)
-
-  add_executable(ezo_identity_linux_example
-    examples/linux_identity.c
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_read_ph_example
+    examples/linux/i2c/typed/read_ph.c
   )
-
-  target_link_libraries(ezo_identity_linux_example PRIVATE ezo_i2c_linux_adapter)
-
-  add_executable(ezo_control_status_linux_example
-    examples/linux_control_status.c
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_read_orp_example
+    examples/linux/i2c/typed/read_orp.c
   )
-
-  target_link_libraries(ezo_control_status_linux_example PRIVATE ezo_i2c_linux_adapter)
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_read_ec_example
+    examples/linux/i2c/typed/read_ec.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_read_do_example
+    examples/linux/i2c/typed/read_do.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_read_rtd_example
+    examples/linux/i2c/typed/read_rtd.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_read_hum_example
+    examples/linux/i2c/typed/read_hum.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_ph_workflow_example
+    examples/linux/i2c/advanced/ph_workflow.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_do_workflow_example
+    examples/linux/i2c/advanced/do_workflow.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_rtd_workflow_example
+    examples/linux/i2c/advanced/rtd_workflow.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_calibration_transfer_example
+    examples/linux/i2c/advanced/calibration_transfer.c
+  )
 endif()
 
 if(EZO_BUILD_EXAMPLES AND EZO_BUILD_POSIX_UART_ADAPTER AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  add_executable(ezo_uart_linux_read_example
-    examples/linux_uart_read.c
+  add_library(ezo_uart_linux_example_common STATIC
+    examples/linux/common/example_base.c
+    examples/linux/common/example_uart.c
+    examples/linux/common/example_product_uart.c
   )
 
-  target_link_libraries(ezo_uart_linux_read_example PRIVATE ezo_uart_posix_adapter)
-
-  add_executable(ezo_ph_uart_linux_read_example
-    examples/linux_ph_uart_read.c
+  target_include_directories(ezo_uart_linux_example_common
+    PUBLIC
+      ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/common
   )
 
-  target_link_libraries(ezo_ph_uart_linux_read_example PRIVATE ezo_uart_posix_adapter)
+  target_link_libraries(ezo_uart_linux_example_common PUBLIC ezo_uart_posix_adapter)
+
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_raw_command_example
+    examples/linux/uart/raw/raw_command.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_inspect_device_example
+    examples/linux/uart/commissioning/inspect_device.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_readiness_check_example
+    examples/linux/uart/commissioning/readiness_check.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_read_ph_example
+    examples/linux/uart/typed/read_ph.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_read_orp_example
+    examples/linux/uart/typed/read_orp.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_read_ec_example
+    examples/linux/uart/typed/read_ec.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_read_do_example
+    examples/linux/uart/typed/read_do.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_read_rtd_example
+    examples/linux/uart/typed/read_rtd.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_read_hum_example
+    examples/linux/uart/typed/read_hum.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_ph_workflow_example
+    examples/linux/uart/advanced/ph_workflow.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_do_workflow_example
+    examples/linux/uart/advanced/do_workflow.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_rtd_workflow_example
+    examples/linux/uart/advanced/rtd_workflow.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_calibration_transfer_example
+    examples/linux/uart/advanced/calibration_transfer.c
+  )
 endif()
 
 install(TARGETS ezo_core ezo_i2c_cpp

@@ -85,7 +85,8 @@ Every new family should clear this checklist in order:
 
 6. Add an example only if the tier justifies it.
    Typical targets:
-   - `examples/linux_<family>_read.c`
+   - `examples/linux/i2c/typed/read_<family>.c`
+   - `examples/linux/uart/typed/read_<family>.c`
    - Arduino examples only when they add real coverage value
 
 7. Update public repo docs.

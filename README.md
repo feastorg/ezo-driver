@@ -52,12 +52,14 @@ Public guidance docs:
 - [`docs/public-api-layers.md`](./docs/public-api-layers.md)
 - [`docs/support-matrix.md`](./docs/support-matrix.md)
 - [`docs/product-onboarding.md`](./docs/product-onboarding.md)
+- [`docs/examples.md`](./docs/examples.md)
 
 ## Layout
 
 - `src/`: canonical library root for public headers and Arduino-safe implementation
 - `platform/`: host-only platform implementation code not intended for Arduino library builds
-- `examples/`: focused Arduino and Linux examples
+- `examples/linux/`: full Linux reference example tree with `raw`, `commissioning`, `typed`, and `advanced` flows for I2C and UART
+- `examples/arduino/`: curated Arduino smoke, commissioning, and simple typed sketches
 - `tests/`: host-side tests and fakes
 - `docs/`: tracked handoff docs and curated EZO product/protocol notes
 
@@ -90,7 +92,7 @@ cmake --install build --prefix <install-prefix>
 - host CI builds and runs C and C++ tests for the shared, parse/schema, I2C, UART, and product-foundation paths
 - host CI also runs typed product-module tests for pH, ORP, RTD, EC, DO, and HUM
 - Linux I2C and Linux host POSIX UART adapter behavior are covered by host-side tests
-- PlatformIO CI compile-checks Arduino I2C and UART examples for `uno`, `nanoatmega328`, and `esp32dev`
+- PlatformIO CI compile-checks the curated Arduino I2C and UART sketches for `uno`, `nanoatmega328`, and `esp32dev`
 - Arduino IDE validation is manual by design
 
 ## Packaging
@@ -100,27 +102,34 @@ cmake --install build --prefix <install-prefix>
 
 ## Examples
 
-Raw transport:
+Start with the example chooser in [`docs/examples.md`](./docs/examples.md). That doc is the canonical matrix and first-use guide.
 
-- [`examples/arduino_smoke/arduino_smoke.ino`](./examples/arduino_smoke/arduino_smoke.ino): minimal I2C C API smoke path
-- [`examples/arduino_uart_smoke/arduino_uart_smoke.ino`](./examples/arduino_uart_smoke/arduino_uart_smoke.ino): minimal UART C API smoke path
-- [`examples/linux_read.c`](./examples/linux_read.c): minimal Linux I2C transport example
-- [`examples/linux_uart_read.c`](./examples/linux_uart_read.c): minimal Linux host POSIX UART example with explicit response-code bootstrap and terminal-ack handling
+Short version:
 
-Metadata and shared control:
+- If transport is unknown, start with [`examples/linux/uart/commissioning/inspect_device.c`](./examples/linux/uart/commissioning/inspect_device.c). UART is the shipping default across the currently documented products.
+- If transport is known but setup state is not, start with the matching readiness example:
+  [`examples/linux/i2c/commissioning/readiness_check.c`](./examples/linux/i2c/commissioning/readiness_check.c)
+  or [`examples/linux/uart/commissioning/readiness_check.c`](./examples/linux/uart/commissioning/readiness_check.c)
+- If product and transport are already known, jump straight to the matching typed example under `examples/linux/<transport>/typed/`.
+- If you need the bare transport contract first, start with:
+  [`examples/linux/i2c/raw/raw_command.c`](./examples/linux/i2c/raw/raw_command.c)
+  or [`examples/linux/uart/raw/raw_command.c`](./examples/linux/uart/raw/raw_command.c)
+- If you need Arduino, use the curated sketches under `examples/arduino/`:
+  raw smoke, commissioning inspect, and simple pH reads for both I2C and UART.
 
-- [`examples/linux_identity.c`](./examples/linux_identity.c): identify a device and inspect repo metadata
-- [`examples/linux_control_status.c`](./examples/linux_control_status.c): shared control queries for name, status, and LED state
+Representative entry points:
 
-Typed product helpers:
-
-- [`examples/arduino_read/arduino_read.ino`](./examples/arduino_read/arduino_read.ino): I2C C++ wrapper example
-- [`examples/arduino_uart_read/arduino_uart_read.ino`](./examples/arduino_uart_read/arduino_uart_read.ino): UART read flow with explicit response-code bootstrap and `*OK` ownership
-- [`examples/linux_ph_uart_read.c`](./examples/linux_ph_uart_read.c): typed Linux UART pH read example with explicit response-code bootstrap
-- [`examples/linux_ph_read.c`](./examples/linux_ph_read.c): typed Linux I2C pH read example
-- [`examples/linux_ec_read.c`](./examples/linux_ec_read.c): typed Linux I2C EC read with explicit output-config query
-- [`examples/linux_do_read.c`](./examples/linux_do_read.c): typed Linux I2C DO read with explicit output-config query
-- [`examples/linux_hum_read.c`](./examples/linux_hum_read.c): typed Linux I2C HUM read with explicit output-config query
+- Linux I2C raw: [`examples/linux/i2c/raw/raw_command.c`](./examples/linux/i2c/raw/raw_command.c)
+- Linux UART raw: [`examples/linux/uart/raw/raw_command.c`](./examples/linux/uart/raw/raw_command.c)
+- Linux I2C commissioning: [`examples/linux/i2c/commissioning/inspect_device.c`](./examples/linux/i2c/commissioning/inspect_device.c)
+- Linux UART commissioning: [`examples/linux/uart/commissioning/inspect_device.c`](./examples/linux/uart/commissioning/inspect_device.c)
+- Linux I2C typed pH: [`examples/linux/i2c/typed/read_ph.c`](./examples/linux/i2c/typed/read_ph.c)
+- Linux UART typed pH: [`examples/linux/uart/typed/read_ph.c`](./examples/linux/uart/typed/read_ph.c)
+- Linux advanced calibration transfer:
+  [`examples/linux/i2c/advanced/calibration_transfer.c`](./examples/linux/i2c/advanced/calibration_transfer.c)
+  and [`examples/linux/uart/advanced/calibration_transfer.c`](./examples/linux/uart/advanced/calibration_transfer.c)
+- Arduino I2C inspect: [`examples/arduino/i2c/commissioning/inspect_device/inspect_device.ino`](./examples/arduino/i2c/commissioning/inspect_device/inspect_device.ino)
+- Arduino UART inspect: [`examples/arduino/uart/commissioning/inspect_device/inspect_device.ino`](./examples/arduino/uart/commissioning/inspect_device/inspect_device.ino)
 
 ## Entry Points
 
@@ -174,6 +183,7 @@ Primary implementation files:
 - [`docs/public-api-layers.md`](./docs/public-api-layers.md): where to start by API layer and use case
 - [`docs/support-matrix.md`](./docs/support-matrix.md): tracked public support statement and tier policy
 - [`docs/product-onboarding.md`](./docs/product-onboarding.md): maintainer checklist for onboarding another product family
+- [`docs/examples.md`](./docs/examples.md): staged example chooser and full matrix
 - [`docs/architecture.md`](./docs/architecture.md): structure, boundaries, packaging, validation
 - [`docs/api-contract.md`](./docs/api-contract.md): behavioral contract for the public API
 - [`docs/canonical-library-direction.md`](./docs/canonical-library-direction.md): stable long-term direction for the canonical product-aware library
