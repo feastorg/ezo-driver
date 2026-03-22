@@ -18,8 +18,14 @@ Next: read ../../commissioning/inspect_device/inspect_device.ino for bootstrap a
 #define EZO_UART_HAS_DEBUG_STREAM 0
 #endif
 
+enum {
+  STARTUP_SETTLE_MS = 1000U
+};
+
 static ezo_uart_arduino_stream_context_t uart_context;
 static ezo_uart_device_t device;
+static unsigned long startup_started_at_ms = 0;
+static uint8_t smoke_sent = 0;
 
 static Stream *sensor_stream() {
 #if EZO_UART_HAS_DEBUG_STREAM
@@ -52,13 +58,8 @@ static void fail_fast(ezo_result_t result) {
   }
 }
 
-void setup() {
+static void send_smoke_command() {
   ezo_timing_hint_t hint;
-
-  begin_sensor_stream();
-  fail_fast(ezo_uart_arduino_stream_context_init(&uart_context, sensor_stream()));
-  fail_fast(
-      ezo_uart_device_init(&device, ezo_uart_arduino_stream_transport(), &uart_context));
   fail_fast(ezo_uart_send_command(&device, "i", EZO_COMMAND_GENERIC, &hint));
 
 #if EZO_UART_HAS_DEBUG_STREAM
@@ -66,5 +67,23 @@ void setup() {
 #endif
 }
 
+void setup() {
+  begin_sensor_stream();
+  fail_fast(ezo_uart_arduino_stream_context_init(&uart_context, sensor_stream()));
+  fail_fast(
+      ezo_uart_device_init(&device, ezo_uart_arduino_stream_transport(), &uart_context));
+  startup_started_at_ms = millis();
+}
+
 void loop() {
+  if (smoke_sent != 0U) {
+    return;
+  }
+
+  if ((unsigned long)(millis() - startup_started_at_ms) < STARTUP_SETTLE_MS) {
+    return;
+  }
+
+  send_smoke_command();
+  smoke_sent = 1U;
 }

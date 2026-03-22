@@ -10,9 +10,15 @@ Next: read ../../commissioning/inspect_device/inspect_device.ino for setup check
 #include <ezo_do.h>
 #include <ezo_i2c_arduino_wire.h>
 
+enum {
+  STARTUP_SETTLE_MS = 1000U
+};
+
 static ezo_arduino_wire_context_t wire_context;
 static ezo_i2c_device_t device;
 static ezo_do_output_config_t output_config;
+static unsigned long startup_started_at_ms = 0;
+static uint8_t read_requested = 0;
 
 static void fail_fast(ezo_result_t result) {
   if (result == EZO_OK) {
@@ -50,13 +56,22 @@ void setup() {
 
   fail_fast(ezo_arduino_wire_context_init(&wire_context, &Wire));
   fail_fast(ezo_device_init(&device, 97, ezo_arduino_wire_transport(), &wire_context));
-
-  request_output_config();
-  request_reading();
+  startup_started_at_ms = millis();
 }
 
 void loop() {
   ezo_do_reading_t reading;
+
+  if (read_requested == 0U) {
+    if ((unsigned long)(millis() - startup_started_at_ms) < STARTUP_SETTLE_MS) {
+      return;
+    }
+
+    request_output_config();
+    request_reading();
+    read_requested = 1U;
+    return;
+  }
 
   fail_fast(ezo_do_read_response_i2c(&device, output_config.enabled_mask, &reading));
 

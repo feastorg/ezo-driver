@@ -19,9 +19,15 @@ Next: read ../../commissioning/inspect_device/inspect_device.ino for bootstrap a
 #define EZO_UART_HAS_DEBUG_STREAM 0
 #endif
 
+enum {
+  STARTUP_SETTLE_MS = 1000U
+};
+
 static ezo_uart_arduino_stream_context_t uart_context;
 static ezo_uart_device_t device;
 static ezo_do_output_config_t output_config;
+static unsigned long startup_started_at_ms = 0;
+static uint8_t read_requested = 0;
 
 static Stream *sensor_stream() {
 #if EZO_UART_HAS_DEBUG_STREAM
@@ -91,14 +97,24 @@ void setup() {
   fail_fast(ezo_uart_arduino_stream_context_init(&uart_context, sensor_stream()));
   fail_fast(
       ezo_uart_device_init(&device, ezo_uart_arduino_stream_transport(), &uart_context));
-  fail_fast(ezo_uart_discard_input(&device));
-  ensure_response_codes_enabled();
-  request_output_config();
-  request_reading();
+  startup_started_at_ms = millis();
 }
 
 void loop() {
   ezo_do_reading_t reading;
+
+  if (read_requested == 0U) {
+    if ((unsigned long)(millis() - startup_started_at_ms) < STARTUP_SETTLE_MS) {
+      return;
+    }
+
+    fail_fast(ezo_uart_discard_input(&device));
+    ensure_response_codes_enabled();
+    request_output_config();
+    request_reading();
+    read_requested = 1U;
+    return;
+  }
 
   fail_fast(ezo_do_read_response_uart(&device, output_config.enabled_mask, &reading));
 

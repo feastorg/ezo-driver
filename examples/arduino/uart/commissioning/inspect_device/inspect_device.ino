@@ -15,8 +15,14 @@ Next: read ../../typed/read_ph/read_ph.ino for the smallest typed UART read path
 #define EZO_UART_HAS_DEBUG_STREAM 0
 #endif
 
+enum {
+  STARTUP_SETTLE_MS = 1000U
+};
+
 static ezo_uart_arduino_stream_context_t uart_context;
 static ezo_uart_device_t device;
+static unsigned long startup_started_at_ms = 0;
+static uint8_t inspection_done = 0;
 
 static Stream *sensor_stream() {
 #if EZO_UART_HAS_DEBUG_STREAM
@@ -72,16 +78,10 @@ static void ensure_response_codes_enabled() {
   fail_fast(ezo_uart_read_ok(&device));
 }
 
-void setup() {
+static void inspect_once() {
   ezo_timing_hint_t hint;
   ezo_device_info_t info;
   ezo_control_status_t status;
-
-  begin_streams();
-
-  fail_fast(ezo_uart_arduino_stream_context_init(&uart_context, sensor_stream()));
-  fail_fast(
-      ezo_uart_device_init(&device, ezo_uart_arduino_stream_transport(), &uart_context));
   ensure_response_codes_enabled();
 
   fail_fast(ezo_control_send_info_query_uart(&device, EZO_PRODUCT_UNKNOWN, &hint));
@@ -104,5 +104,24 @@ void setup() {
 #endif
 }
 
+void setup() {
+  begin_streams();
+
+  fail_fast(ezo_uart_arduino_stream_context_init(&uart_context, sensor_stream()));
+  fail_fast(
+      ezo_uart_device_init(&device, ezo_uart_arduino_stream_transport(), &uart_context));
+  startup_started_at_ms = millis();
+}
+
 void loop() {
+  if (inspection_done != 0U) {
+    return;
+  }
+
+  if ((unsigned long)(millis() - startup_started_at_ms) < STARTUP_SETTLE_MS) {
+    return;
+  }
+
+  inspect_once();
+  inspection_done = 1U;
 }

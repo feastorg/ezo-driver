@@ -11,8 +11,14 @@ Next: read ../../typed/read_ph/read_ph.ino for the smallest typed read path.
 #include <ezo_i2c_arduino_wire.h>
 #include <ezo_product.h>
 
+enum {
+  STARTUP_SETTLE_MS = 1000U
+};
+
 static ezo_arduino_wire_context_t wire_context;
 static ezo_i2c_device_t device;
+static unsigned long startup_started_at_ms = 0;
+static uint8_t inspection_done = 0;
 
 static void fail_fast(ezo_result_t result) {
   if (result == EZO_OK) {
@@ -25,17 +31,11 @@ static void fail_fast(ezo_result_t result) {
   }
 }
 
-void setup() {
+static void inspect_once() {
   ezo_timing_hint_t hint;
   ezo_device_info_t info;
   ezo_control_status_t status;
   const ezo_product_metadata_t *metadata = NULL;
-
-  Serial.begin(115200);
-  Wire.begin();
-
-  fail_fast(ezo_arduino_wire_context_init(&wire_context, &Wire));
-  fail_fast(ezo_device_init(&device, 99, ezo_arduino_wire_transport(), &wire_context));
 
   fail_fast(ezo_control_send_info_query_i2c(&device, EZO_PRODUCT_UNKNOWN, &hint));
   delay(hint.wait_ms);
@@ -61,5 +61,24 @@ void setup() {
   }
 }
 
+void setup() {
+  Serial.begin(115200);
+  Wire.begin();
+
+  fail_fast(ezo_arduino_wire_context_init(&wire_context, &Wire));
+  fail_fast(ezo_device_init(&device, 99, ezo_arduino_wire_transport(), &wire_context));
+  startup_started_at_ms = millis();
+}
+
 void loop() {
+  if (inspection_done != 0U) {
+    return;
+  }
+
+  if ((unsigned long)(millis() - startup_started_at_ms) < STARTUP_SETTLE_MS) {
+    return;
+  }
+
+  inspect_once();
+  inspection_done = 1U;
 }
