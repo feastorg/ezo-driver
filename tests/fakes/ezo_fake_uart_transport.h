@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 #define EZO_FAKE_UART_MAX_TX 256
-#define EZO_FAKE_UART_MAX_RX 256
+#define EZO_FAKE_UART_MAX_RX 1024
 
 typedef struct {
   ezo_result_t write_result;
@@ -32,6 +32,9 @@ void ezo_fake_uart_transport_init(ezo_fake_uart_transport_t *fake);
 void ezo_fake_uart_transport_set_response(ezo_fake_uart_transport_t *fake,
                                           const uint8_t *response_bytes,
                                           size_t response_len);
+void ezo_fake_uart_transport_append_response(ezo_fake_uart_transport_t *fake,
+                                             const uint8_t *response_bytes,
+                                             size_t response_len);
 const ezo_uart_transport_t *ezo_fake_uart_transport_vtable(void);
 
 #ifdef __cplusplus

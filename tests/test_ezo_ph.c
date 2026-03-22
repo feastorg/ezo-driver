@@ -98,6 +98,7 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
 }
 
 static void test_uart_helpers_cover_plain_read_and_sequence_flows(void) {
+  static const uint8_t ok_response[] = {'*', 'O', 'K', '\r'};
   static const uint8_t read_then_temp_query_response[] = {
       '7', '.', '1', '5', '\r', '*', 'O', 'K', '\r',
       '?', 'T', ',', '1', '9', '.', '5', '\r', '*', 'O', 'K', '\r'};
@@ -118,9 +119,11 @@ static void test_uart_helpers_cover_plain_read_and_sequence_flows(void) {
   assert(fake.tx_len == strlen("T,19.5\r"));
   assert(memcmp(fake.tx_bytes, "T,19.5\r", strlen("T,19.5\r")) == 0);
 
-  ezo_fake_uart_transport_set_response(&fake,
-                                       read_then_temp_query_response,
-                                       sizeof(read_then_temp_query_response));
+  ezo_fake_uart_transport_set_response(&fake, ok_response, sizeof(ok_response));
+  ezo_fake_uart_transport_append_response(&fake,
+                                          read_then_temp_query_response,
+                                          sizeof(read_then_temp_query_response));
+  assert(ezo_uart_read_ok(&device) == EZO_OK);
   assert(ezo_ph_send_read_uart(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 900);
   assert(ezo_ph_read_response_uart(&device, &reading) == EZO_OK);
@@ -139,13 +142,14 @@ static void test_uart_helpers_cover_plain_read_and_sequence_flows(void) {
   assert(ezo_ph_read_response_with_temp_comp_uart(&device, &reading) == EZO_OK);
   assert(reading.ph > 8.90 && reading.ph < 8.92);
 
+  ezo_fake_uart_transport_set_response(&fake, ok_response, sizeof(ok_response));
+  ezo_fake_uart_transport_append_response(&fake,
+                                          (const uint8_t[]){'?', 'p', 'H', 'e', 'x', 't', ',',
+                                                            '1', '\r', '*', 'O', 'K', '\r'},
+                                          13);
   assert(ezo_ph_send_clear_calibration_uart(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
-
-  ezo_fake_uart_transport_set_response(&fake,
-                                       (const uint8_t[]){'?', 'p', 'H', 'e', 'x', 't', ',', '1',
-                                                         '\r', '*', 'O', 'K', '\r'},
-                                       13);
+  assert(ezo_uart_read_ok(&device) == EZO_OK);
   assert(ezo_ph_send_extended_range_query_uart(&device, &hint) == EZO_OK);
   assert(ezo_ph_read_extended_range_uart(&device, &extended_range) == EZO_OK);
   assert(extended_range.enabled == EZO_PH_EXTENDED_RANGE_ENABLED);

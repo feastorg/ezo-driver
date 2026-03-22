@@ -88,6 +88,27 @@ static ezo_result_t ezo_fake_uart_discard_input(void *context) {
   return EZO_OK;
 }
 
+static void ezo_fake_uart_transport_compact_response(ezo_fake_uart_transport_t *fake) {
+  size_t unread_len = 0;
+
+  if (fake == NULL || fake->response_offset == 0) {
+    return;
+  }
+
+  if (fake->response_offset >= fake->response_len) {
+    memset(fake->response_bytes, 0, sizeof(fake->response_bytes));
+    fake->response_len = 0;
+    fake->response_offset = 0;
+    return;
+  }
+
+  unread_len = fake->response_len - fake->response_offset;
+  memmove(fake->response_bytes, &fake->response_bytes[fake->response_offset], unread_len);
+  memset(&fake->response_bytes[unread_len], 0, sizeof(fake->response_bytes) - unread_len);
+  fake->response_len = unread_len;
+  fake->response_offset = 0;
+}
+
 void ezo_fake_uart_transport_init(ezo_fake_uart_transport_t *fake) {
   if (fake == NULL) {
     return;
@@ -120,6 +141,30 @@ void ezo_fake_uart_transport_set_response(ezo_fake_uart_transport_t *fake,
 
   memcpy(fake->response_bytes, response_bytes, response_len);
   fake->response_len = response_len;
+}
+
+void ezo_fake_uart_transport_append_response(ezo_fake_uart_transport_t *fake,
+                                             const uint8_t *response_bytes,
+                                             size_t response_len) {
+  size_t available = 0;
+
+  if (fake == NULL || response_bytes == NULL || response_len == 0) {
+    return;
+  }
+
+  ezo_fake_uart_transport_compact_response(fake);
+
+  if (fake->response_len >= EZO_FAKE_UART_MAX_RX) {
+    return;
+  }
+
+  available = EZO_FAKE_UART_MAX_RX - fake->response_len;
+  if (response_len > available) {
+    response_len = available;
+  }
+
+  memcpy(&fake->response_bytes[fake->response_len], response_bytes, response_len);
+  fake->response_len += response_len;
 }
 
 const ezo_uart_transport_t *ezo_fake_uart_transport_vtable(void) {

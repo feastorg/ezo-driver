@@ -260,6 +260,63 @@ static void test_uart_read_line_detects_buffer_too_small(void) {
   assert(response_len == 0);
 }
 
+static void test_uart_read_terminal_response_accepts_terminal_tokens(void) {
+  static const uint8_t response[] = {'*', 'E', 'R', '\r'};
+  ezo_fake_uart_transport_t fake;
+  ezo_uart_device_t device;
+  ezo_uart_response_kind_t kind = EZO_UART_RESPONSE_UNKNOWN;
+
+  ezo_fake_uart_transport_init(&fake);
+  ezo_fake_uart_transport_set_response(&fake, response, sizeof(response));
+  assert(ezo_uart_device_init(&device, ezo_fake_uart_transport_vtable(), &fake) == EZO_OK);
+  assert(ezo_uart_read_terminal_response(&device, &kind) == EZO_OK);
+  assert(kind == EZO_UART_RESPONSE_ERROR);
+  assert(ezo_uart_device_get_last_response_kind(&device) == EZO_UART_RESPONSE_ERROR);
+}
+
+static void test_uart_read_terminal_response_rejects_data_lines(void) {
+  static const uint8_t response[] = {'1', '2', '.', '3', '\r'};
+  ezo_fake_uart_transport_t fake;
+  ezo_uart_device_t device;
+  ezo_uart_response_kind_t kind = EZO_UART_RESPONSE_UNKNOWN;
+
+  ezo_fake_uart_transport_init(&fake);
+  ezo_fake_uart_transport_set_response(&fake, response, sizeof(response));
+  assert(ezo_uart_device_init(&device, ezo_fake_uart_transport_vtable(), &fake) == EZO_OK);
+  assert(ezo_uart_read_terminal_response(&device, &kind) == EZO_ERR_PROTOCOL);
+  assert(ezo_uart_device_get_last_response_kind(&device) == EZO_UART_RESPONSE_DATA);
+}
+
+static void test_uart_read_ok_reads_success_and_leaves_follow_on_bytes_aligned(void) {
+  static const uint8_t response[] = {'*', 'O', 'K', '\r', '1', '2', '.', '3', '\r'};
+  ezo_fake_uart_transport_t fake;
+  ezo_uart_device_t device;
+  ezo_uart_response_kind_t kind = EZO_UART_RESPONSE_UNKNOWN;
+  char buffer[16];
+  size_t response_len = 0;
+
+  ezo_fake_uart_transport_init(&fake);
+  ezo_fake_uart_transport_set_response(&fake, response, sizeof(response));
+  assert(ezo_uart_device_init(&device, ezo_fake_uart_transport_vtable(), &fake) == EZO_OK);
+  assert(ezo_uart_read_ok(&device) == EZO_OK);
+  assert(ezo_uart_read_line(&device, buffer, sizeof(buffer), &response_len, &kind) == EZO_OK);
+  assert(kind == EZO_UART_RESPONSE_DATA);
+  assert(response_len == 4);
+  assert(memcmp(buffer, "12.3", response_len) == 0);
+}
+
+static void test_uart_read_ok_rejects_non_ok_terminal_response(void) {
+  static const uint8_t response[] = {'*', 'E', 'R', '\r'};
+  ezo_fake_uart_transport_t fake;
+  ezo_uart_device_t device;
+
+  ezo_fake_uart_transport_init(&fake);
+  ezo_fake_uart_transport_set_response(&fake, response, sizeof(response));
+  assert(ezo_uart_device_init(&device, ezo_fake_uart_transport_vtable(), &fake) == EZO_OK);
+  assert(ezo_uart_read_ok(&device) == EZO_ERR_PROTOCOL);
+  assert(ezo_uart_device_get_last_response_kind(&device) == EZO_UART_RESPONSE_ERROR);
+}
+
 static void test_uart_read_line_accepts_max_length_payload_with_capacity_buffer(void) {
   ezo_fake_uart_transport_t fake;
   ezo_uart_device_t device;
@@ -366,6 +423,10 @@ int main(void) {
   test_uart_read_line_surfaces_startup_control_tokens_explicitly();
   test_uart_read_line_rejects_incomplete_line();
   test_uart_read_line_detects_buffer_too_small();
+  test_uart_read_terminal_response_accepts_terminal_tokens();
+  test_uart_read_terminal_response_rejects_data_lines();
+  test_uart_read_ok_reads_success_and_leaves_follow_on_bytes_aligned();
+  test_uart_read_ok_rejects_non_ok_terminal_response();
   test_uart_read_line_accepts_max_length_payload_with_capacity_buffer();
   test_uart_read_line_rejects_max_length_payload_without_capacity_buffer();
   test_uart_send_command_propagates_transport_failure();

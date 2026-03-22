@@ -55,6 +55,7 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
 }
 
 static void test_uart_helpers_cover_plain_read_and_query_sequences(void) {
+  static const uint8_t ok_response[] = {'*', 'O', 'K', '\r'};
   static const uint8_t read_then_extended_response[] = {
       '2', '2', '5', '.', '4', '\r', '*', 'O', 'K', '\r',
       '?', 'O', 'R', 'P', 'e', 'x', 't', ',', '1', '\r', '*', 'O', 'K', '\r'};
@@ -67,9 +68,17 @@ static void test_uart_helpers_cover_plain_read_and_query_sequences(void) {
   ezo_fake_uart_transport_init(&fake);
   assert(ezo_uart_device_init(&device, ezo_fake_uart_transport_vtable(), &fake) == EZO_OK);
 
-  ezo_fake_uart_transport_set_response(&fake,
-                                       read_then_extended_response,
-                                       sizeof(read_then_extended_response));
+  assert(ezo_orp_send_extended_scale_set_uart(&device, EZO_ORP_EXTENDED_SCALE_ENABLED, &hint) ==
+         EZO_OK);
+  assert(hint.wait_ms == 300);
+  assert(fake.tx_len == strlen("ORPext,1\r"));
+  assert(memcmp(fake.tx_bytes, "ORPext,1\r", strlen("ORPext,1\r")) == 0);
+
+  ezo_fake_uart_transport_set_response(&fake, ok_response, sizeof(ok_response));
+  ezo_fake_uart_transport_append_response(&fake,
+                                          read_then_extended_response,
+                                          sizeof(read_then_extended_response));
+  assert(ezo_uart_read_ok(&device) == EZO_OK);
   assert(ezo_orp_send_read_uart(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 1000);
   assert(ezo_orp_read_response_uart(&device, &reading) == EZO_OK);

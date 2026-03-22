@@ -98,6 +98,7 @@ static void test_i2c_helpers_send_and_parse_shared_control_responses(void) {
 }
 
 static void test_uart_helpers_send_and_parse_shared_control_sequences(void) {
+  static const uint8_t ok_response[] = {'*', 'O', 'K', '\r'};
   static const uint8_t name_response[] = {'?', 'N', 'a', 'm', 'e', ',', 'm', 'i', 'x', '\r',
                                           '*', 'O', 'K', '\r'};
   static const uint8_t protocol_lock_response[] = {'?', 'P', 'l', 'o', 'c', 'k', ',', '1', '\r',
@@ -121,7 +122,9 @@ static void test_uart_helpers_send_and_parse_shared_control_sequences(void) {
   assert(fake.tx_len == strlen("L,1\r"));
   assert(memcmp(fake.tx_bytes, "L,1\r", strlen("L,1\r")) == 0);
 
-  ezo_fake_uart_transport_set_response(&fake, name_response, sizeof(name_response));
+  ezo_fake_uart_transport_set_response(&fake, ok_response, sizeof(ok_response));
+  ezo_fake_uart_transport_append_response(&fake, name_response, sizeof(name_response));
+  assert(ezo_uart_read_ok(&device) == EZO_OK);
   assert(ezo_control_send_name_query_uart(&device, EZO_PRODUCT_HUM, &hint) == EZO_OK);
   assert(ezo_control_read_name_uart(&device, &name) == EZO_OK);
   assert(strcmp(name.name, "mix") == 0);
@@ -142,9 +145,11 @@ static void test_uart_helpers_send_and_parse_shared_control_sequences(void) {
   assert(memcmp(&fake.tx_bytes[fake.tx_len - strlen("*OK,0\r")], "*OK,0\r", strlen("*OK,0\r")) ==
          0);
 
-  ezo_fake_uart_transport_set_response(&fake,
-                                       response_code_response,
-                                       sizeof(response_code_response));
+  ezo_fake_uart_transport_set_response(&fake, ok_response, sizeof(ok_response));
+  ezo_fake_uart_transport_append_response(&fake,
+                                          response_code_response,
+                                          sizeof(response_code_response));
+  assert(ezo_uart_read_ok(&device) == EZO_OK);
   assert(ezo_control_send_response_code_query_uart(&device, EZO_PRODUCT_HUM, &hint) == EZO_OK);
   assert(ezo_control_read_response_code_uart(&device, &response_code) == EZO_OK);
   assert(response_code.enabled == 0);
@@ -155,10 +160,43 @@ static void test_uart_helpers_send_and_parse_shared_control_sequences(void) {
                 strlen("I2C,111\r")) == 0);
 }
 
+static void test_uart_response_code_bootstrap_stays_explicit(void) {
+  static const uint8_t response_code_disabled_response[] = {'?', '*', 'O', 'K', ',', '0', '\r'};
+  static const uint8_t ok_response[] = {'*', 'O', 'K', '\r'};
+  static const uint8_t name_response[] = {'?', 'N', 'a', 'm', 'e', ',', 'm', 'i', 'x', '\r',
+                                          '*', 'O', 'K', '\r'};
+  ezo_fake_uart_transport_t fake;
+  ezo_uart_device_t device;
+  ezo_timing_hint_t hint;
+  ezo_control_response_code_status_t response_code;
+  ezo_control_name_t name;
+
+  ezo_fake_uart_transport_init(&fake);
+  assert(ezo_uart_device_init(&device, ezo_fake_uart_transport_vtable(), &fake) == EZO_OK);
+
+  ezo_fake_uart_transport_set_response(&fake,
+                                       response_code_disabled_response,
+                                       sizeof(response_code_disabled_response));
+  assert(ezo_control_send_response_code_query_uart(&device, EZO_PRODUCT_HUM, &hint) == EZO_OK);
+  assert(hint.wait_ms == 300);
+  assert(ezo_control_read_response_code_uart(&device, &response_code) == EZO_OK);
+  assert(response_code.enabled == 0);
+
+  ezo_fake_uart_transport_set_response(&fake, ok_response, sizeof(ok_response));
+  ezo_fake_uart_transport_append_response(&fake, name_response, sizeof(name_response));
+  assert(ezo_control_send_response_code_set_uart(&device, EZO_PRODUCT_HUM, 1, &hint) == EZO_OK);
+  assert(ezo_uart_read_ok(&device) == EZO_OK);
+
+  assert(ezo_control_send_name_query_uart(&device, EZO_PRODUCT_HUM, &hint) == EZO_OK);
+  assert(ezo_control_read_name_uart(&device, &name) == EZO_OK);
+  assert(strcmp(name.name, "mix") == 0);
+}
+
 int main(void) {
   test_parse_helpers_cover_shared_control_queries();
   test_builders_cover_shared_control_commands();
   test_i2c_helpers_send_and_parse_shared_control_responses();
   test_uart_helpers_send_and_parse_shared_control_sequences();
+  test_uart_response_code_bootstrap_stays_explicit();
   return 0;
 }
