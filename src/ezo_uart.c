@@ -200,7 +200,7 @@ ezo_result_t ezo_uart_read_line(ezo_uart_device_t *device,
     return EZO_ERR_INVALID_ARGUMENT;
   }
 
-  if (buffer_len > (size_t)EZO_UART_MAX_TEXT_RESPONSE_LEN + 1U) {
+  if (buffer_len > (size_t)EZO_UART_MAX_TEXT_RESPONSE_CAPACITY) {
     return EZO_ERR_INVALID_ARGUMENT;
   }
 

@@ -731,7 +731,8 @@ ezo_result_t ezo_ec_read_response_uart(ezo_uart_device_t *device,
                                        ezo_ec_reading_t *reading_out) {
   char buffer[EZO_EC_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
-  ezo_result_t result = ezo_ec_read_uart_data_line(device, buffer, sizeof(buffer), &response_len);
+  ezo_result_t result =
+      ezo_ec_read_uart_data_then_ok(device, buffer, sizeof(buffer), &response_len);
   if (result != EZO_OK) {
     return result;
   }

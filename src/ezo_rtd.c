@@ -8,7 +8,7 @@
 #include <string.h>
 
 enum {
-  EZO_RTD_RESPONSE_BUFFER_LEN = EZO_UART_MAX_TEXT_RESPONSE_LEN
+  EZO_RTD_RESPONSE_BUFFER_LEN = EZO_UART_MAX_TEXT_RESPONSE_CAPACITY
 };
 
 static ezo_result_t ezo_rtd_copy_command(char *buffer, size_t buffer_len, const char *command) {
@@ -707,11 +707,8 @@ ezo_result_t ezo_rtd_read_response_uart(ezo_uart_device_t *device,
                                         ezo_rtd_reading_t *reading_out) {
   char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
-  ezo_result_t result = ezo_rtd_read_uart_line_of_kind(device,
-                                                       EZO_UART_RESPONSE_DATA,
-                                                       buffer,
-                                                       sizeof(buffer),
-                                                       &response_len);
+  ezo_result_t result =
+      ezo_rtd_read_uart_data_then_ok(device, buffer, sizeof(buffer), &response_len);
   if (result != EZO_OK) {
     return result;
   }

@@ -129,9 +129,9 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
 }
 
 static void test_uart_helpers_cover_plain_read_and_query_sequences(void) {
-  static const uint8_t read_response[] = {'5', '0', '0', '.', '0', ',', '2', '5', '0', '\r'};
-  static const uint8_t output_response[] = {'?', 'O', ',', 'E', 'C', ',', 'S', '\r',
-                                            '*', 'O', 'K', '\r'};
+  static const uint8_t read_then_output_response[] = {
+      '5', '0', '0', '.', '0', ',', '2', '5', '0', '\r', '*', 'O', 'K', '\r',
+      '?', 'O', ',', 'E', 'C', ',', 'S', '\r', '*', 'O', 'K', '\r'};
   static const uint8_t temperature_response[] = {'?', 'T', ',', '2', '4', '.', '5', '\r',
                                                  '*', 'O', 'K', '\r'};
   ezo_fake_uart_transport_t fake;
@@ -150,7 +150,9 @@ static void test_uart_helpers_cover_plain_read_and_query_sequences(void) {
   assert(fake.tx_len == strlen("K,1.0\r"));
   assert(memcmp(fake.tx_bytes, "K,1.0\r", strlen("K,1.0\r")) == 0);
 
-  ezo_fake_uart_transport_set_response(&fake, read_response, sizeof(read_response));
+  ezo_fake_uart_transport_set_response(&fake,
+                                       read_then_output_response,
+                                       sizeof(read_then_output_response));
   assert(ezo_ec_send_read_uart(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 600);
   assert(ezo_ec_read_response_uart(&device,
@@ -161,7 +163,6 @@ static void test_uart_helpers_cover_plain_read_and_query_sequences(void) {
   assert(reading.total_dissolved_solids_ppm > 249.9 && reading.total_dissolved_solids_ppm <
                                                        250.1);
 
-  ezo_fake_uart_transport_set_response(&fake, output_response, sizeof(output_response));
   assert(ezo_ec_send_output_query_uart(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(ezo_ec_read_output_config_uart(&device, &output_config) == EZO_OK);

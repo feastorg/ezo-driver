@@ -125,8 +125,9 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
 }
 
 static void test_uart_helpers_cover_plain_read_and_query_sequences(void) {
-  static const uint8_t read_response[] = {'2', '5', '.', '1', '0', '4', '\r'};
-  static const uint8_t scale_response[] = {'?', 'S', ',', 'c', '\r', '*', 'O', 'K', '\r'};
+  static const uint8_t read_then_scale_response[] = {
+      '2', '5', '.', '1', '0', '4', '\r', '*', 'O', 'K', '\r',
+      '?', 'S', ',', 'c', '\r', '*', 'O', 'K', '\r'};
   ezo_fake_uart_transport_t fake;
   ezo_uart_device_t device;
   ezo_timing_hint_t hint;
@@ -144,14 +145,15 @@ static void test_uart_helpers_cover_plain_read_and_query_sequences(void) {
   assert(fake.tx_len == strlen("S,k\r"));
   assert(memcmp(fake.tx_bytes, "S,k\r", strlen("S,k\r")) == 0);
 
-  ezo_fake_uart_transport_set_response(&fake, read_response, sizeof(read_response));
+  ezo_fake_uart_transport_set_response(&fake,
+                                       read_then_scale_response,
+                                       sizeof(read_then_scale_response));
   assert(ezo_rtd_send_read_uart(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 1000);
   assert(ezo_rtd_read_response_uart(&device, EZO_RTD_SCALE_CELSIUS, &reading) == EZO_OK);
   assert(reading.temperature > 25.10 && reading.temperature < 25.11);
   assert(reading.scale == EZO_RTD_SCALE_CELSIUS);
 
-  ezo_fake_uart_transport_set_response(&fake, scale_response, sizeof(scale_response));
   assert(ezo_rtd_send_scale_query_uart(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(ezo_rtd_read_scale_uart(&device, &scale) == EZO_OK);

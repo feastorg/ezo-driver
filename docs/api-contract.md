@@ -150,13 +150,13 @@ Rules:
 1. Product modules stay transport-explicit; there is no unified product device object.
 2. Send helpers return timing hints but do not sleep.
 3. Typed read/query helpers assume the device returned the expected success payload shape; callers that need raw status distinctions still use the transport-level APIs directly.
-4. UART helpers may consume more than one line when a product response sequence requires it.
+4. UART helpers may consume more than one line when a product response sequence requires it, including trailing success tokens such as `*OK`.
 5. RTD reading helpers require the caller to provide the current temperature scale unless that scale was queried separately first.
 6. Multi-output typed reading helpers require an explicit enabled-output mask from the caller and do not hide an output-configuration query internally.
 7. EC, DO, and HUM output-configuration helpers are product-specific; the shared parse/schema layer does not expose a public generic output-config parser.
 8. Shared control/admin helpers remain transport-explicit and product-aware only for timing lookup; they do not create a unified product device abstraction.
 9. Calibration-transfer helpers expose command/query primitives and sequence-shaped reads, but they do not hide reboot/reconnect or multi-line loop ownership from the caller.
-10. UART response-code mode is part of the shared control plane because higher layers should not assume `*OK` is enabled at runtime.
+10. UART response-code mode is part of the shared control plane because raw UART callers and applications that need mode-agnostic behavior should not assume `*OK` is enabled at runtime.
 11. RTD bulk memory recall remains caller-buffered; the library does not allocate storage for recalled history.
 
 ## I2C Surface
@@ -259,6 +259,7 @@ UART framing rules:
 - `ezo_uart_read_line()` reads one CR-terminated line
 - returned buffers are null-terminated on success
 - `response_len` excludes the null terminator
+- a full-size caller buffer needs `EZO_UART_MAX_TEXT_RESPONSE_CAPACITY` bytes for the documented 255-character payload ceiling plus the terminator
 
 UART response classification:
 
@@ -284,12 +285,13 @@ Rules:
 6. `ezo_uart_response_kind_is_terminal()` identifies line kinds that can complete a sequence without implying that all sequences are one line long.
 7. Startup or power-state tokens such as `*WA`, `*RE`, and `*RS` are surfaced as valid control events; the core does not hide them.
 8. Higher layers that need a clean workflow boundary should consume or discard stale continuous output and trailing status lines before assuming the next line belongs to a new command.
-9. Shipping defaults such as continuous mode enabled or `*OK` enabled are only bootstrapping heuristics; deterministic higher layers should verify or configure the mode they depend on.
-10. `ezo_uart_discard_input()` is the explicit resynchronization tool when a caller abandons a sequence or wants to drop stale input.
-11. Zero-length or incomplete lines return `EZO_ERR_PROTOCOL`.
-12. Buffer exhaustion before `\r` returns `EZO_ERR_BUFFER_TOO_SMALL`.
-13. v1 does not expose a raw UART response API.
-14. v1 does not expose a UART C++ wrapper.
+9. Typed UART convenience helpers may consume trailing success tokens such as `*OK` when that is part of their documented workflow; callers that need line-by-line ownership use the raw UART API.
+10. Shipping defaults such as continuous mode enabled or `*OK` enabled are only bootstrapping heuristics; deterministic higher layers should verify or configure the mode they depend on.
+11. `ezo_uart_discard_input()` is the explicit resynchronization tool when a caller abandons a sequence or wants to drop stale input.
+12. Zero-length or incomplete lines return `EZO_ERR_PROTOCOL`.
+13. Buffer exhaustion before `\r` returns `EZO_ERR_BUFFER_TOO_SMALL`.
+14. v1 does not expose a raw UART response API.
+15. v1 does not expose a UART C++ wrapper.
 
 ## Validation Boundaries
 

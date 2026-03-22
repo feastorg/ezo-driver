@@ -260,6 +260,52 @@ static void test_uart_read_line_detects_buffer_too_small(void) {
   assert(response_len == 0);
 }
 
+static void test_uart_read_line_accepts_max_length_payload_with_capacity_buffer(void) {
+  ezo_fake_uart_transport_t fake;
+  ezo_uart_device_t device;
+  ezo_uart_response_kind_t kind = EZO_UART_RESPONSE_UNKNOWN;
+  uint8_t response[EZO_UART_MAX_TEXT_RESPONSE_CAPACITY];
+  char buffer[EZO_UART_MAX_TEXT_RESPONSE_CAPACITY];
+  size_t response_len = 0;
+  size_t i = 0;
+
+  for (i = 0; i < (size_t)EZO_UART_MAX_TEXT_RESPONSE_LEN; ++i) {
+    response[i] = '7';
+  }
+  response[EZO_UART_MAX_TEXT_RESPONSE_LEN] = '\r';
+
+  ezo_fake_uart_transport_init(&fake);
+  ezo_fake_uart_transport_set_response(&fake, response, sizeof(response));
+  assert(ezo_uart_device_init(&device, ezo_fake_uart_transport_vtable(), &fake) == EZO_OK);
+  assert(ezo_uart_read_line(&device, buffer, sizeof(buffer), &response_len, &kind) == EZO_OK);
+  assert(kind == EZO_UART_RESPONSE_DATA);
+  assert(response_len == (size_t)EZO_UART_MAX_TEXT_RESPONSE_LEN);
+  assert(buffer[response_len] == '\0');
+}
+
+static void test_uart_read_line_rejects_max_length_payload_without_capacity_buffer(void) {
+  ezo_fake_uart_transport_t fake;
+  ezo_uart_device_t device;
+  ezo_uart_response_kind_t kind = EZO_UART_RESPONSE_UNKNOWN;
+  uint8_t response[EZO_UART_MAX_TEXT_RESPONSE_CAPACITY];
+  char buffer[EZO_UART_MAX_TEXT_RESPONSE_LEN];
+  size_t response_len = 0;
+  size_t i = 0;
+
+  for (i = 0; i < (size_t)EZO_UART_MAX_TEXT_RESPONSE_LEN; ++i) {
+    response[i] = '7';
+  }
+  response[EZO_UART_MAX_TEXT_RESPONSE_LEN] = '\r';
+
+  ezo_fake_uart_transport_init(&fake);
+  ezo_fake_uart_transport_set_response(&fake, response, sizeof(response));
+  assert(ezo_uart_device_init(&device, ezo_fake_uart_transport_vtable(), &fake) == EZO_OK);
+  assert(ezo_uart_read_line(&device, buffer, sizeof(buffer), &response_len, &kind) ==
+         EZO_ERR_BUFFER_TOO_SMALL);
+  assert(kind == EZO_UART_RESPONSE_UNKNOWN);
+  assert(response_len == 0);
+}
+
 static void test_uart_send_command_propagates_transport_failure(void) {
   ezo_fake_uart_transport_t fake;
   ezo_uart_device_t device;
@@ -320,6 +366,8 @@ int main(void) {
   test_uart_read_line_surfaces_startup_control_tokens_explicitly();
   test_uart_read_line_rejects_incomplete_line();
   test_uart_read_line_detects_buffer_too_small();
+  test_uart_read_line_accepts_max_length_payload_with_capacity_buffer();
+  test_uart_read_line_rejects_max_length_payload_without_capacity_buffer();
   test_uart_send_command_propagates_transport_failure();
   test_uart_read_line_propagates_transport_failure();
   test_uart_discard_input_uses_optional_transport_hook();

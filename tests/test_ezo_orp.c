@@ -55,9 +55,9 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
 }
 
 static void test_uart_helpers_cover_plain_read_and_query_sequences(void) {
-  static const uint8_t read_response[] = {'2', '2', '5', '.', '4', '\r'};
-  static const uint8_t extended_response[] = {'?', 'O', 'R', 'P', 'e', 'x', 't', ',', '1', '\r',
-                                              '*', 'O', 'K', '\r'};
+  static const uint8_t read_then_extended_response[] = {
+      '2', '2', '5', '.', '4', '\r', '*', 'O', 'K', '\r',
+      '?', 'O', 'R', 'P', 'e', 'x', 't', ',', '1', '\r', '*', 'O', 'K', '\r'};
   ezo_fake_uart_transport_t fake;
   ezo_uart_device_t device;
   ezo_timing_hint_t hint;
@@ -67,13 +67,14 @@ static void test_uart_helpers_cover_plain_read_and_query_sequences(void) {
   ezo_fake_uart_transport_init(&fake);
   assert(ezo_uart_device_init(&device, ezo_fake_uart_transport_vtable(), &fake) == EZO_OK);
 
-  ezo_fake_uart_transport_set_response(&fake, read_response, sizeof(read_response));
+  ezo_fake_uart_transport_set_response(&fake,
+                                       read_then_extended_response,
+                                       sizeof(read_then_extended_response));
   assert(ezo_orp_send_read_uart(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 1000);
   assert(ezo_orp_read_response_uart(&device, &reading) == EZO_OK);
   assert(reading.millivolts > 225.3 && reading.millivolts < 225.5);
 
-  ezo_fake_uart_transport_set_response(&fake, extended_response, sizeof(extended_response));
   assert(ezo_orp_send_extended_scale_query_uart(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(ezo_orp_read_extended_scale_uart(&device, &extended) == EZO_OK);

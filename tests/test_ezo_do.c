@@ -117,9 +117,9 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
 }
 
 static void test_uart_helpers_cover_plain_read_and_query_sequences(void) {
-  static const uint8_t read_response[] = {'9', '.', '1', '0', '\r'};
-  static const uint8_t pressure_response[] = {'?', 'P', ',', '9', '9', '.', '8', '\r',
-                                              '*', 'O', 'K', '\r'};
+  static const uint8_t read_then_pressure_response[] = {
+      '9', '.', '1', '0', '\r', '*', 'O', 'K', '\r',
+      '?', 'P', ',', '9', '9', '.', '8', '\r', '*', 'O', 'K', '\r'};
   static const uint8_t output_response[] = {'?', 'O', ',', 'm', 'g', ',', '%', '\r',
                                             '*', 'O', 'K', '\r'};
   ezo_fake_uart_transport_t fake;
@@ -139,13 +139,14 @@ static void test_uart_helpers_cover_plain_read_and_query_sequences(void) {
   assert(fake.tx_len == strlen("S,35.0,ppt\r"));
   assert(memcmp(fake.tx_bytes, "S,35.0,ppt\r", strlen("S,35.0,ppt\r")) == 0);
 
-  ezo_fake_uart_transport_set_response(&fake, read_response, sizeof(read_response));
+  ezo_fake_uart_transport_set_response(&fake,
+                                       read_then_pressure_response,
+                                       sizeof(read_then_pressure_response));
   assert(ezo_do_send_read_uart(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 600);
   assert(ezo_do_read_response_uart(&device, EZO_DO_OUTPUT_MG_L, &reading) == EZO_OK);
   assert(reading.milligrams_per_liter > 9.09 && reading.milligrams_per_liter < 9.11);
 
-  ezo_fake_uart_transport_set_response(&fake, pressure_response, sizeof(pressure_response));
   assert(ezo_do_send_pressure_query_uart(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(ezo_do_read_pressure_uart(&device, &pressure) == EZO_OK);

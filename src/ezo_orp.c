@@ -361,11 +361,8 @@ ezo_result_t ezo_orp_read_response_uart(ezo_uart_device_t *device,
                                         ezo_orp_reading_t *reading_out) {
   char buffer[EZO_ORP_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
-  ezo_result_t result = ezo_orp_read_uart_line_of_kind(device,
-                                                       EZO_UART_RESPONSE_DATA,
-                                                       buffer,
-                                                       sizeof(buffer),
-                                                       &response_len);
+  ezo_result_t result =
+      ezo_orp_read_uart_data_then_ok(device, buffer, sizeof(buffer), &response_len);
   if (result != EZO_OK) {
     return result;
   }
