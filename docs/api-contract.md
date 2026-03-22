@@ -157,7 +157,8 @@ Rules:
 8. Shared control/admin helpers remain transport-explicit and product-aware only for timing lookup; they do not create a unified product device abstraction.
 9. Calibration-transfer helpers expose command/query primitives and sequence-shaped reads, but they do not hide reboot/reconnect or multi-line loop ownership from the caller.
 10. UART response-code mode is part of the shared control plane because raw UART callers and applications that need mode-agnostic behavior should not assume `*OK` is enabled at runtime.
-11. RTD bulk memory recall remains caller-buffered; the library does not allocate storage for recalled history.
+11. UART setter or admin commands that acknowledge with a bare terminal token are caller-owned workflows; the explicit success reader is `ezo_uart_read_ok()`, and callers that need to inspect `*ER` or `*DONE` can use `ezo_uart_read_terminal_response()`.
+12. RTD bulk memory recall remains caller-buffered; the library does not allocate storage for recalled history.
 
 ## I2C Surface
 
@@ -214,6 +215,7 @@ The UART API provides:
 - generic command send helpers
 - read helpers for plain read and read-with-temperature-compensation
 - CR-terminated text response reads
+- terminal-status reads for explicit setter or admin acknowledgements
 - optional explicit input discard
 - POSIX serial adapter surface
 - Arduino `Stream` adapter surface
@@ -226,6 +228,8 @@ Primary UART C entry points:
 - `ezo_uart_send_read()`
 - `ezo_uart_send_read_with_temp_comp()`
 - `ezo_uart_read_line()`
+- `ezo_uart_read_terminal_response()`
+- `ezo_uart_read_ok()`
 - `ezo_uart_response_kind_is_control()`
 - `ezo_uart_response_kind_is_terminal()`
 - `ezo_uart_discard_input()`
@@ -286,12 +290,14 @@ Rules:
 7. Startup or power-state tokens such as `*WA`, `*RE`, and `*RS` are surfaced as valid control events; the core does not hide them.
 8. Higher layers that need a clean workflow boundary should consume or discard stale continuous output and trailing status lines before assuming the next line belongs to a new command.
 9. Typed UART convenience helpers may consume trailing success tokens such as `*OK` when that is part of their documented workflow; callers that need line-by-line ownership use the raw UART API.
-10. Shipping defaults such as continuous mode enabled or `*OK` enabled are only bootstrapping heuristics; deterministic higher layers should verify or configure the mode they depend on.
-11. `ezo_uart_discard_input()` is the explicit resynchronization tool when a caller abandons a sequence or wants to drop stale input.
-12. Zero-length or incomplete lines return `EZO_ERR_PROTOCOL`.
-13. Buffer exhaustion before `\r` returns `EZO_ERR_BUFFER_TOO_SMALL`.
-14. v1 does not expose a raw UART response API.
-15. v1 does not expose a UART C++ wrapper.
+10. Setter or admin flows that return only a terminal token should be completed explicitly with `ezo_uart_read_ok()` or `ezo_uart_read_terminal_response()`.
+11. Shipping defaults such as continuous mode enabled or `*OK` enabled are only bootstrapping heuristics; deterministic higher layers should verify or configure the mode they depend on.
+12. The explicit response-code bootstrap recipe is query via `ezo_control_send_response_code_query_uart()` plus `ezo_control_read_response_code_uart()`, then, if disabled, send `ezo_control_send_response_code_set_uart()` and consume the success ack with `ezo_uart_read_ok()`.
+13. `ezo_uart_discard_input()` is the explicit resynchronization tool when a caller abandons a sequence or wants to drop stale input.
+14. Zero-length or incomplete lines return `EZO_ERR_PROTOCOL`.
+15. Buffer exhaustion before `\r` returns `EZO_ERR_BUFFER_TOO_SMALL`.
+16. v1 does not expose a raw UART response API.
+17. v1 does not expose a UART C++ wrapper.
 
 ## Validation Boundaries
 

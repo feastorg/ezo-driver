@@ -59,6 +59,7 @@ The repo-level rule is therefore:
 - the low-level primitive reads one line
 - callers or higher layers consume sequences by reading multiple lines
 - typed product helpers may consume both a payload line and a trailing success token when they expose a parsed success result
+- setter or admin workflows that only acknowledge success should explicitly consume that terminal token with `ezo_uart_read_ok()`
 - `ezo_uart_discard_input()` is the explicit resynchronization tool when abandoning stale or unwanted trailing lines
 
 ## Synchronization Rules
@@ -72,6 +73,16 @@ Higher layers should therefore follow these rules:
 - consume trailing status tokens such as `*OK` or `*DONE`, or explicitly discard them before reusing the transport
 - use the raw `ezo_uart_*` layer when the application needs line-by-line ownership instead of the typed helper's normalized success sequence
 - treat shipping defaults such as continuous mode enabled or `*OK` enabled as heuristics only, not as a guaranteed runtime state
+
+## Response-Code Bootstrap
+
+Higher layers that depend on response-code-enabled UART flows should bootstrap that state explicitly instead of assuming the shipping default is still active:
+
+- send `ezo_control_send_response_code_query_uart()`
+- read the mode with `ezo_control_read_response_code_uart()`
+- if disabled, send `ezo_control_send_response_code_set_uart()`
+- consume the setter acknowledgement with `ezo_uart_read_ok()`
+- only then start typed workflows that require trailing `*OK`
 
 ## Single Read And Continuous Read
 
