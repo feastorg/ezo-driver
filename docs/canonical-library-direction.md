@@ -101,9 +101,13 @@ The next milestone is not more basic typed reads or missing control/admin helper
 
 The current baseline is still missing:
 
-- a tracked support matrix built on the current support-tier model
-- broader curated examples for the shared control/admin and advanced product helpers
 - a matching UART C++ wrapper only if the C surface justifies it
+
+The tracked support matrix, migration guidance, and curated public API layer docs now live in:
+
+- `docs/support-matrix.md`
+- `docs/migration-guide.md`
+- `docs/public-api-layers.md`
 
 ## Explicit non-goals
 

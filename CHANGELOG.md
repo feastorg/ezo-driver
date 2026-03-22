@@ -11,6 +11,8 @@ All notable tracked changes to this rewrite will be recorded here.
 - advanced typed product helpers for pH extended range, RTD logger/memory, and HUM temperature calibration
 - typed calibration helpers for pH, EC, DO, and RTD
 - host-side fake-transport tests for the shared control/calibration-transfer modules and the expanded product helpers
+- public API layer, support-matrix, and migration-guide docs
+- canonical Linux examples for device identity and shared control queries
 
 ### Changed
 
@@ -18,6 +20,8 @@ All notable tracked changes to this rewrite will be recorded here.
 - aligned the HUM canonical schema order with the product's humidity, air-temperature, then dew-point output order
 - completed RTD bulk memory recall support and richer I2C calibration-import completion reporting
 - updated the tracked docs to reflect full Phase 6 control-plane and advanced-feature coverage
+- refined package metadata and added a CMake install/export surface for host consumers
+- explicitly deferred the UART C++ wrapper again during Phase 7 public-surface consolidation
 
 ## [0.3.0] - current baseline
 

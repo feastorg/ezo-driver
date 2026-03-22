@@ -8,12 +8,35 @@ project(
 )
 
 include(CTest)
+include(GNUInstallDirs)
 
 option(EZO_BUILD_TESTS "Build unit tests" OFF)
 option(EZO_BUILD_EXAMPLES "Build examples" OFF)
 option(EZO_BUILD_ARDUINO_ADAPTER "Build Arduino adapter sources" OFF)
 option(EZO_BUILD_LINUX_ADAPTER "Build Linux adapter sources" OFF)
 option(EZO_BUILD_POSIX_UART_ADAPTER "Build POSIX UART adapter sources" OFF)
+
+set(EZO_PUBLIC_HEADERS
+  src/ezo.h
+  src/ezo_calibration_transfer.h
+  src/ezo_control.h
+  src/ezo_do.h
+  src/ezo_ec.h
+  src/ezo_hum.h
+  src/ezo_i2c.h
+  src/ezo_i2c.hpp
+  src/ezo_i2c_arduino_wire.h
+  src/ezo_i2c_linux_i2c.h
+  src/ezo_orp.h
+  src/ezo_parse.h
+  src/ezo_ph.h
+  src/ezo_product.h
+  src/ezo_rtd.h
+  src/ezo_schema.h
+  src/ezo_uart.h
+  src/ezo_uart_arduino_stream.h
+  src/ezo_uart_posix_serial.h
+)
 
 add_library(ezo_core STATIC
   src/ezo.c
@@ -35,7 +58,8 @@ add_library(ezo_core STATIC
 
 target_include_directories(ezo_core
   PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_compile_features(ezo_core PUBLIC c_std_99)
@@ -44,7 +68,8 @@ add_library(ezo_i2c_cpp INTERFACE)
 
 target_include_directories(ezo_i2c_cpp
   INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_link_libraries(ezo_i2c_cpp INTERFACE ezo_core)
@@ -335,7 +360,8 @@ if(EZO_BUILD_LINUX_ADAPTER)
 
   target_include_directories(ezo_i2c_linux_adapter
     PUBLIC
-      ${CMAKE_CURRENT_SOURCE_DIR}/src
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
 
   target_link_libraries(ezo_i2c_linux_adapter PUBLIC ezo_core)
@@ -348,7 +374,8 @@ if(EZO_BUILD_POSIX_UART_ADAPTER AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
   target_include_directories(ezo_uart_posix_adapter
     PUBLIC
-      ${CMAKE_CURRENT_SOURCE_DIR}/src
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
 
   target_link_libraries(ezo_uart_posix_adapter PUBLIC ezo_core)
@@ -361,7 +388,8 @@ if(EZO_BUILD_ARDUINO_ADAPTER)
 
   target_include_directories(ezo_i2c_arduino_adapter
     PUBLIC
-      ${CMAKE_CURRENT_SOURCE_DIR}/src
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
 
   target_link_libraries(ezo_i2c_arduino_adapter PUBLIC ezo_core)
@@ -372,7 +400,8 @@ if(EZO_BUILD_ARDUINO_ADAPTER)
 
   target_include_directories(ezo_uart_arduino_adapter
     PUBLIC
-      ${CMAKE_CURRENT_SOURCE_DIR}/src
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
 
   target_link_libraries(ezo_uart_arduino_adapter PUBLIC ezo_core)
@@ -408,6 +437,18 @@ if(EZO_BUILD_EXAMPLES AND EZO_BUILD_LINUX_ADAPTER)
   )
 
   target_link_libraries(ezo_hum_linux_read_example PRIVATE ezo_i2c_linux_adapter)
+
+  add_executable(ezo_identity_linux_example
+    examples/linux_identity.c
+  )
+
+  target_link_libraries(ezo_identity_linux_example PRIVATE ezo_i2c_linux_adapter)
+
+  add_executable(ezo_control_status_linux_example
+    examples/linux_control_status.c
+  )
+
+  target_link_libraries(ezo_control_status_linux_example PRIVATE ezo_i2c_linux_adapter)
 endif()
 
 if(EZO_BUILD_EXAMPLES AND EZO_BUILD_POSIX_UART_ADAPTER AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -417,3 +458,39 @@ if(EZO_BUILD_EXAMPLES AND EZO_BUILD_POSIX_UART_ADAPTER AND CMAKE_SYSTEM_NAME STR
 
   target_link_libraries(ezo_uart_linux_read_example PRIVATE ezo_uart_posix_adapter)
 endif()
+
+install(TARGETS ezo_core ezo_i2c_cpp
+  EXPORT ezo_driver_targets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(FILES ${EZO_PUBLIC_HEADERS}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+if(TARGET ezo_i2c_linux_adapter)
+  install(TARGETS ezo_i2c_linux_adapter
+    EXPORT ezo_driver_targets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
+endif()
+
+if(TARGET ezo_uart_posix_adapter)
+  install(TARGETS ezo_uart_posix_adapter
+    EXPORT ezo_driver_targets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
+endif()
+
+install(EXPORT ezo_driver_targets
+  FILE ezo_driver_targets.cmake
+  NAMESPACE ezo::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ezo_driver
+)

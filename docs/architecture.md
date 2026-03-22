@@ -161,6 +161,14 @@ Validation is split across:
 - PlatformIO Arduino compile coverage for both I2C and UART examples
 - manual Arduino IDE validation
 
+## Public Surface Guidance
+
+The public starting-point docs for this phase are:
+
+- `docs/public-api-layers.md`
+- `docs/support-matrix.md`
+- `docs/migration-guide.md`
+
 ## Packaging
 
 Primary development flow:
@@ -171,8 +179,9 @@ Packaging/distribution surfaces:
 
 - `library.properties` for Arduino tooling
 - `library.json` for PlatformIO
+- `cmake --install` for host-side header and static-library installation
 
-Arduino packaging now covers both the I2C and UART Arduino-facing headers. Host-only Linux support remains a CMake-side concern.
+Arduino packaging now covers the full public header surface. Host-only Linux support remains a CMake-side concern, and the CMake install path exports installable targets plus public headers.
 
 ## Handoff Notes
 

@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/schema/library.json",
   "name": "ezo-driver",
   "version": "0.3.0",
-  "description": "Cross-platform Atlas Scientific EZO driver with I2C and UART cores plus Arduino adapters",
+  "description": "Cross-platform Atlas Scientific EZO driver with explicit I2C/UART cores, shared control helpers, and typed product modules",
   "keywords": [
     "ezo",
     "i2c",
@@ -16,9 +16,20 @@
   "platforms": "*",
   "headers": [
     "ezo.h",
+    "ezo_calibration_transfer.h",
+    "ezo_control.h",
+    "ezo_do.h",
+    "ezo_ec.h",
+    "ezo_hum.h",
     "ezo_i2c.h",
     "ezo_i2c.hpp",
     "ezo_i2c_arduino_wire.h",
+    "ezo_orp.h",
+    "ezo_parse.h",
+    "ezo_ph.h",
+    "ezo_product.h",
+    "ezo_rtd.h",
+    "ezo_schema.h",
     "ezo_uart.h",
     "ezo_uart_arduino_stream.h"
   ]
