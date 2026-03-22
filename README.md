@@ -115,7 +115,7 @@ Short version:
   [`examples/linux/i2c/raw/raw_command.c`](./examples/linux/i2c/raw/raw_command.c)
   or [`examples/linux/uart/raw/raw_command.c`](./examples/linux/uart/raw/raw_command.c)
 - If you need Arduino, use the curated sketches under `examples/arduino/`:
-  raw smoke, commissioning inspect, and simple pH reads for both I2C and UART.
+  raw smoke, commissioning inspect, and simple pH and D.O. reads for both I2C and UART.
 
 Representative entry points:
 
@@ -130,6 +130,8 @@ Representative entry points:
   and [`examples/linux/uart/advanced/calibration_transfer.c`](./examples/linux/uart/advanced/calibration_transfer.c)
 - Arduino I2C inspect: [`examples/arduino/i2c/commissioning/inspect_device/inspect_device.ino`](./examples/arduino/i2c/commissioning/inspect_device/inspect_device.ino)
 - Arduino UART inspect: [`examples/arduino/uart/commissioning/inspect_device/inspect_device.ino`](./examples/arduino/uart/commissioning/inspect_device/inspect_device.ino)
+- Arduino I2C typed D.O.: [`examples/arduino/i2c/typed/read_do/read_do.ino`](./examples/arduino/i2c/typed/read_do/read_do.ino)
+- Arduino UART typed D.O.: [`examples/arduino/uart/typed/read_do/read_do.ino`](./examples/arduino/uart/typed/read_do/read_do.ino)
 
 ## Entry Points
 

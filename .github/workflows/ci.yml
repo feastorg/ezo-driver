@@ -40,11 +40,15 @@ jobs:
           - board: uno
             sketch: examples/arduino/i2c/typed/read_ph/read_ph.ino
           - board: uno
+            sketch: examples/arduino/i2c/typed/read_do/read_do.ino
+          - board: uno
             sketch: examples/arduino/uart/raw/smoke/smoke.ino
           - board: uno
             sketch: examples/arduino/uart/commissioning/inspect_device/inspect_device.ino
           - board: uno
             sketch: examples/arduino/uart/typed/read_ph/read_ph.ino
+          - board: uno
+            sketch: examples/arduino/uart/typed/read_do/read_do.ino
           - board: nanoatmega328
             sketch: examples/arduino/i2c/raw/smoke/smoke.ino
           - board: nanoatmega328
@@ -52,11 +56,15 @@ jobs:
           - board: nanoatmega328
             sketch: examples/arduino/i2c/typed/read_ph/read_ph.ino
           - board: nanoatmega328
+            sketch: examples/arduino/i2c/typed/read_do/read_do.ino
+          - board: nanoatmega328
             sketch: examples/arduino/uart/raw/smoke/smoke.ino
           - board: nanoatmega328
             sketch: examples/arduino/uart/commissioning/inspect_device/inspect_device.ino
           - board: nanoatmega328
             sketch: examples/arduino/uart/typed/read_ph/read_ph.ino
+          - board: nanoatmega328
+            sketch: examples/arduino/uart/typed/read_do/read_do.ino
           - board: esp32dev
             sketch: examples/arduino/i2c/raw/smoke/smoke.ino
           - board: esp32dev
@@ -64,11 +72,15 @@ jobs:
           - board: esp32dev
             sketch: examples/arduino/i2c/typed/read_ph/read_ph.ino
           - board: esp32dev
+            sketch: examples/arduino/i2c/typed/read_do/read_do.ino
+          - board: esp32dev
             sketch: examples/arduino/uart/raw/smoke/smoke.ino
           - board: esp32dev
             sketch: examples/arduino/uart/commissioning/inspect_device/inspect_device.ino
           - board: esp32dev
             sketch: examples/arduino/uart/typed/read_ph/read_ph.ino
+          - board: esp32dev
+            sketch: examples/arduino/uart/typed/read_do/read_do.ino
 
     steps:
       - name: Checkout

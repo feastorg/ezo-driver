@@ -27,8 +27,8 @@ Use this page as the chooser.
 - `examples/linux/uart/commissioning/`: UART bootstrap, identity, and readiness checks
 - `examples/linux/uart/typed/`: one simple typed read per supported product with explicit response-code bootstrap
 - `examples/linux/uart/advanced/`: safe-by-default UART workflows
-- `examples/arduino/i2c/`: curated I2C smoke, inspect, and pH read sketches
-- `examples/arduino/uart/`: curated UART smoke, inspect, and pH read sketches
+- `examples/arduino/i2c/`: curated I2C smoke, inspect, pH read, and D.O. read sketches
+- `examples/arduino/uart/`: curated UART smoke, inspect, pH read, and D.O. read sketches
 
 ## Safety Model
 
@@ -82,9 +82,11 @@ Use this page as the chooser.
 - I2C raw smoke: [`examples/arduino/i2c/raw/smoke/smoke.ino`](../examples/arduino/i2c/raw/smoke/smoke.ino)
 - I2C inspect device: [`examples/arduino/i2c/commissioning/inspect_device/inspect_device.ino`](../examples/arduino/i2c/commissioning/inspect_device/inspect_device.ino)
 - I2C typed pH read: [`examples/arduino/i2c/typed/read_ph/read_ph.ino`](../examples/arduino/i2c/typed/read_ph/read_ph.ino)
+- I2C typed D.O. read: [`examples/arduino/i2c/typed/read_do/read_do.ino`](../examples/arduino/i2c/typed/read_do/read_do.ino)
 - UART raw smoke: [`examples/arduino/uart/raw/smoke/smoke.ino`](../examples/arduino/uart/raw/smoke/smoke.ino)
 - UART inspect device: [`examples/arduino/uart/commissioning/inspect_device/inspect_device.ino`](../examples/arduino/uart/commissioning/inspect_device/inspect_device.ino)
 - UART typed pH read: [`examples/arduino/uart/typed/read_ph/read_ph.ino`](../examples/arduino/uart/typed/read_ph/read_ph.ino)
+- UART typed D.O. read: [`examples/arduino/uart/typed/read_do/read_do.ino`](../examples/arduino/uart/typed/read_do/read_do.ino)
 
 Linux is the full reference surface. Arduino stays intentionally smaller so the sketches remain readable and CI remains cheap enough to run across the current board set.
 
