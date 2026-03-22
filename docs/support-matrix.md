@@ -28,6 +28,8 @@ This document is the public support statement for the repo.
 
 Support tiers are repo claims, not vendor claims. A product moves tiers only when the implementation, tests, and docs all match.
 
+Future family onboarding follows [`docs/product-onboarding.md`](./product-onboarding.md).
+
 ## Product Matrix
 
 | Product | Tier | Typed Reads | Shared Control | Calibration Transfer | Product-Specific Advanced Surface |

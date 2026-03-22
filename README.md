@@ -51,6 +51,7 @@ Public guidance docs:
 
 - [`docs/public-api-layers.md`](./docs/public-api-layers.md)
 - [`docs/support-matrix.md`](./docs/support-matrix.md)
+- [`docs/product-onboarding.md`](./docs/product-onboarding.md)
 
 ## Layout
 
@@ -171,6 +172,7 @@ Primary implementation files:
 - [`docs/ezo/README.md`](./docs/ezo/README.md): curated EZO product and protocol context for this repo
 - [`docs/public-api-layers.md`](./docs/public-api-layers.md): where to start by API layer and use case
 - [`docs/support-matrix.md`](./docs/support-matrix.md): tracked public support statement and tier policy
+- [`docs/product-onboarding.md`](./docs/product-onboarding.md): maintainer checklist for onboarding another product family
 - [`docs/architecture.md`](./docs/architecture.md): structure, boundaries, packaging, validation
 - [`docs/api-contract.md`](./docs/api-contract.md): behavioral contract for the public API
 - [`docs/canonical-library-direction.md`](./docs/canonical-library-direction.md): stable long-term direction for the canonical product-aware library

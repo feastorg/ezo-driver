@@ -12,7 +12,7 @@ The documentation work in this repo is based on:
 
 1. the code and tracked docs inside `ezo-driver`
 2. vendor-derived working notes kept outside this repo
-3. explicit repo decisions already recorded in `docs/` and `planning/`
+3. explicit repo decisions already recorded in tracked `docs/`
 
 The authoritative public source for device operation remains Atlas Scientific's own documentation.
 

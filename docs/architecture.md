@@ -165,6 +165,7 @@ The public starting-point docs for this phase are:
 
 - `docs/public-api-layers.md`
 - `docs/support-matrix.md`
+- `docs/product-onboarding.md`
 
 ## Packaging
 
@@ -186,6 +187,7 @@ A new developer should treat these files as the main entry points:
 
 - `README.md` for first-contact orientation
 - `docs/canonical-library-direction.md` for the long-term product-aware direction beyond the current transport baseline
+- `docs/product-onboarding.md` for the maintained checklist and validation bar for future product families
 - `docs/ezo/README.md` for product-family and protocol context
 - `src/ezo.h` for shared types and helpers
 - `src/ezo_calibration_transfer.h` for shared export/import helpers

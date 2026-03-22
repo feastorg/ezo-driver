@@ -107,6 +107,7 @@ The tracked support matrix and curated public API layer docs now live in:
 
 - `docs/support-matrix.md`
 - `docs/public-api-layers.md`
+- `docs/product-onboarding.md`
 
 ## Explicit non-goals
 
@@ -119,6 +120,6 @@ The canonical direction is not:
 
 ## How to use this document
 
-Treat this as the fixed long-term direction when writing new plans.
+Treat this as the fixed long-term direction for future product work.
 
-Use `planning/` for phase-by-phase execution detail, and update this document only when the long-term architectural intent changes.
+Use `docs/product-onboarding.md` for the repeatable growth checklist, and update this document only when the long-term architectural intent changes.
