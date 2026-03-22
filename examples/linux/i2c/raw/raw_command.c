@@ -51,7 +51,8 @@ int main(int argc, char **argv) {
   printf("device_path=%s\n", options.device_path);
   printf("address=%u\n", (unsigned)options.address);
   printf("command=name,?\n");
-  printf("device_status=%u\n", (unsigned)status);
+  printf("device_status_name=%s\n", ezo_device_status_name(status));
+  printf("device_status_code=%u\n", (unsigned)status);
   printf("response=%.*s\n", (int)response_len, response);
   return 0;
 }

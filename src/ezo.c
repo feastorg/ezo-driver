@@ -28,6 +28,25 @@ ezo_result_t ezo_get_timing_hint_for_command_kind(ezo_command_kind_t kind,
   return EZO_OK;
 }
 
+const char *ezo_result_name(ezo_result_t result) {
+  switch (result) {
+    case EZO_OK:
+      return "EZO_OK";
+    case EZO_ERR_INVALID_ARGUMENT:
+      return "EZO_ERR_INVALID_ARGUMENT";
+    case EZO_ERR_BUFFER_TOO_SMALL:
+      return "EZO_ERR_BUFFER_TOO_SMALL";
+    case EZO_ERR_TRANSPORT:
+      return "EZO_ERR_TRANSPORT";
+    case EZO_ERR_PROTOCOL:
+      return "EZO_ERR_PROTOCOL";
+    case EZO_ERR_PARSE:
+      return "EZO_ERR_PARSE";
+    default:
+      return "EZO_ERR_UNKNOWN";
+  }
+}
+
 ezo_result_t ezo_parse_double(const char *buffer, size_t buffer_len, double *value_out) {
   return ezo_common_parse_double(buffer, buffer_len, value_out);
 }

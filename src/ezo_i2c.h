@@ -46,6 +46,7 @@ ezo_result_t ezo_device_init(ezo_i2c_device_t *device,
 void ezo_device_set_address(ezo_i2c_device_t *device, uint8_t address);
 uint8_t ezo_device_get_address(const ezo_i2c_device_t *device);
 ezo_device_status_t ezo_device_get_last_status(const ezo_i2c_device_t *device);
+const char *ezo_device_status_name(ezo_device_status_t status);
 
 ezo_result_t ezo_send_command(ezo_i2c_device_t *device,
                               const char *command,

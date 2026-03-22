@@ -24,6 +24,15 @@ static void test_send_command_records_bytes(void) {
   assert(memcmp(fake.last_tx_bytes, "name,?", strlen("name,?")) == 0);
 }
 
+static void test_device_status_name_maps_public_statuses(void) {
+  assert(strcmp(ezo_device_status_name(EZO_STATUS_UNKNOWN), "EZO_STATUS_UNKNOWN") == 0);
+  assert(strcmp(ezo_device_status_name(EZO_STATUS_SUCCESS), "EZO_STATUS_SUCCESS") == 0);
+  assert(strcmp(ezo_device_status_name(EZO_STATUS_FAIL), "EZO_STATUS_FAIL") == 0);
+  assert(strcmp(ezo_device_status_name(EZO_STATUS_NOT_READY), "EZO_STATUS_NOT_READY") == 0);
+  assert(strcmp(ezo_device_status_name(EZO_STATUS_NO_DATA), "EZO_STATUS_NO_DATA") == 0);
+  assert(strcmp(ezo_device_status_name((ezo_device_status_t)99), "EZO_STATUS_INVALID") == 0);
+}
+
 static void test_send_command_with_float_formats_value(void) {
   ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
@@ -370,6 +379,7 @@ static void test_read_response_rejects_oversized_text_buffer(void) {
 }
 
 int main(void) {
+  test_device_status_name_maps_public_statuses();
   test_send_command_records_bytes();
   test_send_command_with_float_formats_value();
   test_send_command_with_float_rounds_negative_values();

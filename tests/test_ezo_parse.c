@@ -1,3 +1,4 @@
+#include "ezo.h"
 #include "ezo_parse.h"
 #include "ezo_product.h"
 #include "ezo_schema.h"
@@ -18,6 +19,16 @@ static void test_parse_csv_fields_trims_and_preserves_empty_fields(void) {
   assert(ezo_text_span_equals_cstr(fields[2], "-4.50") == 1);
   assert(ezo_parse_text_span_double(fields[0], &value) == EZO_OK);
   assert(value > 12.29 && value < 12.31);
+}
+
+static void test_result_name_maps_public_results(void) {
+  assert(strcmp(ezo_result_name(EZO_OK), "EZO_OK") == 0);
+  assert(strcmp(ezo_result_name(EZO_ERR_INVALID_ARGUMENT), "EZO_ERR_INVALID_ARGUMENT") == 0);
+  assert(strcmp(ezo_result_name(EZO_ERR_BUFFER_TOO_SMALL), "EZO_ERR_BUFFER_TOO_SMALL") == 0);
+  assert(strcmp(ezo_result_name(EZO_ERR_TRANSPORT), "EZO_ERR_TRANSPORT") == 0);
+  assert(strcmp(ezo_result_name(EZO_ERR_PROTOCOL), "EZO_ERR_PROTOCOL") == 0);
+  assert(strcmp(ezo_result_name(EZO_ERR_PARSE), "EZO_ERR_PARSE") == 0);
+  assert(strcmp(ezo_result_name((ezo_result_t)99), "EZO_ERR_UNKNOWN") == 0);
 }
 
 static void test_parse_query_response_extracts_prefix_and_fields(void) {
@@ -192,6 +203,7 @@ static void test_product_resolve_timing_hint_prefers_metadata_and_falls_back(voi
 }
 
 int main(void) {
+  test_result_name_maps_public_results();
   test_parse_csv_fields_trims_and_preserves_empty_fields();
   test_parse_query_response_extracts_prefix_and_fields();
   test_parse_query_response_allows_prefix_only();

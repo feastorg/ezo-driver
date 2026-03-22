@@ -1,6 +1,6 @@
 /*
 Purpose: minimal Arduino I2C raw smoke path.
-Defaults: Wire on the board default pins and address 99.
+Defaults: Wire on the board default pins and `DEVICE_I2C_ADDRESS`.
 Assumptions: the device is already in I2C mode and wired to the selected bus.
 Next: read ../../commissioning/inspect_device/inspect_device.ino for identity checks.
 */
@@ -11,7 +11,8 @@ Next: read ../../commissioning/inspect_device/inspect_device.ino for identity ch
 #include <ezo_i2c_arduino_wire.h>
 
 enum {
-  STARTUP_SETTLE_MS = 1000U
+  STARTUP_SETTLE_MS = 1000U,
+  DEVICE_I2C_ADDRESS = 99U
 };
 
 static ezo_arduino_wire_context_t wire_context;
@@ -19,18 +20,26 @@ static ezo_i2c_device_t device;
 static unsigned long startup_started_at_ms = 0;
 static uint8_t smoke_sent = 0;
 
-static void fail_fast(ezo_result_t result) {
+static void fail_fast(const char *step, ezo_result_t result) {
   if (result == EZO_OK) {
     return;
   }
 
+  Serial.print("driver_error_step=");
+  Serial.println(step);
+  Serial.print("driver_error_name=");
+  Serial.println(ezo_result_name(result));
+  Serial.print("driver_error_code=");
+  Serial.println((int)result);
   while (true) {
   }
 }
 
+#define CHECK_OK(step, expr) fail_fast(step, (expr))
+
 static void send_smoke_command() {
   ezo_timing_hint_t hint;
-  fail_fast(ezo_send_command(&device, "name,?", EZO_COMMAND_GENERIC, &hint));
+  CHECK_OK("send_smoke_command", ezo_send_command(&device, "name,?", EZO_COMMAND_GENERIC, &hint));
 
   Serial.println("smoke_sent=1");
 }
@@ -39,8 +48,13 @@ void setup() {
   Serial.begin(115200);
   Wire.begin();
 
-  fail_fast(ezo_arduino_wire_context_init(&wire_context, &Wire));
-  fail_fast(ezo_device_init(&device, 99, ezo_arduino_wire_transport(), &wire_context));
+  Serial.print("configured_i2c_address=");
+  Serial.println(DEVICE_I2C_ADDRESS);
+
+  CHECK_OK("init_wire_context", ezo_arduino_wire_context_init(&wire_context, &Wire));
+  CHECK_OK(
+      "init_device",
+      ezo_device_init(&device, DEVICE_I2C_ADDRESS, ezo_arduino_wire_transport(), &wire_context));
   startup_started_at_ms = millis();
 }
 

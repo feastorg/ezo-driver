@@ -44,13 +44,17 @@ static void begin_sensor_stream() {
 #endif
 }
 
-static void fail_fast(ezo_result_t result) {
+static void fail_fast(const char *step, ezo_result_t result) {
   if (result == EZO_OK) {
     return;
   }
 
 #if EZO_UART_HAS_DEBUG_STREAM
-  Serial.print("driver error: ");
+  Serial.print("driver_error_step=");
+  Serial.println(step);
+  Serial.print("driver_error_name=");
+  Serial.println(ezo_result_name(result));
+  Serial.print("driver_error_code=");
   Serial.println((int)result);
 #endif
 
@@ -58,9 +62,11 @@ static void fail_fast(ezo_result_t result) {
   }
 }
 
+#define CHECK_OK(step, expr) fail_fast(step, (expr))
+
 static void send_smoke_command() {
   ezo_timing_hint_t hint;
-  fail_fast(ezo_uart_send_command(&device, "i", EZO_COMMAND_GENERIC, &hint));
+  CHECK_OK("send_smoke_command", ezo_uart_send_command(&device, "i", EZO_COMMAND_GENERIC, &hint));
 
 #if EZO_UART_HAS_DEBUG_STREAM
   Serial.println("smoke_sent=1");
@@ -69,9 +75,9 @@ static void send_smoke_command() {
 
 void setup() {
   begin_sensor_stream();
-  fail_fast(ezo_uart_arduino_stream_context_init(&uart_context, sensor_stream()));
-  fail_fast(
-      ezo_uart_device_init(&device, ezo_uart_arduino_stream_transport(), &uart_context));
+  CHECK_OK("init_uart_context", ezo_uart_arduino_stream_context_init(&uart_context, sensor_stream()));
+  CHECK_OK("init_uart_device",
+           ezo_uart_device_init(&device, ezo_uart_arduino_stream_transport(), &uart_context));
   startup_started_at_ms = millis();
 }
 

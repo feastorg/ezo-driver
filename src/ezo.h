@@ -31,6 +31,8 @@ typedef struct {
 ezo_result_t ezo_get_timing_hint_for_command_kind(ezo_command_kind_t kind,
                                                   ezo_timing_hint_t *timing_hint);
 
+const char *ezo_result_name(ezo_result_t result);
+
 ezo_result_t ezo_parse_double(const char *buffer, size_t buffer_len, double *value_out);
 
 #ifdef __cplusplus

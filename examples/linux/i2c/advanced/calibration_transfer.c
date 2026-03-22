@@ -140,7 +140,9 @@ int main(int argc, char **argv) {
       return ezo_example_print_error("import_payload", result);
     }
 
-    printf("import_device_status=%u\n", (unsigned)import_result.device_status);
+    printf("import_device_status_name=%s\n",
+           ezo_device_status_name(import_result.device_status));
+    printf("import_device_status_code=%u\n", (unsigned)import_result.device_status);
     printf("import_pending_reboot=%u\n", (unsigned)import_result.pending_reboot);
   }
 

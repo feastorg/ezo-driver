@@ -127,6 +127,23 @@ ezo_device_status_t ezo_device_get_last_status(const ezo_i2c_device_t *device) {
   return (ezo_device_status_t)device->last_device_status;
 }
 
+const char *ezo_device_status_name(ezo_device_status_t status) {
+  switch (status) {
+    case EZO_STATUS_UNKNOWN:
+      return "EZO_STATUS_UNKNOWN";
+    case EZO_STATUS_SUCCESS:
+      return "EZO_STATUS_SUCCESS";
+    case EZO_STATUS_FAIL:
+      return "EZO_STATUS_FAIL";
+    case EZO_STATUS_NOT_READY:
+      return "EZO_STATUS_NOT_READY";
+    case EZO_STATUS_NO_DATA:
+      return "EZO_STATUS_NO_DATA";
+    default:
+      return "EZO_STATUS_INVALID";
+  }
+}
+
 ezo_result_t ezo_send_command(ezo_i2c_device_t *device,
                               const char *command,
                               ezo_command_kind_t kind,

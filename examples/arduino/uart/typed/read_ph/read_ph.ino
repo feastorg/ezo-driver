@@ -45,13 +45,17 @@ static void begin_streams() {
 #endif
 }
 
-static void fail_fast(ezo_result_t result) {
+static void fail_fast(const char *step, ezo_result_t result) {
   if (result == EZO_OK) {
     return;
   }
 
 #if EZO_UART_HAS_DEBUG_STREAM
-  Serial.print("driver error: ");
+  Serial.print("driver_error_step=");
+  Serial.println(step);
+  Serial.print("driver_error_name=");
+  Serial.println(ezo_result_name(result));
+  Serial.print("driver_error_code=");
   Serial.println((int)result);
 #endif
 
@@ -59,9 +63,11 @@ static void fail_fast(ezo_result_t result) {
   }
 }
 
+#define CHECK_OK(step, expr) fail_fast(step, (expr))
+
 static void request_reading() {
   ezo_timing_hint_t hint;
-  fail_fast(ezo_ph_send_read_uart(&device, &hint));
+  CHECK_OK("send_read", ezo_ph_send_read_uart(&device, &hint));
   delay(hint.wait_ms);
 }
 
@@ -69,24 +75,26 @@ static void ensure_response_codes_enabled() {
   ezo_timing_hint_t hint;
   ezo_control_response_code_status_t response_code;
 
-  fail_fast(ezo_control_send_response_code_query_uart(&device, EZO_PRODUCT_UNKNOWN, &hint));
+  CHECK_OK("send_response_code_query",
+           ezo_control_send_response_code_query_uart(&device, EZO_PRODUCT_UNKNOWN, &hint));
   delay(hint.wait_ms);
-  fail_fast(ezo_control_read_response_code_uart(&device, &response_code));
+  CHECK_OK("read_response_code_query", ezo_control_read_response_code_uart(&device, &response_code));
   if (response_code.enabled != 0) {
     return;
   }
 
-  fail_fast(ezo_control_send_response_code_set_uart(&device, EZO_PRODUCT_UNKNOWN, 1, &hint));
+  CHECK_OK("send_response_code_set",
+           ezo_control_send_response_code_set_uart(&device, EZO_PRODUCT_UNKNOWN, 1, &hint));
   delay(hint.wait_ms);
-  fail_fast(ezo_uart_read_ok(&device));
+  CHECK_OK("read_response_code_ack", ezo_uart_read_ok(&device));
 }
 
 void setup() {
   begin_streams();
 
-  fail_fast(ezo_uart_arduino_stream_context_init(&uart_context, sensor_stream()));
-  fail_fast(
-      ezo_uart_device_init(&device, ezo_uart_arduino_stream_transport(), &uart_context));
+  CHECK_OK("init_uart_context", ezo_uart_arduino_stream_context_init(&uart_context, sensor_stream()));
+  CHECK_OK("init_uart_device",
+           ezo_uart_device_init(&device, ezo_uart_arduino_stream_transport(), &uart_context));
   startup_started_at_ms = millis();
 }
 
@@ -98,14 +106,14 @@ void loop() {
       return;
     }
 
-    fail_fast(ezo_uart_discard_input(&device));
+    CHECK_OK("discard_input", ezo_uart_discard_input(&device));
     ensure_response_codes_enabled();
     request_reading();
     read_requested = 1U;
     return;
   }
 
-  fail_fast(ezo_ph_read_response_uart(&device, &reading));
+  CHECK_OK("read_response", ezo_ph_read_response_uart(&device, &reading));
 
 #if EZO_UART_HAS_DEBUG_STREAM
   Serial.print("ph=");

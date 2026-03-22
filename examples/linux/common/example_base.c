@@ -243,6 +243,10 @@ void ezo_example_wait_hint(const ezo_timing_hint_t *hint) {
 }
 
 int ezo_example_print_error(const char *step, ezo_result_t result) {
-  fprintf(stderr, "step=%s result=%d\n", step != NULL ? step : "unknown", (int)result);
+  fprintf(stderr,
+          "step=%s result=%s result_code=%d\n",
+          step != NULL ? step : "unknown",
+          ezo_result_name(result),
+          (int)result);
   return 1;
 }

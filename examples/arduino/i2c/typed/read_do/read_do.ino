@@ -11,7 +11,8 @@ Next: read ../../commissioning/inspect_device/inspect_device.ino for setup check
 #include <ezo_i2c_arduino_wire.h>
 
 enum {
-  STARTUP_SETTLE_MS = 1000U
+  STARTUP_SETTLE_MS = 1000U,
+  DO_I2C_ADDRESS = 97U
 };
 
 static ezo_arduino_wire_context_t wire_context;
@@ -20,16 +21,22 @@ static ezo_do_output_config_t output_config;
 static unsigned long startup_started_at_ms = 0;
 static uint8_t read_requested = 0;
 
-static void fail_fast(ezo_result_t result) {
+static void fail_fast(const char *step, ezo_result_t result) {
   if (result == EZO_OK) {
     return;
   }
 
-  Serial.print("driver_error=");
+  Serial.print("driver_error_step=");
+  Serial.println(step);
+  Serial.print("driver_error_name=");
+  Serial.println(ezo_result_name(result));
+  Serial.print("driver_error_code=");
   Serial.println((int)result);
   while (true) {
   }
 }
+
+#define CHECK_OK(step, expr) fail_fast(step, (expr))
 
 static void wait_hint(const ezo_timing_hint_t *hint) {
   delay(hint->wait_ms);
@@ -38,15 +45,15 @@ static void wait_hint(const ezo_timing_hint_t *hint) {
 static void request_output_config() {
   ezo_timing_hint_t hint;
 
-  fail_fast(ezo_do_send_output_query_i2c(&device, &hint));
+  CHECK_OK("send_output_query", ezo_do_send_output_query_i2c(&device, &hint));
   wait_hint(&hint);
-  fail_fast(ezo_do_read_output_config_i2c(&device, &output_config));
+  CHECK_OK("read_output_query", ezo_do_read_output_config_i2c(&device, &output_config));
 }
 
 static void request_reading() {
   ezo_timing_hint_t hint;
 
-  fail_fast(ezo_do_send_read_i2c(&device, &hint));
+  CHECK_OK("send_read", ezo_do_send_read_i2c(&device, &hint));
   wait_hint(&hint);
 }
 
@@ -54,8 +61,9 @@ void setup() {
   Serial.begin(115200);
   Wire.begin();
 
-  fail_fast(ezo_arduino_wire_context_init(&wire_context, &Wire));
-  fail_fast(ezo_device_init(&device, 97, ezo_arduino_wire_transport(), &wire_context));
+  CHECK_OK("init_wire_context", ezo_arduino_wire_context_init(&wire_context, &Wire));
+  CHECK_OK("init_device",
+           ezo_device_init(&device, DO_I2C_ADDRESS, ezo_arduino_wire_transport(), &wire_context));
   startup_started_at_ms = millis();
 }
 
@@ -73,7 +81,7 @@ void loop() {
     return;
   }
 
-  fail_fast(ezo_do_read_response_i2c(&device, output_config.enabled_mask, &reading));
+  CHECK_OK("read_response", ezo_do_read_response_i2c(&device, output_config.enabled_mask, &reading));
 
   Serial.print("output_mask=");
   Serial.println((unsigned long)output_config.enabled_mask);
