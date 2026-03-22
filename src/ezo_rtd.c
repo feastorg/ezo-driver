@@ -8,7 +8,8 @@
 #include <string.h>
 
 enum {
-  EZO_RTD_RESPONSE_BUFFER_LEN = EZO_UART_MAX_TEXT_RESPONSE_CAPACITY
+  EZO_RTD_I2C_RESPONSE_BUFFER_LEN = EZO_I2C_MAX_TEXT_RESPONSE_LEN,
+  EZO_RTD_UART_RESPONSE_BUFFER_LEN = EZO_UART_MAX_TEXT_RESPONSE_CAPACITY
 };
 
 static ezo_result_t ezo_rtd_copy_command(char *buffer, size_t buffer_len, const char *command) {
@@ -524,7 +525,7 @@ ezo_result_t ezo_rtd_send_memory_clear_i2c(ezo_i2c_device_t *device,
 ezo_result_t ezo_rtd_read_response_i2c(ezo_i2c_device_t *device,
                                        ezo_rtd_scale_t scale,
                                        ezo_rtd_reading_t *reading_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_I2C_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result = ezo_rtd_read_i2c_text(device, buffer, sizeof(buffer), &response_len);
   if (result != EZO_OK) {
@@ -536,7 +537,7 @@ ezo_result_t ezo_rtd_read_response_i2c(ezo_i2c_device_t *device,
 
 ezo_result_t ezo_rtd_read_scale_i2c(ezo_i2c_device_t *device,
                                     ezo_rtd_scale_status_t *status_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_I2C_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result = ezo_rtd_read_i2c_text(device, buffer, sizeof(buffer), &response_len);
   if (result != EZO_OK) {
@@ -549,7 +550,7 @@ ezo_result_t ezo_rtd_read_scale_i2c(ezo_i2c_device_t *device,
 ezo_result_t ezo_rtd_read_calibration_status_i2c(
     ezo_i2c_device_t *device,
     ezo_rtd_calibration_status_t *status_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_I2C_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result = ezo_rtd_read_i2c_text(device, buffer, sizeof(buffer), &response_len);
   if (result != EZO_OK) {
@@ -561,7 +562,7 @@ ezo_result_t ezo_rtd_read_calibration_status_i2c(
 
 ezo_result_t ezo_rtd_read_logger_i2c(ezo_i2c_device_t *device,
                                      ezo_rtd_logger_status_t *status_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_I2C_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result = ezo_rtd_read_i2c_text(device, buffer, sizeof(buffer), &response_len);
   if (result != EZO_OK) {
@@ -573,7 +574,7 @@ ezo_result_t ezo_rtd_read_logger_i2c(ezo_i2c_device_t *device,
 
 ezo_result_t ezo_rtd_read_memory_status_i2c(ezo_i2c_device_t *device,
                                             ezo_rtd_memory_status_t *status_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_I2C_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result = ezo_rtd_read_i2c_text(device, buffer, sizeof(buffer), &response_len);
   if (result != EZO_OK) {
@@ -586,7 +587,7 @@ ezo_result_t ezo_rtd_read_memory_status_i2c(ezo_i2c_device_t *device,
 ezo_result_t ezo_rtd_read_memory_entry_i2c(ezo_i2c_device_t *device,
                                            ezo_rtd_scale_t scale,
                                            ezo_rtd_memory_entry_t *entry_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_I2C_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result = ezo_rtd_read_i2c_text(device, buffer, sizeof(buffer), &response_len);
   if (result != EZO_OK) {
@@ -601,7 +602,7 @@ ezo_result_t ezo_rtd_read_memory_all_i2c(ezo_i2c_device_t *device,
                                          ezo_rtd_memory_value_t *values_out,
                                          size_t values_capacity,
                                          size_t *value_count_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_I2C_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result = ezo_rtd_read_i2c_text(device, buffer, sizeof(buffer), &response_len);
   if (result != EZO_OK) {
@@ -705,7 +706,7 @@ ezo_result_t ezo_rtd_send_memory_clear_uart(ezo_uart_device_t *device,
 ezo_result_t ezo_rtd_read_response_uart(ezo_uart_device_t *device,
                                         ezo_rtd_scale_t scale,
                                         ezo_rtd_reading_t *reading_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_UART_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result =
       ezo_rtd_read_uart_data_then_ok(device, buffer, sizeof(buffer), &response_len);
@@ -718,7 +719,7 @@ ezo_result_t ezo_rtd_read_response_uart(ezo_uart_device_t *device,
 
 ezo_result_t ezo_rtd_read_scale_uart(ezo_uart_device_t *device,
                                      ezo_rtd_scale_status_t *status_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_UART_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result =
       ezo_rtd_read_uart_data_then_ok(device, buffer, sizeof(buffer), &response_len);
@@ -732,7 +733,7 @@ ezo_result_t ezo_rtd_read_scale_uart(ezo_uart_device_t *device,
 ezo_result_t ezo_rtd_read_calibration_status_uart(
     ezo_uart_device_t *device,
     ezo_rtd_calibration_status_t *status_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_UART_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result =
       ezo_rtd_read_uart_data_then_ok(device, buffer, sizeof(buffer), &response_len);
@@ -745,7 +746,7 @@ ezo_result_t ezo_rtd_read_calibration_status_uart(
 
 ezo_result_t ezo_rtd_read_logger_uart(ezo_uart_device_t *device,
                                       ezo_rtd_logger_status_t *status_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_UART_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result =
       ezo_rtd_read_uart_data_then_ok(device, buffer, sizeof(buffer), &response_len);
@@ -758,7 +759,7 @@ ezo_result_t ezo_rtd_read_logger_uart(ezo_uart_device_t *device,
 
 ezo_result_t ezo_rtd_read_memory_status_uart(ezo_uart_device_t *device,
                                              ezo_rtd_memory_status_t *status_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_UART_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result =
       ezo_rtd_read_uart_data_then_ok(device, buffer, sizeof(buffer), &response_len);
@@ -772,7 +773,7 @@ ezo_result_t ezo_rtd_read_memory_status_uart(ezo_uart_device_t *device,
 ezo_result_t ezo_rtd_read_memory_entry_uart(ezo_uart_device_t *device,
                                             ezo_rtd_scale_t scale,
                                             ezo_rtd_memory_entry_t *entry_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_UART_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result =
       ezo_rtd_read_uart_data_then_ok(device, buffer, sizeof(buffer), &response_len);
@@ -788,7 +789,7 @@ ezo_result_t ezo_rtd_read_memory_all_uart(ezo_uart_device_t *device,
                                           ezo_rtd_memory_value_t *values_out,
                                           size_t values_capacity,
                                           size_t *value_count_out) {
-  char buffer[EZO_RTD_RESPONSE_BUFFER_LEN];
+  char buffer[EZO_RTD_UART_RESPONSE_BUFFER_LEN];
   size_t response_len = 0;
   ezo_result_t result =
       ezo_rtd_read_uart_data_then_ok(device, buffer, sizeof(buffer), &response_len);
