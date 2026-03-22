@@ -69,11 +69,11 @@ void loop() {
   ezo_uart_response_kind_t kind = EZO_UART_RESPONSE_UNKNOWN;
   double value = 0.0;
 
-  fail_fast(ezo_uart_read_response(&device,
-                                   response,
-                                   sizeof(response),
-                                   &response_len,
-                                   &kind));
+  fail_fast(ezo_uart_read_line(&device,
+                               response,
+                               sizeof(response),
+                               &response_len,
+                               &kind));
 
 #if EZO_UART_HAS_DEBUG_STREAM
   if (kind == EZO_UART_RESPONSE_DATA &&
