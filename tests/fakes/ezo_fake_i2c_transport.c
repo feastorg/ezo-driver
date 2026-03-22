@@ -1,15 +1,15 @@
-#include "tests/fakes/ezo_fake_transport.h"
+#include "tests/fakes/ezo_fake_i2c_transport.h"
 
 #include <string.h>
 
-static ezo_result_t ezo_fake_write_then_read(void *context,
-                                             uint8_t address,
-                                             const uint8_t *tx_data,
-                                             size_t tx_len,
-                                             uint8_t *rx_data,
-                                             size_t rx_len,
-                                             size_t *rx_received) {
-  ezo_fake_transport_t *fake = (ezo_fake_transport_t *)context;
+static ezo_result_t ezo_fake_i2c_write_then_read(void *context,
+                                                 uint8_t address,
+                                                 const uint8_t *tx_data,
+                                                 size_t tx_len,
+                                                 uint8_t *rx_data,
+                                                 size_t rx_len,
+                                                 size_t *rx_received) {
+  ezo_fake_i2c_transport_t *fake = (ezo_fake_i2c_transport_t *)context;
   size_t to_copy = 0;
 
   if (fake == NULL) {
@@ -28,7 +28,7 @@ static ezo_result_t ezo_fake_write_then_read(void *context,
   }
 
   if (tx_data != NULL && tx_len > 0) {
-    if (tx_len > EZO_FAKE_TRANSPORT_MAX_TX) {
+    if (tx_len > EZO_FAKE_I2C_TRANSPORT_MAX_TX) {
       return EZO_ERR_INVALID_ARGUMENT;
     }
 
@@ -65,7 +65,7 @@ static ezo_result_t ezo_fake_write_then_read(void *context,
   return EZO_OK;
 }
 
-void ezo_fake_transport_init(ezo_fake_transport_t *fake) {
+void ezo_fake_i2c_transport_init(ezo_fake_i2c_transport_t *fake) {
   if (fake == NULL) {
     return;
   }
@@ -74,9 +74,9 @@ void ezo_fake_transport_init(ezo_fake_transport_t *fake) {
   fake->callback_result = EZO_OK;
 }
 
-void ezo_fake_transport_set_response(ezo_fake_transport_t *fake,
-                                     const uint8_t *response_bytes,
-                                     size_t response_len) {
+void ezo_fake_i2c_transport_set_response(ezo_fake_i2c_transport_t *fake,
+                                         const uint8_t *response_bytes,
+                                         size_t response_len) {
   if (fake == NULL) {
     return;
   }
@@ -88,17 +88,17 @@ void ezo_fake_transport_set_response(ezo_fake_transport_t *fake,
     return;
   }
 
-  if (response_len > EZO_FAKE_TRANSPORT_MAX_RX) {
-    response_len = EZO_FAKE_TRANSPORT_MAX_RX;
+  if (response_len > EZO_FAKE_I2C_TRANSPORT_MAX_RX) {
+    response_len = EZO_FAKE_I2C_TRANSPORT_MAX_RX;
   }
 
   memcpy(fake->response_bytes, response_bytes, response_len);
   fake->response_len = response_len;
 }
 
-const ezo_i2c_transport_t *ezo_fake_transport_vtable(void) {
+const ezo_i2c_transport_t *ezo_fake_i2c_transport_vtable(void) {
   static const ezo_i2c_transport_t transport = {
-      ezo_fake_write_then_read,
+      ezo_fake_i2c_write_then_read,
   };
 
   return &transport;

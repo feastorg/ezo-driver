@@ -78,7 +78,7 @@ target_compile_features(ezo_i2c_cpp INTERFACE cxx_std_11)
 
 if(EZO_BUILD_TESTS)
   add_executable(ezo_i2c_core_tests
-    tests/fakes/ezo_fake_transport.c
+    tests/fakes/ezo_fake_i2c_transport.c
     tests/test_ezo_i2c.c
   )
 
@@ -96,7 +96,7 @@ if(EZO_BUILD_TESTS)
   )
 
   add_executable(ezo_i2c_cpp_tests
-    tests/fakes/ezo_fake_transport.c
+    tests/fakes/ezo_fake_i2c_transport.c
     tests/test_ezo_i2c_cpp.cpp
   )
 
@@ -166,7 +166,7 @@ if(EZO_BUILD_TESTS)
   )
 
   add_executable(ezo_control_tests
-    tests/fakes/ezo_fake_transport.c
+    tests/fakes/ezo_fake_i2c_transport.c
     tests/fakes/ezo_fake_uart_transport.c
     tests/test_ezo_control.c
   )
@@ -185,7 +185,7 @@ if(EZO_BUILD_TESTS)
   )
 
   add_executable(ezo_calibration_transfer_tests
-    tests/fakes/ezo_fake_transport.c
+    tests/fakes/ezo_fake_i2c_transport.c
     tests/fakes/ezo_fake_uart_transport.c
     tests/test_ezo_calibration_transfer.c
   )
@@ -204,7 +204,7 @@ if(EZO_BUILD_TESTS)
   )
 
   add_executable(ezo_ph_tests
-    tests/fakes/ezo_fake_transport.c
+    tests/fakes/ezo_fake_i2c_transport.c
     tests/fakes/ezo_fake_uart_transport.c
     tests/test_ezo_ph.c
   )
@@ -223,7 +223,7 @@ if(EZO_BUILD_TESTS)
   )
 
   add_executable(ezo_orp_tests
-    tests/fakes/ezo_fake_transport.c
+    tests/fakes/ezo_fake_i2c_transport.c
     tests/fakes/ezo_fake_uart_transport.c
     tests/test_ezo_orp.c
   )
@@ -242,7 +242,7 @@ if(EZO_BUILD_TESTS)
   )
 
   add_executable(ezo_rtd_tests
-    tests/fakes/ezo_fake_transport.c
+    tests/fakes/ezo_fake_i2c_transport.c
     tests/fakes/ezo_fake_uart_transport.c
     tests/test_ezo_rtd.c
   )
@@ -261,7 +261,7 @@ if(EZO_BUILD_TESTS)
   )
 
   add_executable(ezo_ec_tests
-    tests/fakes/ezo_fake_transport.c
+    tests/fakes/ezo_fake_i2c_transport.c
     tests/fakes/ezo_fake_uart_transport.c
     tests/test_ezo_ec.c
   )
@@ -280,7 +280,7 @@ if(EZO_BUILD_TESTS)
   )
 
   add_executable(ezo_do_tests
-    tests/fakes/ezo_fake_transport.c
+    tests/fakes/ezo_fake_i2c_transport.c
     tests/fakes/ezo_fake_uart_transport.c
     tests/test_ezo_do.c
   )
@@ -299,7 +299,7 @@ if(EZO_BUILD_TESTS)
   )
 
   add_executable(ezo_hum_tests
-    tests/fakes/ezo_fake_transport.c
+    tests/fakes/ezo_fake_i2c_transport.c
     tests/fakes/ezo_fake_uart_transport.c
     tests/test_ezo_hum.c
   )

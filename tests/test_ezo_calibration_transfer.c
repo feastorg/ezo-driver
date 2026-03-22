@@ -1,5 +1,5 @@
 #include "ezo_calibration_transfer.h"
-#include "tests/fakes/ezo_fake_transport.h"
+#include "tests/fakes/ezo_fake_i2c_transport.h"
 #include "tests/fakes/ezo_fake_uart_transport.h"
 
 #include <assert.h>
@@ -22,7 +22,7 @@ static void test_i2c_helpers_cover_export_and_import_flows(void) {
   static const uint8_t export_chunk_response[] = {1, 'A', 'A', 'A', 'A', 0};
   static const uint8_t import_status_response[] = {1, 0};
   static const uint8_t import_pending_response[] = {1, '*', 'P', 'e', 'n', 'd', 'i', 'n', 'g', 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_timing_hint_t hint;
   ezo_calibration_export_info_t info;
@@ -31,17 +31,17 @@ static void test_i2c_helpers_cover_export_and_import_flows(void) {
   size_t chunk_len = 0;
   ezo_device_status_t status = EZO_STATUS_UNKNOWN;
 
-  ezo_fake_transport_init(&fake);
-  assert(ezo_device_init(&device, 99, ezo_fake_transport_vtable(), &fake) == EZO_OK);
+  ezo_fake_i2c_transport_init(&fake);
+  assert(ezo_device_init(&device, 99, ezo_fake_i2c_transport_vtable(), &fake) == EZO_OK);
 
-  ezo_fake_transport_set_response(&fake, export_info_response, sizeof(export_info_response));
+  ezo_fake_i2c_transport_set_response(&fake, export_info_response, sizeof(export_info_response));
   assert(ezo_calibration_send_export_info_query_i2c(&device, EZO_PRODUCT_PH, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(ezo_calibration_read_export_info_i2c(&device, &info) == EZO_OK);
   assert(info.chunk_count == 10U);
   assert(info.byte_count == 120U);
 
-  ezo_fake_transport_set_response(&fake, export_chunk_response, sizeof(export_chunk_response));
+  ezo_fake_i2c_transport_set_response(&fake, export_chunk_response, sizeof(export_chunk_response));
   assert(ezo_calibration_send_export_next_i2c(&device, EZO_PRODUCT_PH, &hint) == EZO_OK);
   assert(ezo_calibration_read_export_chunk_i2c(&device, chunk, sizeof(chunk), &chunk_len) ==
          EZO_OK);
@@ -50,11 +50,11 @@ static void test_i2c_helpers_cover_export_and_import_flows(void) {
 
   assert(ezo_calibration_send_import_i2c(&device, EZO_PRODUCT_PH, "BBBB", &hint) == EZO_OK);
   assert(memcmp(fake.last_tx_bytes, "Import,BBBB", strlen("Import,BBBB")) == 0);
-  ezo_fake_transport_set_response(&fake, import_status_response, sizeof(import_status_response));
+  ezo_fake_i2c_transport_set_response(&fake, import_status_response, sizeof(import_status_response));
   assert(ezo_calibration_read_import_status_i2c(&device, &status) == EZO_OK);
   assert(status == EZO_STATUS_SUCCESS);
 
-  ezo_fake_transport_set_response(&fake,
+  ezo_fake_i2c_transport_set_response(&fake,
                                   import_pending_response,
                                   sizeof(import_pending_response));
   assert(ezo_calibration_read_import_result_i2c(&device, &import_result) == EZO_OK);

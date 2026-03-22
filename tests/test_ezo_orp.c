@@ -1,5 +1,5 @@
 #include "ezo_orp.h"
-#include "tests/fakes/ezo_fake_transport.h"
+#include "tests/fakes/ezo_fake_i2c_transport.h"
 #include "tests/fakes/ezo_fake_uart_transport.h"
 
 #include <assert.h>
@@ -34,20 +34,20 @@ static void test_command_builders_format_expected_commands(void) {
 
 static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   static const uint8_t calibration_response[] = {1, '?', 'C', 'a', 'l', ',', '1', 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_timing_hint_t hint;
   ezo_orp_calibration_status_t calibration;
 
-  ezo_fake_transport_init(&fake);
-  assert(ezo_device_init(&device, 98, ezo_fake_transport_vtable(), &fake) == EZO_OK);
+  ezo_fake_i2c_transport_init(&fake);
+  assert(ezo_device_init(&device, 98, ezo_fake_i2c_transport_vtable(), &fake) == EZO_OK);
 
   assert(ezo_orp_send_calibration_i2c(&device, 225.0, 0, &hint) == EZO_OK);
   assert(hint.wait_ms == 900);
   assert(fake.last_tx_len == strlen("Cal,225"));
   assert(memcmp(fake.last_tx_bytes, "Cal,225", strlen("Cal,225")) == 0);
 
-  ezo_fake_transport_set_response(&fake, calibration_response, sizeof(calibration_response));
+  ezo_fake_i2c_transport_set_response(&fake, calibration_response, sizeof(calibration_response));
   assert(ezo_orp_send_calibration_query_i2c(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(ezo_orp_read_calibration_status_i2c(&device, &calibration) == EZO_OK);

@@ -1,5 +1,5 @@
 #include "ezo_i2c.hpp"
-#include "tests/fakes/ezo_fake_transport.h"
+#include "tests/fakes/ezo_fake_i2c_transport.h"
 
 #include <cassert>
 #include <cstddef>
@@ -7,7 +7,7 @@
 
 static void test_cpp_wrapper_send_read_and_parse(void) {
   static const uint8_t response[] = {1, '1', '2', '.', '3', '4', 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c::Device device;
   ezo_i2c::TimingHint hint;
   ezo_i2c::DeviceStatus status = EZO_STATUS_UNKNOWN;
@@ -15,10 +15,10 @@ static void test_cpp_wrapper_send_read_and_parse(void) {
   std::size_t response_len = 0;
   double value = 0.0;
 
-  ezo_fake_transport_init(&fake);
-  ezo_fake_transport_set_response(&fake, response, sizeof(response));
+  ezo_fake_i2c_transport_init(&fake);
+  ezo_fake_i2c_transport_set_response(&fake, response, sizeof(response));
 
-  assert(device.init(100, ezo_fake_transport_vtable(), &fake) == EZO_OK);
+  assert(device.init(100, ezo_fake_i2c_transport_vtable(), &fake) == EZO_OK);
   assert(device.send_read(&hint) == EZO_OK);
   assert(hint.wait_ms == 1000);
   assert(fake.last_tx_len == 1);
@@ -36,16 +36,16 @@ static void test_cpp_wrapper_send_read_and_parse(void) {
 
 static void test_cpp_wrapper_reads_raw_response(void) {
   static const uint8_t response[] = {1, 'O', 'K', 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c::Device device;
   ezo_i2c::DeviceStatus status = EZO_STATUS_UNKNOWN;
   uint8_t buffer[8];
   size_t response_len = 0;
 
-  ezo_fake_transport_init(&fake);
-  ezo_fake_transport_set_response(&fake, response, sizeof(response));
+  ezo_fake_i2c_transport_init(&fake);
+  ezo_fake_i2c_transport_set_response(&fake, response, sizeof(response));
 
-  assert(device.init(100, ezo_fake_transport_vtable(), &fake) == EZO_OK);
+  assert(device.init(100, ezo_fake_i2c_transport_vtable(), &fake) == EZO_OK);
   assert(device.read_response_raw(buffer, sizeof(buffer), &response_len, &status) == EZO_OK);
   assert(status == EZO_STATUS_SUCCESS);
   assert(response_len == 3);
@@ -55,11 +55,11 @@ static void test_cpp_wrapper_reads_raw_response(void) {
 }
 
 static void test_cpp_wrapper_tracks_address_changes(void) {
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c::Device device;
 
-  ezo_fake_transport_init(&fake);
-  assert(device.init(97, ezo_fake_transport_vtable(), &fake) == EZO_OK);
+  ezo_fake_i2c_transport_init(&fake);
+  assert(device.init(97, ezo_fake_i2c_transport_vtable(), &fake) == EZO_OK);
   assert(device.address() == 97);
 
   device.set_address(98);

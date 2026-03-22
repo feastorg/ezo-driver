@@ -1,5 +1,5 @@
 #include "ezo_ph.h"
-#include "tests/fakes/ezo_fake_transport.h"
+#include "tests/fakes/ezo_fake_i2c_transport.h"
 #include "tests/fakes/ezo_fake_uart_transport.h"
 
 #include <assert.h>
@@ -56,26 +56,26 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   static const uint8_t slope_response[] = {
       1, '?', 'S', 'l', 'o', 'p', 'e', ',', '9', '9', '.', '7', ',', '1',
       '0', '0', '.', '3', ',', '-', '0', '.', '8', '9', 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_timing_hint_t hint;
   ezo_ph_slope_t slope;
   ezo_ph_reading_t reading;
   ezo_ph_extended_range_status_t extended_range;
 
-  ezo_fake_transport_init(&fake);
-  assert(ezo_device_init(&device, 99, ezo_fake_transport_vtable(), &fake) == EZO_OK);
+  ezo_fake_i2c_transport_init(&fake);
+  assert(ezo_device_init(&device, 99, ezo_fake_i2c_transport_vtable(), &fake) == EZO_OK);
 
   assert(ezo_ph_send_read_with_temp_comp_i2c(&device, 19.5, 3, &hint) == EZO_OK);
   assert(hint.wait_ms == 900);
   assert(fake.last_tx_len == strlen("rt,19.500"));
   assert(memcmp(fake.last_tx_bytes, "rt,19.500", strlen("rt,19.500")) == 0);
 
-  ezo_fake_transport_set_response(&fake, (const uint8_t[]){1, '7', '.', '1', '5', 0}, 6);
+  ezo_fake_i2c_transport_set_response(&fake, (const uint8_t[]){1, '7', '.', '1', '5', 0}, 6);
   assert(ezo_ph_read_response_i2c(&device, &reading) == EZO_OK);
   assert(reading.ph > 7.14 && reading.ph < 7.16);
 
-  ezo_fake_transport_set_response(&fake, slope_response, sizeof(slope_response));
+  ezo_fake_i2c_transport_set_response(&fake, slope_response, sizeof(slope_response));
   assert(ezo_ph_send_slope_query_i2c(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(ezo_ph_read_slope_i2c(&device, &slope) == EZO_OK);
@@ -89,7 +89,7 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   assert(hint.wait_ms == 900);
   assert(memcmp(fake.last_tx_bytes, "Cal,mid,7.00", strlen("Cal,mid,7.00")) == 0);
 
-  ezo_fake_transport_set_response(&fake, (const uint8_t[]){1, '?', 'p', 'H', 'e', 'x', 't', ',',
+  ezo_fake_i2c_transport_set_response(&fake, (const uint8_t[]){1, '?', 'p', 'H', 'e', 'x', 't', ',',
                                                            '0', 0},
                                   10);
   assert(ezo_ph_send_extended_range_query_i2c(&device, &hint) == EZO_OK);

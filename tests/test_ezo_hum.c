@@ -1,5 +1,5 @@
 #include "ezo_hum.h"
-#include "tests/fakes/ezo_fake_transport.h"
+#include "tests/fakes/ezo_fake_i2c_transport.h"
 #include "tests/fakes/ezo_fake_uart_transport.h"
 
 #include <assert.h>
@@ -51,22 +51,22 @@ static void test_command_builders_format_expected_commands(void) {
 static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   static const uint8_t output_response[] = {1, '?', 'O', ',', 'H', 'U', 'M', ',', 'D',
                                             'e', 'w', 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_timing_hint_t hint;
   ezo_hum_output_config_t output_config;
   ezo_hum_reading_t reading;
   ezo_hum_temperature_calibration_status_t calibration;
 
-  ezo_fake_transport_init(&fake);
-  assert(ezo_device_init(&device, 111, ezo_fake_transport_vtable(), &fake) == EZO_OK);
+  ezo_fake_i2c_transport_init(&fake);
+  assert(ezo_device_init(&device, 111, ezo_fake_i2c_transport_vtable(), &fake) == EZO_OK);
 
   assert(ezo_hum_send_read_i2c(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(fake.last_tx_len == 1);
   assert(fake.last_tx_bytes[0] == 'r');
 
-  ezo_fake_transport_set_response(&fake, (const uint8_t[]){1, '4', '4', '.', '0', ',', '2', '1',
+  ezo_fake_i2c_transport_set_response(&fake, (const uint8_t[]){1, '4', '4', '.', '0', ',', '2', '1',
                                                            '.', '8', ',', '8', '.', '1', 0},
                                   15);
   assert(ezo_hum_read_response_i2c(&device,
@@ -78,7 +78,7 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   assert(reading.air_temperature_c > 21.7 && reading.air_temperature_c < 21.9);
   assert(reading.dew_point_c > 8.0 && reading.dew_point_c < 8.2);
 
-  ezo_fake_transport_set_response(&fake, output_response, sizeof(output_response));
+  ezo_fake_i2c_transport_set_response(&fake, output_response, sizeof(output_response));
   assert(ezo_hum_send_output_query_i2c(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(ezo_hum_read_output_config_i2c(&device, &output_config) == EZO_OK);
@@ -89,7 +89,7 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   assert(hint.wait_ms == 300);
   assert(memcmp(fake.last_tx_bytes, "Tcal,25.7", strlen("Tcal,25.7")) == 0);
 
-  ezo_fake_transport_set_response(&fake, (const uint8_t[]){1, '?', 'T', 'c', 'a', 'l', ',', '0',
+  ezo_fake_i2c_transport_set_response(&fake, (const uint8_t[]){1, '?', 'T', 'c', 'a', 'l', ',', '0',
                                                            0},
                                   9);
   assert(ezo_hum_send_temperature_calibration_query_i2c(&device, &hint) == EZO_OK);

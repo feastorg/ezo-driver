@@ -1,5 +1,5 @@
 #include "ezo_rtd.h"
-#include "tests/fakes/ezo_fake_transport.h"
+#include "tests/fakes/ezo_fake_i2c_transport.h"
 #include "tests/fakes/ezo_fake_uart_transport.h"
 
 #include <assert.h>
@@ -69,7 +69,7 @@ static void test_command_builders_format_expected_commands(void) {
 
 static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   static const uint8_t scale_response[] = {1, '?', 'S', ',', 'f', 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_timing_hint_t hint;
   ezo_rtd_scale_status_t scale;
@@ -78,20 +78,20 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   ezo_rtd_memory_value_t values[4];
   size_t value_count = 0;
 
-  ezo_fake_transport_init(&fake);
-  assert(ezo_device_init(&device, 102, ezo_fake_transport_vtable(), &fake) == EZO_OK);
+  ezo_fake_i2c_transport_init(&fake);
+  assert(ezo_device_init(&device, 102, ezo_fake_i2c_transport_vtable(), &fake) == EZO_OK);
 
   assert(ezo_rtd_send_read_i2c(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 600);
   assert(fake.last_tx_len == 1);
   assert(fake.last_tx_bytes[0] == 'r');
 
-  ezo_fake_transport_set_response(&fake, (const uint8_t[]){1, '7', '7', '.', '0', 0}, 6);
+  ezo_fake_i2c_transport_set_response(&fake, (const uint8_t[]){1, '7', '7', '.', '0', 0}, 6);
   assert(ezo_rtd_read_response_i2c(&device, EZO_RTD_SCALE_FAHRENHEIT, &reading) == EZO_OK);
   assert(reading.temperature > 76.9 && reading.temperature < 77.1);
   assert(reading.scale == EZO_RTD_SCALE_FAHRENHEIT);
 
-  ezo_fake_transport_set_response(&fake, scale_response, sizeof(scale_response));
+  ezo_fake_i2c_transport_set_response(&fake, scale_response, sizeof(scale_response));
   assert(ezo_rtd_send_scale_query_i2c(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(ezo_rtd_read_scale_i2c(&device, &scale) == EZO_OK);
@@ -101,14 +101,14 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   assert(hint.wait_ms == 600);
   assert(memcmp(fake.last_tx_bytes, "Cal,100.00", strlen("Cal,100.00")) == 0);
 
-  ezo_fake_transport_set_response(&fake, (const uint8_t[]){1, '4', ',', '1', '1', '2', '.', '0',
+  ezo_fake_i2c_transport_set_response(&fake, (const uint8_t[]){1, '4', ',', '1', '1', '2', '.', '0',
                                                            '0', 0},
                                   10);
   assert(ezo_rtd_send_memory_next_i2c(&device, &hint) == EZO_OK);
   assert(ezo_rtd_read_memory_entry_i2c(&device, EZO_RTD_SCALE_FAHRENHEIT, &entry) == EZO_OK);
   assert(entry.index == 4U);
 
-  ezo_fake_transport_set_response(&fake,
+  ezo_fake_i2c_transport_set_response(&fake,
                                   (const uint8_t[]){1, '1', '0', '0', '.', '0', '0', ',', '1',
                                                    '0', '4', '.', '0', '0', ',', '1', '0', '8',
                                                    '.', '0', '0', ',', '1', '1', '2', '.', '0',

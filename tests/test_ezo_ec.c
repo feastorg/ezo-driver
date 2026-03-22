@@ -1,5 +1,5 @@
 #include "ezo_ec.h"
-#include "tests/fakes/ezo_fake_transport.h"
+#include "tests/fakes/ezo_fake_i2c_transport.h"
 #include "tests/fakes/ezo_fake_uart_transport.h"
 
 #include <assert.h>
@@ -73,7 +73,7 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
                                             'D', 'S', ',', 'S', 'G', 0};
   static const uint8_t tds_factor_response[] = {1, '?', 'T', 'D', 'S', ',', '0', '.', '7', '1',
                                                 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_timing_hint_t hint;
   ezo_ec_output_config_t output_config;
@@ -81,15 +81,15 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   ezo_ec_reading_t reading;
   ezo_ec_calibration_status_t calibration;
 
-  ezo_fake_transport_init(&fake);
-  assert(ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake) == EZO_OK);
+  ezo_fake_i2c_transport_init(&fake);
+  assert(ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake) == EZO_OK);
 
   assert(ezo_ec_send_read_with_temp_comp_i2c(&device, 19.5, 3, &hint) == EZO_OK);
   assert(hint.wait_ms == 900);
   assert(fake.last_tx_len == strlen("rt,19.500"));
   assert(memcmp(fake.last_tx_bytes, "rt,19.500", strlen("rt,19.500")) == 0);
 
-  ezo_fake_transport_set_response(&fake, (const uint8_t[]){1, '8', '4', '2', ',', '1', '.', '0',
+  ezo_fake_i2c_transport_set_response(&fake, (const uint8_t[]){1, '8', '4', '2', ',', '1', '.', '0',
                                                            '2', '1', 0},
                                   11);
   assert(ezo_ec_read_response_i2c(&device,
@@ -99,7 +99,7 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   assert(reading.conductivity_us_cm > 841.9 && reading.conductivity_us_cm < 842.1);
   assert(reading.specific_gravity > 1.020 && reading.specific_gravity < 1.022);
 
-  ezo_fake_transport_set_response(&fake, output_response, sizeof(output_response));
+  ezo_fake_i2c_transport_set_response(&fake, output_response, sizeof(output_response));
   assert(ezo_ec_send_output_query_i2c(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(ezo_ec_read_output_config_i2c(&device, &output_config) == EZO_OK);
@@ -107,7 +107,7 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
          (EZO_EC_OUTPUT_CONDUCTIVITY | EZO_EC_OUTPUT_TOTAL_DISSOLVED_SOLIDS |
           EZO_EC_OUTPUT_SPECIFIC_GRAVITY));
 
-  ezo_fake_transport_set_response(&fake, tds_factor_response, sizeof(tds_factor_response));
+  ezo_fake_i2c_transport_set_response(&fake, tds_factor_response, sizeof(tds_factor_response));
   assert(ezo_ec_send_tds_factor_query_i2c(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(ezo_ec_read_tds_factor_i2c(&device, &tds_factor) == EZO_OK);
@@ -121,7 +121,7 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   assert(hint.wait_ms == 1200);
   assert(memcmp(fake.last_tx_bytes, "Cal,low,12880", strlen("Cal,low,12880")) == 0);
 
-  ezo_fake_transport_set_response(&fake, (const uint8_t[]){1, '?', 'C', 'a', 'l', ',', '2', 0},
+  ezo_fake_i2c_transport_set_response(&fake, (const uint8_t[]){1, '?', 'C', 'a', 'l', ',', '2', 0},
                                   8);
   assert(ezo_ec_send_calibration_query_i2c(&device, &hint) == EZO_OK);
   assert(ezo_ec_read_calibration_status_i2c(&device, &calibration) == EZO_OK);

@@ -1,5 +1,5 @@
 #include "ezo_i2c.h"
-#include "tests/fakes/ezo_fake_transport.h"
+#include "tests/fakes/ezo_fake_i2c_transport.h"
 
 #include <assert.h>
 #include <math.h>
@@ -7,13 +7,13 @@
 #include <string.h>
 
 static void test_send_command_records_bytes(void) {
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_timing_hint_t hint;
   ezo_result_t result;
 
-  ezo_fake_transport_init(&fake);
-  result = ezo_device_init(&device, 99, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  result = ezo_device_init(&device, 99, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_send_command(&device, "name,?", EZO_COMMAND_GENERIC, &hint);
@@ -25,13 +25,13 @@ static void test_send_command_records_bytes(void) {
 }
 
 static void test_send_command_with_float_formats_value(void) {
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_timing_hint_t hint;
   ezo_result_t result;
 
-  ezo_fake_transport_init(&fake);
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_send_command_with_float(&device,
@@ -47,12 +47,12 @@ static void test_send_command_with_float_formats_value(void) {
 }
 
 static void test_send_command_with_float_rounds_negative_values(void) {
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_result_t result;
 
-  ezo_fake_transport_init(&fake);
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_send_command_with_float(&device,
@@ -67,12 +67,12 @@ static void test_send_command_with_float_rounds_negative_values(void) {
 }
 
 static void test_send_command_with_float_rejects_excess_precision(void) {
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_result_t result;
 
-  ezo_fake_transport_init(&fake);
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_send_command_with_float(&device,
@@ -85,12 +85,12 @@ static void test_send_command_with_float_rejects_excess_precision(void) {
 }
 
 static void test_send_command_with_float_rounds_halfway_decimal_up(void) {
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_result_t result;
 
-  ezo_fake_transport_init(&fake);
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_send_command_with_float(&device,
@@ -105,12 +105,12 @@ static void test_send_command_with_float_rounds_halfway_decimal_up(void) {
 }
 
 static void test_send_command_with_float_rejects_non_finite_value(void) {
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_result_t result;
 
-  ezo_fake_transport_init(&fake);
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_send_command_with_float(&device,
@@ -124,16 +124,16 @@ static void test_send_command_with_float_rejects_non_finite_value(void) {
 
 static void test_send_command_resets_last_device_status(void) {
   static const uint8_t response[] = {1, '7', '.', '1', '2', 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_device_status_t status = EZO_STATUS_UNKNOWN;
   ezo_result_t result;
   char buffer[16];
   size_t response_len = 0;
 
-  ezo_fake_transport_init(&fake);
-  ezo_fake_transport_set_response(&fake, response, sizeof(response));
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  ezo_fake_i2c_transport_set_response(&fake, response, sizeof(response));
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_read_response(&device, buffer, sizeof(buffer), &response_len, &status);
@@ -147,7 +147,7 @@ static void test_send_command_resets_last_device_status(void) {
 
 static void test_read_response_success_and_parse(void) {
   static const uint8_t response[] = {1, '7', '.', '1', '2', 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_device_status_t status;
   ezo_result_t result;
@@ -155,9 +155,9 @@ static void test_read_response_success_and_parse(void) {
   size_t response_len = 0;
   double value = 0.0;
 
-  ezo_fake_transport_init(&fake);
-  ezo_fake_transport_set_response(&fake, response, sizeof(response));
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  ezo_fake_i2c_transport_set_response(&fake, response, sizeof(response));
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_read_response(&device, buffer, sizeof(buffer), &response_len, &status);
@@ -173,16 +173,16 @@ static void test_read_response_success_and_parse(void) {
 
 static void test_read_response_raw_preserves_embedded_zero_bytes(void) {
   static const uint8_t response[] = {1, 'A', 0, 'B', 0x7f};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_device_status_t status = EZO_STATUS_UNKNOWN;
   ezo_result_t result;
   uint8_t buffer[8];
   size_t response_len = 0;
 
-  ezo_fake_transport_init(&fake);
-  ezo_fake_transport_set_response(&fake, response, sizeof(response));
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  ezo_fake_i2c_transport_set_response(&fake, response, sizeof(response));
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_read_response_raw(&device, buffer, sizeof(buffer), &response_len, &status);
@@ -197,16 +197,16 @@ static void test_read_response_raw_preserves_embedded_zero_bytes(void) {
 
 static void test_read_response_raw_detects_buffer_too_small(void) {
   static const uint8_t response[] = {1, '1', '2', '3', '4'};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_device_status_t status = EZO_STATUS_UNKNOWN;
   ezo_result_t result;
   uint8_t buffer[3];
   size_t response_len = 0;
 
-  ezo_fake_transport_init(&fake);
-  ezo_fake_transport_set_response(&fake, response, sizeof(response));
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  ezo_fake_i2c_transport_set_response(&fake, response, sizeof(response));
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_read_response_raw(&device, buffer, sizeof(buffer), &response_len, &status);
@@ -217,16 +217,16 @@ static void test_read_response_raw_detects_buffer_too_small(void) {
 
 static void test_read_response_raw_not_ready_is_status_not_error(void) {
   static const uint8_t response[] = {254};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_device_status_t status = EZO_STATUS_UNKNOWN;
   ezo_result_t result;
   uint8_t buffer[4];
   size_t response_len = 0;
 
-  ezo_fake_transport_init(&fake);
-  ezo_fake_transport_set_response(&fake, response, sizeof(response));
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  ezo_fake_i2c_transport_set_response(&fake, response, sizeof(response));
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_read_response_raw(&device, buffer, sizeof(buffer), &response_len, &status);
@@ -237,16 +237,16 @@ static void test_read_response_raw_not_ready_is_status_not_error(void) {
 
 static void test_read_response_not_ready_is_status_not_error(void) {
   static const uint8_t response[] = {254, 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_device_status_t status;
   ezo_result_t result;
   char buffer[8];
   size_t response_len = 0;
 
-  ezo_fake_transport_init(&fake);
-  ezo_fake_transport_set_response(&fake, response, sizeof(response));
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  ezo_fake_i2c_transport_set_response(&fake, response, sizeof(response));
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_read_response(&device, buffer, sizeof(buffer), &response_len, &status);
@@ -258,16 +258,16 @@ static void test_read_response_not_ready_is_status_not_error(void) {
 
 static void test_read_response_no_data_is_status_not_error(void) {
   static const uint8_t response[] = {255, 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_device_status_t status;
   ezo_result_t result;
   char buffer[8];
   size_t response_len = 0;
 
-  ezo_fake_transport_init(&fake);
-  ezo_fake_transport_set_response(&fake, response, sizeof(response));
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  ezo_fake_i2c_transport_set_response(&fake, response, sizeof(response));
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_read_response(&device, buffer, sizeof(buffer), &response_len, &status);
@@ -279,16 +279,16 @@ static void test_read_response_no_data_is_status_not_error(void) {
 
 static void test_read_response_unknown_status_is_protocol_error(void) {
   static const uint8_t response[] = {42, 'x', 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_device_status_t status;
   ezo_result_t result;
   char buffer[8];
   size_t response_len = 0;
 
-  ezo_fake_transport_init(&fake);
-  ezo_fake_transport_set_response(&fake, response, sizeof(response));
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  ezo_fake_i2c_transport_set_response(&fake, response, sizeof(response));
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_read_response(&device, buffer, sizeof(buffer), &response_len, &status);
@@ -299,16 +299,16 @@ static void test_read_response_unknown_status_is_protocol_error(void) {
 
 static void test_read_response_requires_space_for_null_terminator(void) {
   static const uint8_t response[] = {1, '1', '2', '3', '4'};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_device_status_t status;
   ezo_result_t result;
   char buffer[4];
   size_t response_len = 0;
 
-  ezo_fake_transport_init(&fake);
-  ezo_fake_transport_set_response(&fake, response, sizeof(response));
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  ezo_fake_i2c_transport_set_response(&fake, response, sizeof(response));
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_read_response(&device, buffer, sizeof(buffer), &response_len, &status);
@@ -318,16 +318,16 @@ static void test_read_response_requires_space_for_null_terminator(void) {
 }
 
 static void test_transport_failure_is_not_device_status(void) {
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_device_status_t status;
   ezo_result_t result;
   char buffer[8];
   size_t response_len = 0;
 
-  ezo_fake_transport_init(&fake);
+  ezo_fake_i2c_transport_init(&fake);
   fake.callback_result = EZO_ERR_TRANSPORT;
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_read_response(&device, buffer, sizeof(buffer), &response_len, &status);
@@ -350,15 +350,15 @@ static void test_parse_double_accepts_signed_decimal_with_spaces(void) {
 }
 
 static void test_read_response_rejects_oversized_text_buffer(void) {
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_device_status_t status = EZO_STATUS_UNKNOWN;
   ezo_result_t result;
   char buffer[EZO_I2C_MAX_TEXT_RESPONSE_LEN + 1];
   size_t response_len = 0;
 
-  ezo_fake_transport_init(&fake);
-  result = ezo_device_init(&device, 100, ezo_fake_transport_vtable(), &fake);
+  ezo_fake_i2c_transport_init(&fake);
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
   assert(result == EZO_OK);
 
   result = ezo_read_response(&device,

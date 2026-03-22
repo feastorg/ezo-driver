@@ -1,5 +1,5 @@
 #include "ezo_do.h"
-#include "tests/fakes/ezo_fake_transport.h"
+#include "tests/fakes/ezo_fake_i2c_transport.h"
 #include "tests/fakes/ezo_fake_uart_transport.h"
 
 #include <assert.h>
@@ -66,7 +66,7 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   static const uint8_t output_response[] = {1, '?', 'O', ',', 'm', 'g', 0};
   static const uint8_t salinity_response[] = {1, '?', 'S', ',', '1', '4', '.', '7', ',',
                                               'p', 'p', 't', 0};
-  ezo_fake_transport_t fake;
+  ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
   ezo_timing_hint_t hint;
   ezo_do_output_config_t output_config;
@@ -74,15 +74,15 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   ezo_do_reading_t reading;
   ezo_do_calibration_status_t calibration;
 
-  ezo_fake_transport_init(&fake);
-  assert(ezo_device_init(&device, 97, ezo_fake_transport_vtable(), &fake) == EZO_OK);
+  ezo_fake_i2c_transport_init(&fake);
+  assert(ezo_device_init(&device, 97, ezo_fake_i2c_transport_vtable(), &fake) == EZO_OK);
 
   assert(ezo_do_send_read_with_temp_comp_i2c(&device, 21.5, 2, &hint) == EZO_OK);
   assert(hint.wait_ms == 900);
   assert(fake.last_tx_len == strlen("rt,21.50"));
   assert(memcmp(fake.last_tx_bytes, "rt,21.50", strlen("rt,21.50")) == 0);
 
-  ezo_fake_transport_set_response(&fake, (const uint8_t[]){1, '8', '.', '5', '0', ',', '9', '4',
+  ezo_fake_i2c_transport_set_response(&fake, (const uint8_t[]){1, '8', '.', '5', '0', ',', '9', '4',
                                                            '.', '2', 0},
                                   11);
   assert(ezo_do_read_response_i2c(&device,
@@ -92,13 +92,13 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   assert(reading.milligrams_per_liter > 8.49 && reading.milligrams_per_liter < 8.51);
   assert(reading.percent_saturation > 94.1 && reading.percent_saturation < 94.3);
 
-  ezo_fake_transport_set_response(&fake, output_response, sizeof(output_response));
+  ezo_fake_i2c_transport_set_response(&fake, output_response, sizeof(output_response));
   assert(ezo_do_send_output_query_i2c(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(ezo_do_read_output_config_i2c(&device, &output_config) == EZO_OK);
   assert(output_config.enabled_mask == EZO_DO_OUTPUT_MG_L);
 
-  ezo_fake_transport_set_response(&fake, salinity_response, sizeof(salinity_response));
+  ezo_fake_i2c_transport_set_response(&fake, salinity_response, sizeof(salinity_response));
   assert(ezo_do_send_salinity_query_i2c(&device, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
   assert(ezo_do_read_salinity_i2c(&device, &salinity) == EZO_OK);
@@ -109,7 +109,7 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
   assert(hint.wait_ms == 1300);
   assert(memcmp(fake.last_tx_bytes, "Cal", strlen("Cal")) == 0);
 
-  ezo_fake_transport_set_response(&fake, (const uint8_t[]){1, '?', 'C', 'a', 'l', ',', '1', 0},
+  ezo_fake_i2c_transport_set_response(&fake, (const uint8_t[]){1, '?', 'C', 'a', 'l', ',', '1', 0},
                                   8);
   assert(ezo_do_send_calibration_query_i2c(&device, &hint) == EZO_OK);
   assert(ezo_do_read_calibration_status_i2c(&device, &calibration) == EZO_OK);
