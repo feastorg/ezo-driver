@@ -54,62 +54,21 @@ static void drain_pending_i2c_responses() {
   }
 }
 
-static void print_text_debug(const char *label,
-                             ezo_device_status_t status,
-                             const char *buffer,
-                             size_t buffer_len) {
-  Serial.print(label);
-  Serial.print(F("_status_name="));
-  Serial.println(ezo_device_status_name(status));
-  Serial.print(label);
-  Serial.print(F("_status_code="));
-  Serial.println((int)status);
-  Serial.print(label);
-  Serial.print(F("_text_len="));
-  Serial.println((unsigned long)buffer_len);
-  Serial.print(label);
-  Serial.print(F("_text="));
-  Serial.println(buffer);
-}
-
 static void inspect_once() {
   ezo_timing_hint_t hint;
   ezo_device_info_t info;
   ezo_control_status_t status;
   const ezo_product_metadata_t *metadata = NULL;
-  char response_text[32];
-  size_t response_len = 0;
-  ezo_device_status_t response_status = EZO_STATUS_UNKNOWN;
 
   drain_pending_i2c_responses();
 
   CHECK_OK("send_info_query", ezo_control_send_info_query_i2c(&device, EZO_PRODUCT_UNKNOWN, &hint));
   delay(hint.wait_ms);
-  CHECK_OK("read_info_text",
-           ezo_read_response(&device,
-                             response_text,
-                             sizeof(response_text),
-                             &response_len,
-                             &response_status));
-  print_text_debug("info", response_status, response_text, response_len);
-  if (response_status != EZO_STATUS_SUCCESS) {
-    fail_fast("read_info_status", EZO_ERR_PROTOCOL);
-  }
-  CHECK_OK("parse_info_query", ezo_parse_device_info(response_text, response_len, &info));
+  CHECK_OK("read_info_query", ezo_control_read_info_i2c(&device, &info));
 
   CHECK_OK("send_status_query", ezo_control_send_status_query_i2c(&device, info.product_id, &hint));
   delay(hint.wait_ms);
-  CHECK_OK("read_status_text",
-           ezo_read_response(&device,
-                             response_text,
-                             sizeof(response_text),
-                             &response_len,
-                             &response_status));
-  print_text_debug("status", response_status, response_text, response_len);
-  if (response_status != EZO_STATUS_SUCCESS) {
-    fail_fast("read_status_i2c_status", EZO_ERR_PROTOCOL);
-  }
-  CHECK_OK("parse_status_query", ezo_control_parse_status(response_text, response_len, &status));
+  CHECK_OK("read_status_query", ezo_control_read_status_i2c(&device, &status));
 
   metadata = ezo_product_get_metadata(info.product_id);
 

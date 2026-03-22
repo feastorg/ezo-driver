@@ -4,6 +4,13 @@ All notable tracked changes to this rewrite will be recorded here.
 
 ## [Unreleased]
 
+## [0.4.2]
+
+### Fixed
+
+- accept observed uppercase shared control responses such as `?STATUS,P,4.91` in shared control parsing
+- keep the Arduino I2C inspect example on the normal helper path after the real-hardware parser fixes, while retaining the safer startup settle and pending-response drain
+
 ## [0.4.1]
 
 ### Fixed
