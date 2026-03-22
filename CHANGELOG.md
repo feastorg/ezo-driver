@@ -4,6 +4,13 @@ All notable tracked changes to this rewrite will be recorded here.
 
 ## [Unreleased]
 
+## [0.4.1]
+
+### Fixed
+
+- accept observed uppercase identity responses such as `?I,DO,2.16` in shared device-info parsing
+- harden the Arduino I2C inspect example for real hardware startup by using a longer settle window and draining pending responses before probing identity
+
 ## [0.4.0] - current baseline
 
 ### Added
