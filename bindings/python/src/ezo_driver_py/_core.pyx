@@ -1,8 +1,6 @@
 # cython: language_level=3
 from libc.stddef cimport size_t
 from libc.stdint cimport uint8_t, uint32_t
-from libc.fcntl cimport open, O_RDWR
-from libc.unistd cimport close
 from cpython.bytes cimport PyBytes_FromStringAndSize
 from .errors import (
     EzoArgumentError,
@@ -31,6 +29,13 @@ cdef extern from "ezo.h":
         uint32_t wait_ms
 
     const char *ezo_result_name(ezo_result_t result)
+
+cdef extern from "fcntl.h":
+    int O_RDWR
+    int open(const char *pathname, int flags)
+
+cdef extern from "unistd.h":
+    int close(int fd)
 
 cdef extern from "ezo_i2c.h":
     ctypedef enum ezo_device_status_t:
