@@ -4,6 +4,24 @@ All notable tracked changes to this rewrite will be recorded here.
 
 ## [Unreleased]
 
+## [0.5.1]
+
+### Added
+
+- broadened the canonical Linux example surface across staged calibration, product workflow, shared control, transport switching, calibration transfer, and cross-device compensation flows for the initial six products
+- broadened the maintained Arduino example surface to include full typed coverage plus curated advanced I2C and UART workflows
+
+### Changed
+
+- retired the legacy `_reference/` tree in favor of the maintained canonical examples under `examples/linux/` and `examples/arduino/`
+- aligned the public support/docs story so the README and support matrix explicitly include the Linux Python bindings support surface
+- cleaned repo hygiene by removing tracked Python build artifacts from `bindings/python/src/` and ignoring them going forward
+
+### Fixed
+
+- fixed Arduino PlatformIO example builds by moving shared Arduino helper headers onto the library include path instead of sketch-relative include paths
+- fixed the Arduino UART `multi_device_router` sketch for Uno builds by making its routed-module type safe for the Arduino auto-prototype pass
+
 ## [0.5.0]
 
 ### Fixed

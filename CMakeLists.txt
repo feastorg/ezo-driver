@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
   ezo_driver
-  VERSION 0.5.0
+  VERSION 0.5.1
   DESCRIPTION "Cross-platform Atlas Scientific EZO driver"
   LANGUAGES C CXX
 )
