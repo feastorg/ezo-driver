@@ -186,10 +186,10 @@ Primary implementation files:
 - [`docs/support-matrix.md`](./docs/support-matrix.md): tracked public support statement and tier policy
 - [`docs/product-onboarding.md`](./docs/product-onboarding.md): maintainer checklist for onboarding another product family
 - [`docs/examples.md`](./docs/examples.md): staged example chooser and full matrix
+- [`bindings/python/README.md`](./bindings/python/README.md): canonical Linux Python bindings doc
 - [`docs/architecture.md`](./docs/architecture.md): structure, boundaries, packaging, validation
 - [`docs/api-contract.md`](./docs/api-contract.md): behavioral contract for the public API
 - [`docs/canonical-library-direction.md`](./docs/canonical-library-direction.md): stable long-term direction for the canonical product-aware library
-- [`docs/python-bindings-closeout-next-steps.md`](./docs/python-bindings-closeout-next-steps.md): post-merge closeout checklist for taking Python bindings to full feature parity
 - [`CHANGELOG.md`](./CHANGELOG.md): tracked change history
 
 ## Scope Notes

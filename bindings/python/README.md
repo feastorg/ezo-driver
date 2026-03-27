@@ -1,39 +1,89 @@
-# ezo-driver-py
+# `ezo-driver` Python bindings
 
-Optional Linux Python bindings for `ezo-driver`.
+Linux-only Python bindings for the canonical `ezo-driver` C library.
 
-## Install (editable)
+## Support statement
+
+- Supported host platform: Linux
+- Supported transports: Linux I2C and POSIX UART
+- Supported Python install mode for this stage: editable install from the repo checkout
+- Public package name: `ezo-driver`
+- Public import package: `ezo_driver`
+
+## Install
+
+From the repo root:
 
 ```bash
-cd bindings/python
-python -m pip install -e .
+python -m pip install -e bindings/python
 ```
 
-## Quick start
+## Public modules
+
+- `ezo_driver.errors`
+- `ezo_driver.enums`
+- `ezo_driver.types`
+- `ezo_driver.base`
+- `ezo_driver.i2c`
+- `ezo_driver.uart`
+- `ezo_driver.product`
+- `ezo_driver.parse`
+- `ezo_driver.schema`
+- `ezo_driver.control`
+- `ezo_driver.calibration_transfer`
+- `ezo_driver.ph`
+- `ezo_driver.orp`
+- `ezo_driver.rtd`
+- `ezo_driver.ec`
+- `ezo_driver.do`
+- `ezo_driver.hum`
+
+Top-level `ezo_driver` exports only the stable transport constructors, exception hierarchy, and shared enums/types.
+
+## I2C example
 
 ```python
-from ezo_driver_py import I2CDeviceLinux
+from ezo_driver import LinuxI2CDevice, ProductId
+from ezo_driver import control, ph
 
-dev = I2CDeviceLinux(bus=1, address=0x63)
-hint = dev.send_read()
-print("wait(ms):", hint)
-status, text = dev.read_response()
-print(status, text)
-dev.close()
+with LinuxI2CDevice(bus=1, address=0x63) as dev:
+    wait_ms = control.send_info_query_i2c(dev, ProductId.PH)
+    info = control.read_info_i2c(dev)
+
+    wait_ms = ph.send_read_i2c(dev)
+    reading = ph.read_response_i2c(dev)
+
+print(info)
+print(reading)
 ```
 
-## Scope in this initial implementation
+## UART example
 
-- Linux I2C and POSIX UART raw transport access
-- command send/read primitives with timing hints
-- explicit transport separation and explicit lifecycle
-- typed Python exception hierarchy for argument/transport/protocol/parse errors
-- exported command/response/status constants for application-level logic
+```python
+from ezo_driver import LinuxUARTDevice, ProductId
+from ezo_driver import control, ph
 
-## Production contract for this binding layer
+with LinuxUARTDevice("/dev/ttyUSB0", baud=9600, read_timeout_ms=1000) as dev:
+    wait_ms = control.send_info_query_uart(dev, ProductId.PH)
+    info = control.read_info_uart(dev)
 
-This package is intentionally transport-explicit and low-level:
+    wait_ms = ph.send_read_uart(dev)
+    reading = ph.read_response_uart(dev)
 
-- it mirrors the core command/read primitives and timing-hint behavior
-- it does **not** add implicit delays, retries, or reconnect workflows
-- it keeps I2C and UART as separate device classes
+print(info)
+print(reading)
+```
+
+## Design constraints
+
+- The Python layer stays transport-explicit. There is no unified device abstraction.
+- The bindings mirror the C library concepts instead of exposing buffer management.
+- Timing hints are returned as integer milliseconds.
+- I2C device status codes and UART response kinds stay explicit values in the API.
+
+## Non-goals
+
+- No implicit sleeps
+- No implicit retries
+- No implicit reconnect/resynchronization
+- No workflow wrapper above the canonical transport and product helpers

@@ -1,15 +1,16 @@
 [build-system]
-requires = ["setuptools", "wheel", "Cython"]
+requires = ["setuptools>=68", "wheel", "cffi>=1.16"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ezo-driver-py"
-version = "0.1.0"
+name = "ezo-driver"
+version = "0.4.2"
 description = "Linux Python bindings for ezo-driver"
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
 authors = [{ name = "ezo-driver maintainers" }]
+dependencies = ["cffi>=1.16"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
@@ -19,6 +20,7 @@ classifiers = [
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["src"]

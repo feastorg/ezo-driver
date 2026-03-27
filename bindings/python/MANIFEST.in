@@ -1,0 +1,8 @@
+include README.md
+include build_ffi.py
+recursive-include cdef *.h
+recursive-include testsupport *.c
+recursive-include src/ezo_driver *.py
+recursive-include ../../src *.c *.h
+recursive-include ../../platform/linux *.c *.h
+recursive-include ../../tests/fakes *.c *.h
