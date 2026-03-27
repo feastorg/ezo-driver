@@ -5,7 +5,7 @@ Assumptions: the selected product supports calibration transfer and import paylo
 Next: read ../../commissioning/inspect_device/inspect_device.ino before moving calibration between devices.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_calibration_transfer.h>
 

@@ -5,7 +5,7 @@ Assumptions: dry calibration happens first and temperature compensation remains 
 Next: read ../ec_workflow/ec_workflow.ino for output selection, probe-K, and TDS-factor state.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_ec.h>
 

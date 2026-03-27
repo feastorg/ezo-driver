@@ -5,7 +5,7 @@ Assumptions: the device is an ORP circuit already in I2C mode.
 Next: read ../../advanced/orp_workflow/orp_workflow.ino for calibration and extended-scale state.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_orp.h>
 

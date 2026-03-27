@@ -5,7 +5,7 @@ Assumptions: the device is a HUM circuit already in I2C mode.
 Next: read ../hum_temperature_calibration/hum_temperature_calibration.ino for staged temperature calibration.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_hum.h>
 

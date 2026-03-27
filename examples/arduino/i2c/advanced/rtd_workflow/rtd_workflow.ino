@@ -5,7 +5,7 @@ Assumptions: logger should be disabled before bulk memory recall or clear operat
 Next: read ../rtd_calibration/rtd_calibration.ino for staged single-point calibration.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_rtd.h>
 

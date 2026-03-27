@@ -5,7 +5,7 @@ Assumptions: the probe is in the matching calibration solution before `APPLY_CHA
 Next: read ../ph_workflow/ph_workflow.ino for operational temperature-compensation and range state.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_ph.h>
 

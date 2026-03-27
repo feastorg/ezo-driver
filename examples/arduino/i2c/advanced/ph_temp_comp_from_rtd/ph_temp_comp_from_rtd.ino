@@ -5,7 +5,7 @@ Assumptions: both circuits share the same I2C bus and this sketch is allowed to 
 Next: read ../ph_workflow/ph_workflow.ino for persistent pH temperature-compensation state inspection.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_ph.h>
 #include <ezo_rtd.h>

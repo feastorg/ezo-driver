@@ -5,7 +5,7 @@ Assumptions: the attached RTD probe is in a stable reference environment before 
 Next: read ../rtd_workflow/rtd_workflow.ino for scale, logger, and memory state.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_rtd.h>
 

@@ -3,8 +3,7 @@
 
 #include <Arduino.h>
 
-#include "ezo_arduino_common.hpp"
-
+#include <ezo_arduino_common.hpp>
 #include <ezo_uart_arduino_stream.h>
 
 #if defined(ARDUINO_ARCH_AVR)

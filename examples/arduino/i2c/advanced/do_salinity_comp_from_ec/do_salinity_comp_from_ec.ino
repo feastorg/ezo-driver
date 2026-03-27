@@ -5,7 +5,7 @@ Assumptions: EC salinity output is enabled and both circuits share the same I2C 
 Next: read ../do_full_compensation_chain/do_full_compensation_chain.ino for the fuller RTD + EC + pressure chain.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_do.h>
 #include <ezo_ec.h>

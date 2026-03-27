@@ -5,7 +5,7 @@ Assumptions: the device is already in I2C mode and responds at `DEVICE_I2C_ADDRE
 Next: read ../transport_switch/transport_switch.ino for the software path that changes transport mode.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_control.h>
 

@@ -5,7 +5,7 @@ Assumptions: humidity is factory calibrated and only temperature calibration is 
 Next: read ../hum_workflow/hum_workflow.ino for output-selection state and live readings.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_hum.h>
 

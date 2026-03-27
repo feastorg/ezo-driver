@@ -5,7 +5,7 @@ Assumptions: the device is an ORP circuit already in I2C mode.
 Next: read ../orp_calibration/orp_calibration.ino for staged single-point calibration.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_orp.h>
 

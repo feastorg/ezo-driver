@@ -5,7 +5,7 @@ Assumptions: the device is an RTD circuit already in I2C mode.
 Next: read ../../advanced/rtd_workflow/rtd_workflow.ino for scale, logger, and memory state.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_rtd.h>
 

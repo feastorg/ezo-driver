@@ -5,7 +5,7 @@ Assumptions: the device is an EC circuit already in I2C mode.
 Next: read ../ec_calibration/ec_calibration.ino for staged dry/single/low/high calibration.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_ec.h>
 

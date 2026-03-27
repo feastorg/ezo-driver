@@ -3,8 +3,7 @@
 
 #include <Wire.h>
 
-#include "ezo_arduino_common.hpp"
-
+#include <ezo_arduino_common.hpp>
 #include <ezo_i2c_arduino_wire.h>
 
 inline void ezo_arduino_i2c_begin() {

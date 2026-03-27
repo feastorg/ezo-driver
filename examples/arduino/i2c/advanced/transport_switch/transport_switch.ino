@@ -5,7 +5,7 @@ Assumptions: protocol lock is disabled before `APPLY_CHANGES` is enabled.
 Next: reconnect over UART and read ../../../uart/commissioning/inspect_device/inspect_device.ino.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_control.h>
 

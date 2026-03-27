@@ -5,7 +5,7 @@ Assumptions: EC salinity output is enabled and the measured temperature/salinity
 Next: read ../do_salinity_comp_from_ec/do_salinity_comp_from_ec.ino for the narrower Arduino salinity-only flow and the Linux D.O. temperature-comp examples for the transport-complete host-side variants.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_do.h>
 #include <ezo_ec.h>

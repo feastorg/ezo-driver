@@ -5,7 +5,7 @@ Assumptions: the probe is in the matching ORP calibration solution before `APPLY
 Next: read ../orp_workflow/orp_workflow.ino for extended-scale state and ongoing reads.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_orp.h>
 

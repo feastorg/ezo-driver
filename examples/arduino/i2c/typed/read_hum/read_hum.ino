@@ -5,7 +5,7 @@ Assumptions: the device is a HUM circuit already in I2C mode.
 Next: read ../../advanced/hum_workflow/hum_workflow.ino for output selection and temperature-calibration state.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_hum.h>
 

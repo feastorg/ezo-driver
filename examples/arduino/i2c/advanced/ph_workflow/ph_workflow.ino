@@ -5,7 +5,7 @@ Assumptions: the device is a pH circuit already in I2C mode.
 Next: read ../ph_calibration/ph_calibration.ino for staged vendor-order calibration.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_ph.h>
 

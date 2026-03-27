@@ -5,7 +5,7 @@ Assumptions: the connected device is a HUM circuit reachable over UART.
 Next: read ../../advanced/control_workflow/control_workflow.ino for shared UART admin state.
 */
 
-#include "../../../common/ezo_arduino_uart_example.hpp"
+#include <ezo_arduino_uart_example.hpp>
 
 #include <ezo_hum.h>
 

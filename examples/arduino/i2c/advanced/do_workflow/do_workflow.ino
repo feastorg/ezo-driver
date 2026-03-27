@@ -5,7 +5,7 @@ Assumptions: the device is a D.O. circuit already in I2C mode.
 Next: read ../do_calibration/do_calibration.ino for staged low/high calibration.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_do.h>
 

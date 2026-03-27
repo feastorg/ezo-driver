@@ -5,7 +5,7 @@ Assumptions: protocol lock is disabled before `APPLY_CHANGES` is enabled.
 Next: reconnect over I2C and read ../../../i2c/commissioning/inspect_device/inspect_device.ino.
 */
 
-#include "../../../common/ezo_arduino_uart_example.hpp"
+#include <ezo_arduino_uart_example.hpp>
 
 static const unsigned long STARTUP_SETTLE_MS = 1000UL;
 static const uint8_t APPLY_CHANGES = 0U;

@@ -5,7 +5,7 @@ Assumptions: compensation values stay at vendor defaults during calibration and 
 Next: read ../do_workflow/do_workflow.ino for temperature, salinity, and pressure compensation state.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_do.h>
 

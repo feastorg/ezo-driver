@@ -5,7 +5,7 @@ Assumptions: the device is reachable over UART and discrete-response mode can be
 Next: read ../transport_switch/transport_switch.ino for the software path that changes transport mode.
 */
 
-#include "../../../common/ezo_arduino_uart_example.hpp"
+#include <ezo_arduino_uart_example.hpp>
 
 static const unsigned long STARTUP_SETTLE_MS = 1000UL;
 static const uint8_t APPLY_CHANGES = 0U;

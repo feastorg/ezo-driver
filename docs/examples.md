@@ -38,7 +38,7 @@ Use this page as the chooser.
 - `examples/linux/uart/commissioning/`: UART bootstrap, identity, and readiness checks
 - `examples/linux/uart/typed/`: one simple typed read per supported product with explicit response-code bootstrap
 - `examples/linux/uart/advanced/`: safe-by-default UART workflows
-- `examples/arduino/common/`: shared Arduino helper headers used by the maintained sketches
+- `src/ezo_arduino_*.hpp`: shared Arduino helper headers used by the maintained sketches
 - `examples/arduino/i2c/advanced/`: broad bench-oriented Arduino I2C workflows, calibration, control, and compensation sketches
 - `examples/arduino/uart/advanced/`: focused Arduino UART admin, transport-switch, calibration-transfer, and routed-topology sketches
 - `examples/arduino/i2c/`: Arduino I2C smoke, inspect, typed, and advanced sketches

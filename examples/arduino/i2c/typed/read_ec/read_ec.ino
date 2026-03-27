@@ -5,7 +5,7 @@ Assumptions: the device is an EC circuit already in I2C mode.
 Next: read ../../advanced/ec_workflow/ec_workflow.ino for probe-K, TDS-factor, and calibration state.
 */
 
-#include "../../../common/ezo_arduino_i2c_example.hpp"
+#include <ezo_arduino_i2c_example.hpp>
 
 #include <ezo_ec.h>
 
