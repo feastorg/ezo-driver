@@ -35,7 +35,7 @@ static void reset_test_state(void) {
   g_uart_state.open_result = EZO_OK;
 }
 
-int test_open(const char *path, int flags) {
+int test_open(const char *path, int flags, ...) {
   g_i2c_io.open_call_count += 1;
   g_i2c_io.last_flags = flags;
   if (path != NULL) {
