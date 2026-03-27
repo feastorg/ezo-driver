@@ -15,7 +15,7 @@ Thumbs.db
 
 # build
 build/
-build-*/
+build*/
 
 # Ignore the planning directory, which contains files related
 # to project planning and personal notes that dont need to 
@@ -27,3 +27,6 @@ vendor-sheets-internal/
 __pycache__/
 *.pyc
 .pytest_cache/
+
+.venv
+.venv*

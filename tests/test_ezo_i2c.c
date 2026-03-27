@@ -363,7 +363,7 @@ static void test_read_response_rejects_oversized_text_buffer(void) {
   ezo_i2c_device_t device;
   ezo_device_status_t status = EZO_STATUS_UNKNOWN;
   ezo_result_t result;
-  char buffer[EZO_I2C_MAX_TEXT_RESPONSE_LEN + 1];
+  char buffer[EZO_I2C_MAX_TEXT_RESPONSE_CAPACITY + 1];
   size_t response_len = 0;
 
   ezo_fake_i2c_transport_init(&fake);
