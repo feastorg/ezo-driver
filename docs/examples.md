@@ -16,6 +16,11 @@ Use this page as the chooser.
   [`examples/linux/i2c/raw/raw_command.c`](../examples/linux/i2c/raw/raw_command.c)
   or [`examples/linux/uart/raw/raw_command.c`](../examples/linux/uart/raw/raw_command.c)
 - If the device is uncalibrated or configuration-sensitive, read the matching readiness example first and then move to the advanced workflow for that capability class.
+- If you need a cross-device compensation chain, start with:
+  [`examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c`](../examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c),
+  [`examples/linux/i2c/advanced/do_salinity_comp_from_ec.c`](../examples/linux/i2c/advanced/do_salinity_comp_from_ec.c),
+  [`examples/linux/uart/advanced/ec_temp_comp_from_rtd.c`](../examples/linux/uart/advanced/ec_temp_comp_from_rtd.c),
+  or [`examples/linux/uart/advanced/do_salinity_comp_from_ec.c`](../examples/linux/uart/advanced/do_salinity_comp_from_ec.c).
 
 ## Structure
 
@@ -27,6 +32,8 @@ Use this page as the chooser.
 - `examples/linux/uart/commissioning/`: UART bootstrap, identity, and readiness checks
 - `examples/linux/uart/typed/`: one simple typed read per supported product with explicit response-code bootstrap
 - `examples/linux/uart/advanced/`: safe-by-default UART workflows
+- `examples/arduino/i2c/advanced/`: curated hardware-facing I2C compensation sketch
+- `examples/arduino/uart/advanced/`: curated hardware-topology-specific UART routing sketch
 - `examples/arduino/i2c/`: curated I2C smoke, inspect, pH read, and D.O. read sketches
 - `examples/arduino/uart/`: curated UART smoke, inspect, pH read, and D.O. read sketches
 
@@ -36,6 +43,7 @@ Use this page as the chooser.
 - Calibration-transfer examples never import anything unless `--apply` and `--payload=...` are both present.
 - UART typed and advanced examples explicitly bootstrap response-code mode before assuming `DATA + *OK` success sequences.
 - Raw examples stay close to the transport layer and do not hide line ownership or synchronization.
+- Arduino advanced sketches stay explicit and hardware-facing; they do not reintroduce sequencer, shell, or scheduler abstractions.
 
 ## Linux Reference Matrix
 
@@ -70,10 +78,14 @@ Use this page as the chooser.
 
 - I2C pH workflow: [`examples/linux/i2c/advanced/ph_workflow.c`](../examples/linux/i2c/advanced/ph_workflow.c)
 - I2C D.O. workflow: [`examples/linux/i2c/advanced/do_workflow.c`](../examples/linux/i2c/advanced/do_workflow.c)
+- I2C EC temp compensation from RTD: [`examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c`](../examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c)
+- I2C D.O. salinity compensation from EC: [`examples/linux/i2c/advanced/do_salinity_comp_from_ec.c`](../examples/linux/i2c/advanced/do_salinity_comp_from_ec.c)
 - I2C RTD workflow: [`examples/linux/i2c/advanced/rtd_workflow.c`](../examples/linux/i2c/advanced/rtd_workflow.c)
 - I2C calibration transfer: [`examples/linux/i2c/advanced/calibration_transfer.c`](../examples/linux/i2c/advanced/calibration_transfer.c)
 - UART pH workflow: [`examples/linux/uart/advanced/ph_workflow.c`](../examples/linux/uart/advanced/ph_workflow.c)
 - UART D.O. workflow: [`examples/linux/uart/advanced/do_workflow.c`](../examples/linux/uart/advanced/do_workflow.c)
+- UART EC temp compensation from RTD: [`examples/linux/uart/advanced/ec_temp_comp_from_rtd.c`](../examples/linux/uart/advanced/ec_temp_comp_from_rtd.c)
+- UART D.O. salinity compensation from EC: [`examples/linux/uart/advanced/do_salinity_comp_from_ec.c`](../examples/linux/uart/advanced/do_salinity_comp_from_ec.c)
 - UART RTD workflow: [`examples/linux/uart/advanced/rtd_workflow.c`](../examples/linux/uart/advanced/rtd_workflow.c)
 - UART calibration transfer: [`examples/linux/uart/advanced/calibration_transfer.c`](../examples/linux/uart/advanced/calibration_transfer.c)
 
@@ -83,12 +95,35 @@ Use this page as the chooser.
 - I2C inspect device: [`examples/arduino/i2c/commissioning/inspect_device/inspect_device.ino`](../examples/arduino/i2c/commissioning/inspect_device/inspect_device.ino)
 - I2C typed pH read: [`examples/arduino/i2c/typed/read_ph/read_ph.ino`](../examples/arduino/i2c/typed/read_ph/read_ph.ino)
 - I2C typed D.O. read: [`examples/arduino/i2c/typed/read_do/read_do.ino`](../examples/arduino/i2c/typed/read_do/read_do.ino)
+- I2C advanced EC temp compensation from RTD: [`examples/arduino/i2c/advanced/ec_temp_comp_from_rtd/ec_temp_comp_from_rtd.ino`](../examples/arduino/i2c/advanced/ec_temp_comp_from_rtd/ec_temp_comp_from_rtd.ino)
 - UART raw smoke: [`examples/arduino/uart/raw/smoke/smoke.ino`](../examples/arduino/uart/raw/smoke/smoke.ino)
 - UART inspect device: [`examples/arduino/uart/commissioning/inspect_device/inspect_device.ino`](../examples/arduino/uart/commissioning/inspect_device/inspect_device.ino)
 - UART typed pH read: [`examples/arduino/uart/typed/read_ph/read_ph.ino`](../examples/arduino/uart/typed/read_ph/read_ph.ino)
 - UART typed D.O. read: [`examples/arduino/uart/typed/read_do/read_do.ino`](../examples/arduino/uart/typed/read_do/read_do.ino)
+- UART advanced multi-device router: [`examples/arduino/uart/advanced/multi_device_router/multi_device_router.ino`](../examples/arduino/uart/advanced/multi_device_router/multi_device_router.ino)
 
-Linux is the full reference surface. Arduino stays intentionally smaller so the sketches remain readable and CI remains cheap enough to run across the current board set.
+Linux is the full reference surface. Arduino stays intentionally smaller: smoke, inspect, simple typed reads, one cross-device I2C compensation sketch, and one hardware-topology-specific UART routing sketch.
+
+## Legacy Mapping
+
+The `_reference/` tree is retired. The table below records what survived as canonical guidance and what was intentionally dropped.
+
+| Legacy family | Status | Canonical replacement or rationale |
+| --- | --- | --- |
+| `_reference/Ezo_I2c_lib/Examples/I2c_lib_examples/EC_parsing_and_DO_compensation` | replaced in this phase | [`examples/linux/i2c/advanced/do_salinity_comp_from_ec.c`](../examples/linux/i2c/advanced/do_salinity_comp_from_ec.c) and [`examples/linux/uart/advanced/do_salinity_comp_from_ec.c`](../examples/linux/uart/advanced/do_salinity_comp_from_ec.c) keep the explicit EC-to-D.O. compensation chain without sequencer scaffolding. |
+| `_reference/Ezo_I2c_lib/Examples/I2c_lib_examples/temp_comp_example` and `temp_comp_rt_example` | replaced in this phase | [`examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c`](../examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c), [`examples/linux/uart/advanced/ec_temp_comp_from_rtd.c`](../examples/linux/uart/advanced/ec_temp_comp_from_rtd.c), and the Arduino I2C advanced sketch preserve RTD-driven EC compensation with explicit state ownership. |
+| `_reference/Ezo_I2c_lib/Examples/I2c_lib_examples/humidity_parsing` | superseded | The typed HUM reads under `examples/linux/*/typed/read_hum.c` replace manual CSV destructuring with canonical typed helpers. |
+| `_reference/Ezo_I2c_lib/Examples/I2c_lib_examples/I2c_read_mulitple_circuits` | superseded | The new cross-device advanced examples show explicit multi-device ownership without a sequencer abstraction. |
+| `_reference/Ezo_I2c_lib/Examples/I2c_lib_examples/i2c_scan_and_comms_example` | retired | It is an interactive command-shell plus bus-discovery pattern, not canonical repo-level driver guidance. The repo now prefers explicit transport bring-up and commissioning examples instead of a baked-in console workflow. |
+| `_reference/Ezo_I2c_lib/Examples/I2c_lib_examples/iot_cmd_sample_code` | retired | `iot_cmd` is a legacy shell framework. The canonical repo keeps transport-explicit examples and does not ship a command-console layer. |
+| `_reference/Ezo_uart_lib/Examples/Serial_port_expander_example` | replaced in this phase | [`examples/arduino/uart/advanced/multi_device_router/multi_device_router.ino`](../examples/arduino/uart/advanced/multi_device_router/multi_device_router.ino) preserves the routed multi-device UART pattern without the old wrapper library or shell behavior. |
+| `_reference/Ezo_uart_lib/Examples/Serial_port_expander_tempcomp_example` | replaced in this phase | The canonical router sketch plus the new compensation-chain examples cover the kept reusable behavior without port-expander-specific shell code. |
+| `_reference/Ezo_uart_lib/Examples/Arduino_mega_example` and `ESP32_sample_code` | superseded | They were board-shaped variants of the routed UART pattern. The canonical router sketch replaces them with one maintained example and source-level board gating. |
+| `_reference/Ezo_I2c_lib/Examples/IOT_kits/**` | retired | Wi-Fi kit application code is product-kit firmware, not portable driver guidance. |
+| `_reference/Ezo_I2c_lib/Examples/Projects/**` | retired | Project application sketches are intentionally out of scope for the canonical driver repo. |
+| `_reference/Ezo_I2c_lib/Examples/Products/**` | retired | Product-board app code is board-specific integration logic, not reusable library guidance. |
+| `_reference/Ezo_I2c_lib/Examples/Sequencer_lib_examples/**` | retired | The sequencer examples demonstrate a legacy control framework that is antithetical to the current explicit library direction. |
+| `_reference/Ezo_I2c_lib/*` and `_reference/Ezo_uart_lib/*` library sources | retired | The repo now ships one canonical library surface in `src/`; the legacy reference libraries are not a second maintained implementation. |
 
 ## Notes
 

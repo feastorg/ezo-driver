@@ -513,6 +513,14 @@ if(EZO_BUILD_EXAMPLES AND EZO_BUILD_LINUX_ADAPTER)
     examples/linux/i2c/advanced/do_workflow.c
   )
   ezo_add_linux_i2c_example(
+    ezo_linux_i2c_ec_temp_comp_from_rtd_example
+    examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_do_salinity_comp_from_ec_example
+    examples/linux/i2c/advanced/do_salinity_comp_from_ec.c
+  )
+  ezo_add_linux_i2c_example(
     ezo_linux_i2c_rtd_workflow_example
     examples/linux/i2c/advanced/rtd_workflow.c
   )
@@ -578,6 +586,14 @@ if(EZO_BUILD_EXAMPLES AND EZO_BUILD_POSIX_UART_ADAPTER AND CMAKE_SYSTEM_NAME STR
   ezo_add_linux_uart_example(
     ezo_linux_uart_do_workflow_example
     examples/linux/uart/advanced/do_workflow.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_ec_temp_comp_from_rtd_example
+    examples/linux/uart/advanced/ec_temp_comp_from_rtd.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_do_salinity_comp_from_ec_example
+    examples/linux/uart/advanced/do_salinity_comp_from_ec.c
   )
   ezo_add_linux_uart_example(
     ezo_linux_uart_rtd_workflow_example

@@ -25,6 +25,14 @@ typedef struct {
   uint32_t baud_rate;
 } ezo_example_uart_options_t;
 
+int ezo_example_parse_uint32_arg(const char *text, uint32_t *value_out);
+
+int ezo_example_parse_uint8_arg(const char *text, uint8_t *value_out);
+
+int ezo_example_parse_baud_arg(const char *text,
+                               ezo_uart_posix_baud_t *baud_out,
+                               uint32_t *baud_rate_out);
+
 int ezo_example_parse_i2c_options(int argc,
                                   char **argv,
                                   uint8_t default_address,

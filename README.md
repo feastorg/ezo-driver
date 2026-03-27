@@ -115,7 +115,8 @@ Short version:
   [`examples/linux/i2c/raw/raw_command.c`](./examples/linux/i2c/raw/raw_command.c)
   or [`examples/linux/uart/raw/raw_command.c`](./examples/linux/uart/raw/raw_command.c)
 - If you need Arduino, use the curated sketches under `examples/arduino/`:
-  raw smoke, commissioning inspect, and simple pH and D.O. reads for both I2C and UART.
+  raw smoke, commissioning inspect, simple pH and D.O. reads for both I2C and UART,
+  plus RTD-driven EC temperature compensation and hardware-topology-specific UART routing.
 
 Representative entry points:
 
@@ -128,10 +129,20 @@ Representative entry points:
 - Linux advanced calibration transfer:
   [`examples/linux/i2c/advanced/calibration_transfer.c`](./examples/linux/i2c/advanced/calibration_transfer.c)
   and [`examples/linux/uart/advanced/calibration_transfer.c`](./examples/linux/uart/advanced/calibration_transfer.c)
+- Linux advanced RTD-driven EC temperature compensation:
+  [`examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c`](./examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c)
+  and [`examples/linux/uart/advanced/ec_temp_comp_from_rtd.c`](./examples/linux/uart/advanced/ec_temp_comp_from_rtd.c)
+- Linux advanced EC-driven D.O. salinity compensation:
+  [`examples/linux/i2c/advanced/do_salinity_comp_from_ec.c`](./examples/linux/i2c/advanced/do_salinity_comp_from_ec.c)
+  and [`examples/linux/uart/advanced/do_salinity_comp_from_ec.c`](./examples/linux/uart/advanced/do_salinity_comp_from_ec.c)
 - Arduino I2C inspect: [`examples/arduino/i2c/commissioning/inspect_device/inspect_device.ino`](./examples/arduino/i2c/commissioning/inspect_device/inspect_device.ino)
 - Arduino UART inspect: [`examples/arduino/uart/commissioning/inspect_device/inspect_device.ino`](./examples/arduino/uart/commissioning/inspect_device/inspect_device.ino)
 - Arduino I2C typed D.O.: [`examples/arduino/i2c/typed/read_do/read_do.ino`](./examples/arduino/i2c/typed/read_do/read_do.ino)
 - Arduino UART typed D.O.: [`examples/arduino/uart/typed/read_do/read_do.ino`](./examples/arduino/uart/typed/read_do/read_do.ino)
+- Arduino I2C advanced RTD-driven EC temperature compensation:
+  [`examples/arduino/i2c/advanced/ec_temp_comp_from_rtd/ec_temp_comp_from_rtd.ino`](./examples/arduino/i2c/advanced/ec_temp_comp_from_rtd/ec_temp_comp_from_rtd.ino)
+- Arduino UART advanced multi-device routing:
+  [`examples/arduino/uart/advanced/multi_device_router/multi_device_router.ino`](./examples/arduino/uart/advanced/multi_device_router/multi_device_router.ino)
 
 ## Entry Points
 

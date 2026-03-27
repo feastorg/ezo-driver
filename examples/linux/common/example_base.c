@@ -9,7 +9,7 @@ static int ezo_example_is_flag(const char *text) {
   return text != NULL && text[0] == '-';
 }
 
-static int ezo_example_parse_uint32(const char *text, uint32_t *value_out) {
+int ezo_example_parse_uint32_arg(const char *text, uint32_t *value_out) {
   char *end = NULL;
   unsigned long value = 0;
 
@@ -26,10 +26,10 @@ static int ezo_example_parse_uint32(const char *text, uint32_t *value_out) {
   return 1;
 }
 
-static int ezo_example_parse_uint8(const char *text, uint8_t *value_out) {
+int ezo_example_parse_uint8_arg(const char *text, uint8_t *value_out) {
   uint32_t value = 0;
 
-  if (!ezo_example_parse_uint32(text, &value) || value > 127U) {
+  if (!ezo_example_parse_uint32_arg(text, &value) || value > 127U) {
     return 0;
   }
 
@@ -37,12 +37,12 @@ static int ezo_example_parse_uint8(const char *text, uint8_t *value_out) {
   return 1;
 }
 
-static int ezo_example_parse_baud_value(const char *text,
-                                        ezo_uart_posix_baud_t *baud_out,
-                                        uint32_t *baud_rate_out) {
+int ezo_example_parse_baud_arg(const char *text,
+                               ezo_uart_posix_baud_t *baud_out,
+                               uint32_t *baud_rate_out) {
   uint32_t baud_rate = 0;
 
-  if (!ezo_example_parse_uint32(text, &baud_rate)) {
+  if (!ezo_example_parse_uint32_arg(text, &baud_rate)) {
     return 0;
   }
 
@@ -132,7 +132,7 @@ int ezo_example_parse_i2c_options(int argc,
   if (argc > index && !ezo_example_is_flag(argv[index])) {
     uint8_t parsed_address = 0;
 
-    if (ezo_example_parse_uint8(argv[index], &parsed_address) &&
+    if (ezo_example_parse_uint8_arg(argv[index], &parsed_address) &&
         (argc <= index + 1 || ezo_example_is_flag(argv[index + 1]))) {
       options_out->address = parsed_address;
       index += 1;
@@ -143,7 +143,7 @@ int ezo_example_parse_i2c_options(int argc,
   }
 
   if (argc > index && !ezo_example_is_flag(argv[index])) {
-    if (!ezo_example_parse_uint8(argv[index], &options_out->address)) {
+    if (!ezo_example_parse_uint8_arg(argv[index], &options_out->address)) {
       return 0;
     }
     index += 1;
@@ -175,7 +175,7 @@ int ezo_example_parse_uart_options(int argc,
     ezo_uart_posix_baud_t parsed_baud = EZO_UART_POSIX_BAUD_9600;
     uint32_t parsed_baud_rate = 0;
 
-    if (ezo_example_parse_baud_value(argv[index], &parsed_baud, &parsed_baud_rate) &&
+    if (ezo_example_parse_baud_arg(argv[index], &parsed_baud, &parsed_baud_rate) &&
         (argc <= index + 1 || ezo_example_is_flag(argv[index + 1]))) {
       options_out->baud = parsed_baud;
       options_out->baud_rate = parsed_baud_rate;
@@ -187,7 +187,7 @@ int ezo_example_parse_uart_options(int argc,
   }
 
   if (argc > index && !ezo_example_is_flag(argv[index])) {
-    if (!ezo_example_parse_baud_value(argv[index], &options_out->baud, &options_out->baud_rate)) {
+    if (!ezo_example_parse_baud_arg(argv[index], &options_out->baud, &options_out->baud_rate)) {
       return 0;
     }
     index += 1;
