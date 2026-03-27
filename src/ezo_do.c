@@ -291,7 +291,7 @@ static ezo_result_t ezo_do_parse_output_field(ezo_text_span_t field,
     return EZO_ERR_INVALID_ARGUMENT;
   }
 
-  if (ezo_text_span_equals_cstr(field, "mg")) {
+  if (ezo_do_span_is_ascii_ci(field, "mg")) {
     *mask_out = EZO_DO_OUTPUT_MG_L;
     return EZO_OK;
   }
@@ -367,11 +367,29 @@ ezo_result_t ezo_do_parse_output_config(const char *buffer,
 
   for (i = field_offset; i < field_count; ++i) {
     ezo_do_output_mask_t output = 0;
+    uint32_t enabled_flag = 1U;
     result = ezo_do_parse_output_field(fields[i], &output);
     if (result != EZO_OK) {
+      uint32_t value = 0;
+      ezo_result_t value_result = ezo_parse_text_span_uint32(fields[i], &value);
+      if (value_result == EZO_OK && value <= 1U) {
+        continue;
+      }
       return result;
     }
-    enabled_mask |= output;
+
+    if ((i + 1U) < field_count) {
+      uint32_t value = 0;
+      ezo_result_t value_result = ezo_parse_text_span_uint32(fields[i + 1U], &value);
+      if (value_result == EZO_OK && value <= 1U) {
+        enabled_flag = value;
+        i += 1U;
+      }
+    }
+
+    if (enabled_flag != 0U) {
+      enabled_mask |= output;
+    }
   }
 
   config_out->enabled_mask = enabled_mask;

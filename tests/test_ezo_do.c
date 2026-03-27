@@ -25,6 +25,14 @@ static void test_parse_helpers_cover_reading_output_config_and_queries(void) {
   assert(output_config.enabled_mask ==
          (EZO_DO_OUTPUT_MG_L | EZO_DO_OUTPUT_PERCENT_SATURATION));
   assert(ezo_do_parse_output_config("?O,mg,%", strlen("?O,mg,%"), &output_config) == EZO_OK);
+  assert(ezo_do_parse_output_config("?O,MG", strlen("?O,MG"), &output_config) == EZO_OK);
+  assert(output_config.enabled_mask == EZO_DO_OUTPUT_MG_L);
+  assert(ezo_do_parse_output_config("?O,MG,1,%,0", strlen("?O,MG,1,%,0"), &output_config) ==
+         EZO_OK);
+  assert(output_config.enabled_mask == EZO_DO_OUTPUT_MG_L);
+  assert(ezo_do_parse_output_config("?O,MG,0,%,1", strlen("?O,MG,0,%,1"), &output_config) ==
+         EZO_OK);
+  assert(output_config.enabled_mask == EZO_DO_OUTPUT_PERCENT_SATURATION);
 
   assert(ezo_do_parse_temperature("?T,22.4", strlen("?T,22.4"), &temperature) == EZO_OK);
   assert(temperature.temperature_c > 22.3 && temperature.temperature_c < 22.5);
@@ -65,7 +73,7 @@ static void test_command_builders_format_expected_commands(void) {
 }
 
 static void test_i2c_helpers_send_and_parse_typed_responses(void) {
-  static const uint8_t output_response[] = {1, '?', ',', 'O', ',', 'm', 'g', 0};
+  static const uint8_t output_response[] = {1, '?', 'O', ',', 'M', 'G', 0};
   static const uint8_t salinity_response[] = {1, '?', 'S', ',', '1', '4', '.', '7', ',',
                                               'p', 'p', 't', 0};
   ezo_fake_i2c_transport_t fake;
