@@ -10,8 +10,11 @@ Next: read ../../commissioning/inspect_device/inspect_device.ino for setup check
 #include <ezo_do.h>
 #include <ezo_i2c_arduino_wire.h>
 
+#include <string.h>
+
 static const unsigned long STARTUP_SETTLE_MS = 1000UL;
 static const uint8_t DO_I2C_ADDRESS = 97U;
+static const size_t DEBUG_RAW_BUFFER_LEN = 64U;
 
 static ezo_arduino_wire_context_t wire_context;
 static ezo_i2c_device_t device;
@@ -40,12 +43,90 @@ static void wait_hint(const ezo_timing_hint_t *hint) {
   delay(hint->wait_ms);
 }
 
+static void print_hex_u8(uint8_t value) {
+  if (value < 16U) {
+    Serial.print('0');
+  }
+  Serial.print((unsigned long)value, HEX);
+}
+
+static void print_hex_bytes(const uint8_t *data, size_t len) {
+  size_t i = 0;
+  for (i = 0; i < len; ++i) {
+    if (i > 0U) {
+      Serial.print(' ');
+    }
+    Serial.print("0x");
+    print_hex_u8(data[i]);
+  }
+}
+
+static void debug_output_query_response(const uint8_t *raw,
+                                        size_t raw_len,
+                                        ezo_device_status_t status) {
+  char text[DEBUG_RAW_BUFFER_LEN + 1U];
+  size_t copy_len = raw_len;
+
+  if (copy_len > DEBUG_RAW_BUFFER_LEN) {
+    copy_len = DEBUG_RAW_BUFFER_LEN;
+  }
+  memset(text, 0, sizeof(text));
+  if (copy_len > 0U) {
+    memcpy(text, raw, copy_len);
+  }
+
+  Serial.print("debug_output_query_status=");
+  Serial.print(ezo_device_status_name(status));
+  Serial.print(" raw_len=");
+  Serial.print((unsigned long)raw_len);
+  Serial.print(" raw_hex=");
+  print_hex_bytes(raw, raw_len);
+  Serial.println();
+
+  Serial.print("debug_output_query_text=");
+  Serial.println(text);
+}
+
 static void request_output_config() {
   ezo_timing_hint_t hint;
+  uint8_t raw[DEBUG_RAW_BUFFER_LEN];
+  size_t raw_len = 0U;
+  size_t text_len = 0U;
+  ezo_device_status_t status = EZO_STATUS_UNKNOWN;
+  ezo_result_t rc = EZO_OK;
 
-  CHECK_OK("send_output_query", ezo_do_send_output_query_i2c(&device, &hint));
+  rc = ezo_do_send_output_query_i2c(&device, &hint);
+  CHECK_OK("send_output_query", rc);
+
+  Serial.print("debug_output_query_wait_ms=");
+  Serial.println((unsigned long)hint.wait_ms);
   wait_hint(&hint);
-  CHECK_OK("read_output_query", ezo_do_read_output_config_i2c(&device, &output_config));
+
+  rc = ezo_read_response_raw(&device, raw, sizeof(raw), &raw_len, &status);
+  CHECK_OK("read_output_query_raw", rc);
+  debug_output_query_response(raw, raw_len, status);
+
+  for (text_len = 0U; text_len < raw_len; ++text_len) {
+    if (raw[text_len] == 0U) {
+      break;
+    }
+  }
+
+  if (status != EZO_STATUS_SUCCESS) {
+    Serial.print("debug_output_query_non_success_status=");
+    Serial.println(ezo_device_status_name(status));
+    fail_fast("read_output_query_status", EZO_ERR_PROTOCOL);
+  }
+
+  rc = ezo_do_parse_output_config((const char *)raw, text_len, &output_config);
+  Serial.print("debug_output_query_parse_rc=");
+  Serial.print((int)rc);
+  Serial.print(" parse_name=");
+  Serial.println(ezo_result_name(rc));
+  CHECK_OK("parse_output_query", rc);
+
+  Serial.print("debug_output_mask=");
+  Serial.println((unsigned long)output_config.enabled_mask);
 }
 
 static void request_reading() {
