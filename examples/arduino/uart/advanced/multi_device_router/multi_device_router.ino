@@ -11,6 +11,8 @@ Next: read ../../commissioning/inspect_device/inspect_device.ino for the single-
 #include <ezo_uart.h>
 #include <ezo_uart_arduino_stream.h>
 
+typedef struct routed_module_t routed_module_t;
+
 #if defined(ARDUINO_ARCH_AVR)
 #include <SoftwareSerial.h>
 static const uint8_t SENSOR_RX_PIN = 10U;
@@ -54,11 +56,11 @@ static void begin_streams() {
 #error "This sketch requires either SoftwareSerial or Serial1 for the routed sensor bus."
 #endif
 
-typedef struct {
+struct routed_module_t {
   uint8_t channel;
   const char *label;
   ezo_product_id_t product_id;
-} routed_module_t;
+};
 
 static const unsigned long STARTUP_SETTLE_MS = 1000UL;
 static const unsigned long POLL_INTERVAL_MS = 1200UL;
