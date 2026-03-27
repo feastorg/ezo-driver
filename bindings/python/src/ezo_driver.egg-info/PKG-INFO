@@ -1,0 +1,103 @@
+Metadata-Version: 2.1
+Name: ezo-driver
+Version: 0.4.2
+Summary: Linux Python bindings for ezo-driver
+Author: ezo-driver maintainers
+License: MIT
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: C
+Classifier: Operating System :: POSIX :: Linux
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Provides-Extra: test
+
+# `ezo-driver` Python bindings
+
+Linux-only Python bindings for the canonical `ezo-driver` C library.
+
+## Support statement
+
+- Supported host platform: Linux
+- Supported transports: Linux I2C and POSIX UART
+- Supported Python install mode for this stage: editable install from the repo checkout
+- Public package name: `ezo-driver`
+- Public import package: `ezo_driver`
+
+## Install
+
+From the repo root:
+
+```bash
+python -m pip install -e bindings/python
+```
+
+## Public modules
+
+- `ezo_driver.errors`
+- `ezo_driver.enums`
+- `ezo_driver.types`
+- `ezo_driver.base`
+- `ezo_driver.i2c`
+- `ezo_driver.uart`
+- `ezo_driver.product`
+- `ezo_driver.parse`
+- `ezo_driver.schema`
+- `ezo_driver.control`
+- `ezo_driver.calibration_transfer`
+- `ezo_driver.ph`
+- `ezo_driver.orp`
+- `ezo_driver.rtd`
+- `ezo_driver.ec`
+- `ezo_driver.do`
+- `ezo_driver.hum`
+
+Top-level `ezo_driver` exports only the stable transport constructors, exception hierarchy, and shared enums/types.
+
+## I2C example
+
+```python
+from ezo_driver import LinuxI2CDevice, ProductId
+from ezo_driver import control, ph
+
+with LinuxI2CDevice(bus=1, address=0x63) as dev:
+    wait_ms = control.send_info_query_i2c(dev, ProductId.PH)
+    info = control.read_info_i2c(dev)
+
+    wait_ms = ph.send_read_i2c(dev)
+    reading = ph.read_response_i2c(dev)
+
+print(info)
+print(reading)
+```
+
+## UART example
+
+```python
+from ezo_driver import LinuxUARTDevice, ProductId
+from ezo_driver import control, ph
+
+with LinuxUARTDevice("/dev/ttyUSB0", baud=9600, read_timeout_ms=1000) as dev:
+    wait_ms = control.send_info_query_uart(dev, ProductId.PH)
+    info = control.read_info_uart(dev)
+
+    wait_ms = ph.send_read_uart(dev)
+    reading = ph.read_response_uart(dev)
+
+print(info)
+print(reading)
+```
+
+## Design constraints
+
+- The Python layer stays transport-explicit. There is no unified device abstraction.
+- The bindings mirror the C library concepts instead of exposing buffer management.
+- Timing hints are returned as integer milliseconds.
+- I2C device status codes and UART response kinds stay explicit values in the API.
+
+## Non-goals
+
+- No implicit sleeps
+- No implicit retries
+- No implicit reconnect/resynchronization
+- No workflow wrapper above the canonical transport and product helpers
