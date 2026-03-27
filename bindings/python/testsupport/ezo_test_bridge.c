@@ -1,15 +1,4 @@
-#include "tests/fakes/ezo_fake_i2c_transport.h"
-#include "tests/fakes/ezo_fake_uart_transport.h"
-
-typedef struct {
-  ezo_fake_i2c_transport_t transport;
-  ezo_i2c_device_t core;
-} ezo_py_fake_i2c_device_t;
-
-typedef struct {
-  ezo_fake_uart_transport_t transport;
-  ezo_uart_device_t core;
-} ezo_py_fake_uart_device_t;
+#include "ezo_test_bridge.h"
 
 ezo_result_t ezo_py_fake_i2c_device_init(ezo_py_fake_i2c_device_t *device, uint8_t address) {
   if (device == NULL) {

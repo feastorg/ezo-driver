@@ -34,9 +34,9 @@ ezo_result_t ezo_common_format_fixed_command(char *buffer,
                                              double value,
                                              uint8_t decimals);
 
-#define EZO_I2C_MAX_RESPONSE_PAYLOAD_LEN ...
-#define EZO_I2C_MAX_TEXT_RESPONSE_LEN ...
-#define EZO_I2C_MAX_TEXT_RESPONSE_CAPACITY ...
+#define EZO_I2C_MAX_RESPONSE_PAYLOAD_LEN 255
+#define EZO_I2C_MAX_TEXT_RESPONSE_LEN 255
+#define EZO_I2C_MAX_TEXT_RESPONSE_CAPACITY 256
 
 typedef enum {
   EZO_STATUS_UNKNOWN = 0,
@@ -89,8 +89,8 @@ ezo_result_t ezo_read_response(ezo_i2c_device_t *device,
                                size_t *response_len,
                                ezo_device_status_t *device_status);
 
-#define EZO_UART_MAX_TEXT_RESPONSE_LEN ...
-#define EZO_UART_MAX_TEXT_RESPONSE_CAPACITY ...
+#define EZO_UART_MAX_TEXT_RESPONSE_LEN 255
+#define EZO_UART_MAX_TEXT_RESPONSE_CAPACITY 256
 
 typedef enum {
   EZO_UART_RESPONSE_UNKNOWN = 0,
@@ -183,8 +183,8 @@ typedef enum {
   EZO_PRODUCT_OUTPUT_SCHEMA_QUERY_REQUIRED
 } ezo_product_output_schema_t;
 
-#define EZO_PRODUCT_SHORT_CODE_MAX_LEN ...
-#define EZO_PRODUCT_FIRMWARE_VERSION_MAX_LEN ...
+#define EZO_PRODUCT_SHORT_CODE_MAX_LEN 8
+#define EZO_PRODUCT_FIRMWARE_VERSION_MAX_LEN 16
 #define EZO_PRODUCT_CAP_MEASUREMENT ...
 #define EZO_PRODUCT_CAP_CALIBRATION ...
 #define EZO_PRODUCT_CAP_TEMPERATURE_COMPENSATION ...
@@ -304,7 +304,7 @@ ezo_result_t ezo_uart_sequence_push_line(ezo_uart_sequence_t *sequence,
                                          ezo_uart_sequence_step_t *step_out);
 int ezo_uart_sequence_is_complete(const ezo_uart_sequence_t *sequence);
 
-#define EZO_SCHEMA_MAX_FIELDS ...
+#define EZO_SCHEMA_MAX_FIELDS 4
 
 typedef enum {
   EZO_MEASUREMENT_FIELD_UNKNOWN = 0,
@@ -361,7 +361,7 @@ ezo_result_t ezo_schema_parse_multi_output_reading(const char *buffer,
                                                    uint32_t enabled_mask,
                                                    ezo_multi_output_reading_t *reading_out);
 
-#define EZO_CONTROL_NAME_MAX_LEN ...
+#define EZO_CONTROL_NAME_MAX_LEN 32
 
 typedef struct {
   char name[EZO_CONTROL_NAME_MAX_LEN];

@@ -67,7 +67,7 @@ def test_uart_raw_transport_helpers_cover_line_parsing_and_terminal_kinds():
 
 def test_uart_read_line_raises_on_oversized_payload():
     dev = FakeUARTDevice()
-    dev.set_response(uart_lines("1234"))
+    dev.set_response(uart_lines("7" * uart.MAX_TEXT_RESPONSE_CAPACITY))
 
     with pytest.raises(EzoError):
         dev.read_line()
@@ -134,8 +134,8 @@ def test_base_product_parse_and_schema_helpers_cover_shared_surface():
 @pytest.mark.parametrize(
     ("builder", "args"),
     [
-        (base.format_fixed_command, ("t,", 1.0, 7)),
-        (ec.build_temperature_command, (25.0, 7)),
+        (base.format_fixed_command, ("t,", 1.0, 10)),
+        (ec.build_temperature_command, (25.0, 10)),
     ],
 )
 def test_decimal_validation_is_consistent(builder, args):

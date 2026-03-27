@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 from cffi import FFI
@@ -13,11 +12,6 @@ LINUX_DIR = REPO_ROOT / "platform" / "linux"
 FAKES_DIR = REPO_ROOT / "tests" / "fakes"
 CDEF_DIR = THIS_DIR / "cdef"
 TESTSUPPORT_DIR = THIS_DIR / "testsupport"
-
-
-def relpath(path: Path) -> str:
-    return os.path.relpath(path, THIS_DIR).replace(os.sep, "/")
-
 
 ffibuilder = FFI()
 ffibuilder.cdef((CDEF_DIR / "ezo_api.h").read_text(encoding="ascii"))
@@ -45,22 +39,24 @@ ffibuilder.set_source(
             '#include "ezo_linux_device.h"',
             '#include "tests/fakes/ezo_fake_i2c_transport.h"',
             '#include "tests/fakes/ezo_fake_uart_transport.h"',
+            '#include "ezo_test_bridge.h"',
         ]
     ),
     sources=[
-        *sorted(relpath(path) for path in SRC_DIR.glob("*.c")),
-        relpath(LINUX_DIR / "ezo_i2c_linux_i2c.c"),
-        relpath(LINUX_DIR / "ezo_uart_posix_serial.c"),
-        relpath(LINUX_DIR / "ezo_linux_device.c"),
-        relpath(FAKES_DIR / "ezo_fake_i2c_transport.c"),
-        relpath(FAKES_DIR / "ezo_fake_uart_transport.c"),
-        relpath(TESTSUPPORT_DIR / "ezo_test_bridge.c"),
+        *sorted(str(path) for path in SRC_DIR.glob("*.c")),
+        str(LINUX_DIR / "ezo_i2c_linux_i2c.c"),
+        str(LINUX_DIR / "ezo_uart_posix_serial.c"),
+        str(LINUX_DIR / "ezo_linux_device.c"),
+        str(FAKES_DIR / "ezo_fake_i2c_transport.c"),
+        str(FAKES_DIR / "ezo_fake_uart_transport.c"),
+        str(TESTSUPPORT_DIR / "ezo_test_bridge.c"),
     ],
     include_dirs=[
-        relpath(REPO_ROOT),
-        relpath(SRC_DIR),
-        relpath(LINUX_DIR),
-        relpath(FAKES_DIR),
+        str(REPO_ROOT),
+        str(SRC_DIR),
+        str(LINUX_DIR),
+        str(FAKES_DIR),
+        str(TESTSUPPORT_DIR),
     ],
     define_macros=[("_GNU_SOURCE", "1")],
 )
