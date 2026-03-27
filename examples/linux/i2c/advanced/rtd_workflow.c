@@ -1,37 +1,47 @@
 /*
-Purpose: inspect RTD scale, logger, and memory state, with optional setter examples.
+Purpose: inspect RTD scale, calibration, logger, and memory state, including guarded recall and clear-memory flows.
 Defaults: /dev/i2c-1 and the RTD default address 102.
 Assumptions: the connected device is an RTD circuit in I2C mode.
-Next: read ../typed/read_rtd.c for the smallest possible read path.
+Next: read rtd_calibration.c for the staged one-point offset calibration example.
 */
 
 #include "example_base.h"
 #include "example_i2c.h"
+#include "example_products.h"
 
 #include "ezo_rtd.h"
 
 #include <stdio.h>
+#include <string.h>
 
 enum {
-  RTD_MEMORY_CAPACITY = 64
+  RTD_MEMORY_CAPACITY = 64,
+  RTD_MEMORY_PREVIEW_LIMIT = 5
 };
 
-static const char *scale_name(ezo_rtd_scale_t scale) {
-  switch (scale) {
-    case EZO_RTD_SCALE_CELSIUS:
-      return "celsius";
-    case EZO_RTD_SCALE_KELVIN:
-      return "kelvin";
-    case EZO_RTD_SCALE_FAHRENHEIT:
-      return "fahrenheit";
-    default:
-      return "unknown";
+static int parse_scale_arg(const char *text, ezo_rtd_scale_t *scale_out) {
+  if (text == NULL || scale_out == NULL) {
+    return 0;
   }
+  if (strcmp(text, "c") == 0 || strcmp(text, "celsius") == 0) {
+    *scale_out = EZO_RTD_SCALE_CELSIUS;
+    return 1;
+  }
+  if (strcmp(text, "k") == 0 || strcmp(text, "kelvin") == 0) {
+    *scale_out = EZO_RTD_SCALE_KELVIN;
+    return 1;
+  }
+  if (strcmp(text, "f") == 0 || strcmp(text, "fahrenheit") == 0) {
+    *scale_out = EZO_RTD_SCALE_FAHRENHEIT;
+    return 1;
+  }
+  return 0;
 }
 
 int main(int argc, char **argv) {
-  const ezo_rtd_scale_t planned_scale = EZO_RTD_SCALE_FAHRENHEIT;
-  const uint32_t planned_logger_interval = 60U;
+  ezo_rtd_scale_t planned_scale = EZO_RTD_SCALE_FAHRENHEIT;
+  uint32_t planned_logger_interval = 60U;
+  uint32_t sequential_count = RTD_MEMORY_PREVIEW_LIMIT;
   ezo_example_i2c_options_t options;
   ezo_example_i2c_session_t session;
   ezo_timing_hint_t hint;
@@ -40,17 +50,46 @@ int main(int argc, char **argv) {
   ezo_rtd_logger_status_t logger;
   ezo_rtd_memory_status_t memory;
   ezo_rtd_memory_value_t values[RTD_MEMORY_CAPACITY];
+  ezo_rtd_memory_entry_t sequential_entry;
   size_t value_count = 0;
   size_t index = 0;
   ezo_result_t result = EZO_OK;
   int next_arg = 0;
   int apply_requested = 0;
+  int clear_memory_requested = 0;
+  const char *value = NULL;
 
   if (!ezo_example_parse_i2c_options(argc, argv, 102U, &options, &next_arg)) {
-    fprintf(stderr, "usage: %s [device_path] [address] [--apply]\n", argv[0]);
+    fprintf(stderr,
+            "usage: %s [device_path] [address] [--set-scale=celsius|kelvin|fahrenheit] "
+            "[--set-logger-interval=60] [--sequential-count=5] [--clear-memory] [--apply]\n",
+            argv[0]);
     return 1;
   }
+
   apply_requested = ezo_example_has_flag(argc, argv, next_arg, "--apply");
+  clear_memory_requested = ezo_example_has_flag(argc, argv, next_arg, "--clear-memory");
+
+  value = ezo_example_find_option_value(argc, argv, next_arg, "--set-scale=");
+  if (value != NULL && !parse_scale_arg(value, &planned_scale)) {
+    fprintf(stderr, "invalid --set-scale value\n");
+    return 1;
+  }
+
+  value = ezo_example_find_option_value(argc, argv, next_arg, "--set-logger-interval=");
+  if (value != NULL && !ezo_example_parse_uint32_arg(value, &planned_logger_interval)) {
+    fprintf(stderr, "invalid --set-logger-interval value\n");
+    return 1;
+  }
+
+  value = ezo_example_find_option_value(argc, argv, next_arg, "--sequential-count=");
+  if (value != NULL && !ezo_example_parse_uint32_arg(value, &sequential_count)) {
+    fprintf(stderr, "invalid --sequential-count value\n");
+    return 1;
+  }
+  if (sequential_count > RTD_MEMORY_PREVIEW_LIMIT) {
+    sequential_count = RTD_MEMORY_PREVIEW_LIMIT;
+  }
 
   result = ezo_example_open_i2c(options.device_path, options.address, &session);
   if (result != EZO_OK) {
@@ -83,10 +122,12 @@ int main(int argc, char **argv) {
     ezo_example_wait_hint(&hint);
     result = ezo_rtd_read_memory_status_i2c(&session.device, &memory);
   }
-  if (result == EZO_OK && memory.last_index > 0U && memory.last_index <= RTD_MEMORY_CAPACITY) {
+  if (result == EZO_OK && logger.interval_units == 0U && memory.last_index > 0U &&
+      memory.last_index <= RTD_MEMORY_CAPACITY) {
     result = ezo_rtd_send_memory_all_i2c(&session.device, &hint);
   }
-  if (result == EZO_OK && memory.last_index > 0U && memory.last_index <= RTD_MEMORY_CAPACITY) {
+  if (result == EZO_OK && logger.interval_units == 0U && memory.last_index > 0U &&
+      memory.last_index <= RTD_MEMORY_CAPACITY) {
     ezo_example_wait_hint(&hint);
     result = ezo_rtd_read_memory_all_i2c(&session.device,
                                          scale.scale,
@@ -104,21 +145,46 @@ int main(int argc, char **argv) {
   printf("product=RTD\n");
   printf("device_path=%s\n", options.device_path);
   printf("address=%u\n", (unsigned)options.address);
-  printf("current_scale=%s\n", scale_name(scale.scale));
+  printf("current_scale=%s\n", ezo_example_rtd_scale_name(scale.scale));
   printf("current_calibrated=%u\n", (unsigned)calibration.calibrated);
   printf("current_logger_interval_units=%u\n", (unsigned)logger.interval_units);
   printf("current_memory_last_index=%u\n", (unsigned)memory.last_index);
-  if (memory.last_index > RTD_MEMORY_CAPACITY) {
-    printf("memory_value_count=0\n");
-    printf("memory_dump_skipped=1\n");
+  printf("memory_recall_requires_logger_disabled=1\n");
+  printf("sequential_preview_count=%u\n", (unsigned)sequential_count);
+  if (logger.interval_units != 0U) {
+    printf("memory_recall_skipped_reason=logger_enabled\n");
+  } else if (memory.last_index > RTD_MEMORY_CAPACITY) {
+    printf("memory_recall_skipped_reason=memory_capacity_exceeded\n");
   } else {
     printf("memory_value_count=%u\n", (unsigned)value_count);
     for (index = 0; index < value_count; ++index) {
       printf("memory_value_%u=%.3f\n", (unsigned)index, values[index].temperature);
     }
+
+    for (index = 0; index < sequential_count && index < memory.last_index; ++index) {
+      result = ezo_rtd_send_memory_next_i2c(&session.device, &hint);
+      if (result != EZO_OK) {
+        ezo_example_close_i2c(&session);
+        return ezo_example_print_error("send_memory_next", result);
+      }
+      ezo_example_wait_hint(&hint);
+      result = ezo_rtd_read_memory_entry_i2c(&session.device, scale.scale, &sequential_entry);
+      if (result != EZO_OK) {
+        ezo_example_close_i2c(&session);
+        return ezo_example_print_error("read_memory_next", result);
+      }
+
+      printf("sequential_memory_index_%u=%u\n",
+             (unsigned)index,
+             (unsigned)sequential_entry.index);
+      printf("sequential_memory_value_%u=%.3f\n",
+             (unsigned)index,
+             sequential_entry.temperature);
+    }
   }
   printf("apply_requested=%d\n", apply_requested);
-  printf("planned_scale=%s\n", scale_name(planned_scale));
+  printf("clear_memory_requested=%d\n", clear_memory_requested);
+  printf("planned_scale=%s\n", ezo_example_rtd_scale_name(planned_scale));
   printf("planned_logger_interval_units=%u\n", (unsigned)planned_logger_interval);
 
   if (apply_requested) {
@@ -129,6 +195,14 @@ int main(int argc, char **argv) {
     }
     if (result == EZO_OK) {
       ezo_example_wait_hint(&hint);
+    }
+    if (result == EZO_OK && clear_memory_requested) {
+      result = ezo_rtd_send_memory_clear_i2c(&session.device, &hint);
+      if (result == EZO_OK) {
+        ezo_example_wait_hint(&hint);
+      }
+    }
+    if (result == EZO_OK) {
       result = ezo_rtd_send_scale_query_i2c(&session.device, &hint);
     }
     if (result == EZO_OK) {
@@ -142,13 +216,21 @@ int main(int argc, char **argv) {
       ezo_example_wait_hint(&hint);
       result = ezo_rtd_read_logger_i2c(&session.device, &logger);
     }
+    if (result == EZO_OK) {
+      result = ezo_rtd_send_memory_query_i2c(&session.device, &hint);
+    }
+    if (result == EZO_OK) {
+      ezo_example_wait_hint(&hint);
+      result = ezo_rtd_read_memory_status_i2c(&session.device, &memory);
+    }
     if (result != EZO_OK) {
       ezo_example_close_i2c(&session);
       return ezo_example_print_error("apply_updates", result);
     }
 
-    printf("post_scale=%s\n", scale_name(scale.scale));
+    printf("post_scale=%s\n", ezo_example_rtd_scale_name(scale.scale));
     printf("post_logger_interval_units=%u\n", (unsigned)logger.interval_units);
+    printf("post_memory_last_index=%u\n", (unsigned)memory.last_index);
   }
 
   ezo_example_close_i2c(&session);

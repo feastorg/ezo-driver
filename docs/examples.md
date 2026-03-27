@@ -16,11 +16,17 @@ Use this page as the chooser.
   [`examples/linux/i2c/raw/raw_command.c`](../examples/linux/i2c/raw/raw_command.c)
   or [`examples/linux/uart/raw/raw_command.c`](../examples/linux/uart/raw/raw_command.c)
 - If the device is uncalibrated or configuration-sensitive, read the matching readiness example first and then move to the advanced workflow for that capability class.
+- If you need a vendor-style staged calibration flow, start with the matching `<product>_calibration.c` example under `examples/linux/<transport>/advanced/`.
 - If you need a cross-device compensation chain, start with:
   [`examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c`](../examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c),
   [`examples/linux/i2c/advanced/do_salinity_comp_from_ec.c`](../examples/linux/i2c/advanced/do_salinity_comp_from_ec.c),
   [`examples/linux/uart/advanced/ec_temp_comp_from_rtd.c`](../examples/linux/uart/advanced/ec_temp_comp_from_rtd.c),
   or [`examples/linux/uart/advanced/do_salinity_comp_from_ec.c`](../examples/linux/uart/advanced/do_salinity_comp_from_ec.c).
+- If you need shared admin or mode-switch behavior, start with:
+  [`examples/linux/i2c/advanced/control_workflow.c`](../examples/linux/i2c/advanced/control_workflow.c),
+  [`examples/linux/i2c/advanced/transport_switch.c`](../examples/linux/i2c/advanced/transport_switch.c),
+  [`examples/linux/uart/advanced/control_workflow.c`](../examples/linux/uart/advanced/control_workflow.c),
+  or [`examples/linux/uart/advanced/transport_switch.c`](../examples/linux/uart/advanced/transport_switch.c).
 
 ## Structure
 
@@ -40,6 +46,7 @@ Use this page as the chooser.
 ## Safety Model
 
 - Advanced examples inspect first and only apply changes when `--apply` is present.
+- Advanced calibration examples use explicit `--step=` staging and bounded preview loops instead of open-ended polling or shells.
 - Calibration-transfer examples never import anything unless `--apply` and `--payload=...` are both present.
 - UART typed and advanced examples explicitly bootstrap response-code mode before assuming `DATA + *OK` success sequences.
 - Raw examples stay close to the transport layer and do not hide line ownership or synchronization.
@@ -76,18 +83,57 @@ Use this page as the chooser.
 
 ### Advanced
 
+#### Calibration
+
+- I2C pH calibration: [`examples/linux/i2c/advanced/ph_calibration.c`](../examples/linux/i2c/advanced/ph_calibration.c)
+- I2C ORP calibration: [`examples/linux/i2c/advanced/orp_calibration.c`](../examples/linux/i2c/advanced/orp_calibration.c)
+- I2C EC calibration: [`examples/linux/i2c/advanced/ec_calibration.c`](../examples/linux/i2c/advanced/ec_calibration.c)
+- I2C D.O. calibration: [`examples/linux/i2c/advanced/do_calibration.c`](../examples/linux/i2c/advanced/do_calibration.c)
+- I2C RTD calibration: [`examples/linux/i2c/advanced/rtd_calibration.c`](../examples/linux/i2c/advanced/rtd_calibration.c)
+- I2C HUM temperature calibration: [`examples/linux/i2c/advanced/hum_temperature_calibration.c`](../examples/linux/i2c/advanced/hum_temperature_calibration.c)
+- UART pH calibration: [`examples/linux/uart/advanced/ph_calibration.c`](../examples/linux/uart/advanced/ph_calibration.c)
+- UART ORP calibration: [`examples/linux/uart/advanced/orp_calibration.c`](../examples/linux/uart/advanced/orp_calibration.c)
+- UART EC calibration: [`examples/linux/uart/advanced/ec_calibration.c`](../examples/linux/uart/advanced/ec_calibration.c)
+- UART D.O. calibration: [`examples/linux/uart/advanced/do_calibration.c`](../examples/linux/uart/advanced/do_calibration.c)
+- UART RTD calibration: [`examples/linux/uart/advanced/rtd_calibration.c`](../examples/linux/uart/advanced/rtd_calibration.c)
+- UART HUM temperature calibration: [`examples/linux/uart/advanced/hum_temperature_calibration.c`](../examples/linux/uart/advanced/hum_temperature_calibration.c)
+
+#### Product Workflows
+
 - I2C pH workflow: [`examples/linux/i2c/advanced/ph_workflow.c`](../examples/linux/i2c/advanced/ph_workflow.c)
+- I2C ORP workflow: [`examples/linux/i2c/advanced/orp_workflow.c`](../examples/linux/i2c/advanced/orp_workflow.c)
+- I2C EC workflow: [`examples/linux/i2c/advanced/ec_workflow.c`](../examples/linux/i2c/advanced/ec_workflow.c)
 - I2C D.O. workflow: [`examples/linux/i2c/advanced/do_workflow.c`](../examples/linux/i2c/advanced/do_workflow.c)
-- I2C EC temp compensation from RTD: [`examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c`](../examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c)
-- I2C D.O. salinity compensation from EC: [`examples/linux/i2c/advanced/do_salinity_comp_from_ec.c`](../examples/linux/i2c/advanced/do_salinity_comp_from_ec.c)
 - I2C RTD workflow: [`examples/linux/i2c/advanced/rtd_workflow.c`](../examples/linux/i2c/advanced/rtd_workflow.c)
+- I2C HUM workflow: [`examples/linux/i2c/advanced/hum_workflow.c`](../examples/linux/i2c/advanced/hum_workflow.c)
 - I2C calibration transfer: [`examples/linux/i2c/advanced/calibration_transfer.c`](../examples/linux/i2c/advanced/calibration_transfer.c)
 - UART pH workflow: [`examples/linux/uart/advanced/ph_workflow.c`](../examples/linux/uart/advanced/ph_workflow.c)
+- UART ORP workflow: [`examples/linux/uart/advanced/orp_workflow.c`](../examples/linux/uart/advanced/orp_workflow.c)
+- UART EC workflow: [`examples/linux/uart/advanced/ec_workflow.c`](../examples/linux/uart/advanced/ec_workflow.c)
 - UART D.O. workflow: [`examples/linux/uart/advanced/do_workflow.c`](../examples/linux/uart/advanced/do_workflow.c)
-- UART EC temp compensation from RTD: [`examples/linux/uart/advanced/ec_temp_comp_from_rtd.c`](../examples/linux/uart/advanced/ec_temp_comp_from_rtd.c)
-- UART D.O. salinity compensation from EC: [`examples/linux/uart/advanced/do_salinity_comp_from_ec.c`](../examples/linux/uart/advanced/do_salinity_comp_from_ec.c)
 - UART RTD workflow: [`examples/linux/uart/advanced/rtd_workflow.c`](../examples/linux/uart/advanced/rtd_workflow.c)
+- UART HUM workflow: [`examples/linux/uart/advanced/hum_workflow.c`](../examples/linux/uart/advanced/hum_workflow.c)
 - UART calibration transfer: [`examples/linux/uart/advanced/calibration_transfer.c`](../examples/linux/uart/advanced/calibration_transfer.c)
+
+#### Cross-Device Compensation
+
+- I2C RTD -> pH temperature compensation: [`examples/linux/i2c/advanced/ph_temp_comp_from_rtd.c`](../examples/linux/i2c/advanced/ph_temp_comp_from_rtd.c)
+- I2C RTD -> EC temperature compensation: [`examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c`](../examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c)
+- I2C RTD -> D.O. temperature compensation: [`examples/linux/i2c/advanced/do_temp_comp_from_rtd.c`](../examples/linux/i2c/advanced/do_temp_comp_from_rtd.c)
+- I2C EC -> D.O. salinity compensation: [`examples/linux/i2c/advanced/do_salinity_comp_from_ec.c`](../examples/linux/i2c/advanced/do_salinity_comp_from_ec.c)
+- I2C full D.O. chain: [`examples/linux/i2c/advanced/do_full_compensation_chain.c`](../examples/linux/i2c/advanced/do_full_compensation_chain.c)
+- UART RTD -> pH temperature compensation: [`examples/linux/uart/advanced/ph_temp_comp_from_rtd.c`](../examples/linux/uart/advanced/ph_temp_comp_from_rtd.c)
+- UART RTD -> EC temperature compensation: [`examples/linux/uart/advanced/ec_temp_comp_from_rtd.c`](../examples/linux/uart/advanced/ec_temp_comp_from_rtd.c)
+- UART RTD -> D.O. temperature compensation: [`examples/linux/uart/advanced/do_temp_comp_from_rtd.c`](../examples/linux/uart/advanced/do_temp_comp_from_rtd.c)
+- UART EC -> D.O. salinity compensation: [`examples/linux/uart/advanced/do_salinity_comp_from_ec.c`](../examples/linux/uart/advanced/do_salinity_comp_from_ec.c)
+- UART full D.O. chain: [`examples/linux/uart/advanced/do_full_compensation_chain.c`](../examples/linux/uart/advanced/do_full_compensation_chain.c)
+
+#### Shared Control and Transport
+
+- I2C control workflow: [`examples/linux/i2c/advanced/control_workflow.c`](../examples/linux/i2c/advanced/control_workflow.c)
+- I2C transport switch: [`examples/linux/i2c/advanced/transport_switch.c`](../examples/linux/i2c/advanced/transport_switch.c)
+- UART control workflow: [`examples/linux/uart/advanced/control_workflow.c`](../examples/linux/uart/advanced/control_workflow.c)
+- UART transport switch: [`examples/linux/uart/advanced/transport_switch.c`](../examples/linux/uart/advanced/transport_switch.c)
 
 ## Arduino Curated Matrix
 

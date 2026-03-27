@@ -459,6 +459,7 @@ if(EZO_BUILD_EXAMPLES AND EZO_BUILD_LINUX_ADAPTER)
   add_library(ezo_i2c_linux_example_common STATIC
     examples/linux/common/example_base.c
     examples/linux/common/example_i2c.c
+    examples/linux/common/example_products.c
   )
 
   target_include_directories(ezo_i2c_linux_example_common
@@ -509,24 +510,80 @@ if(EZO_BUILD_EXAMPLES AND EZO_BUILD_LINUX_ADAPTER)
     examples/linux/i2c/advanced/ph_workflow.c
   )
   ezo_add_linux_i2c_example(
+    ezo_linux_i2c_ph_calibration_example
+    examples/linux/i2c/advanced/ph_calibration.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_ph_temp_comp_from_rtd_example
+    examples/linux/i2c/advanced/ph_temp_comp_from_rtd.c
+  )
+  ezo_add_linux_i2c_example(
     ezo_linux_i2c_do_workflow_example
     examples/linux/i2c/advanced/do_workflow.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_do_calibration_example
+    examples/linux/i2c/advanced/do_calibration.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_do_temp_comp_from_rtd_example
+    examples/linux/i2c/advanced/do_temp_comp_from_rtd.c
   )
   ezo_add_linux_i2c_example(
     ezo_linux_i2c_ec_temp_comp_from_rtd_example
     examples/linux/i2c/advanced/ec_temp_comp_from_rtd.c
   )
   ezo_add_linux_i2c_example(
+    ezo_linux_i2c_ec_workflow_example
+    examples/linux/i2c/advanced/ec_workflow.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_ec_calibration_example
+    examples/linux/i2c/advanced/ec_calibration.c
+  )
+  ezo_add_linux_i2c_example(
     ezo_linux_i2c_do_salinity_comp_from_ec_example
     examples/linux/i2c/advanced/do_salinity_comp_from_ec.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_do_full_compensation_chain_example
+    examples/linux/i2c/advanced/do_full_compensation_chain.c
   )
   ezo_add_linux_i2c_example(
     ezo_linux_i2c_rtd_workflow_example
     examples/linux/i2c/advanced/rtd_workflow.c
   )
   ezo_add_linux_i2c_example(
+    ezo_linux_i2c_rtd_calibration_example
+    examples/linux/i2c/advanced/rtd_calibration.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_orp_workflow_example
+    examples/linux/i2c/advanced/orp_workflow.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_orp_calibration_example
+    examples/linux/i2c/advanced/orp_calibration.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_hum_workflow_example
+    examples/linux/i2c/advanced/hum_workflow.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_hum_temperature_calibration_example
+    examples/linux/i2c/advanced/hum_temperature_calibration.c
+  )
+  ezo_add_linux_i2c_example(
     ezo_linux_i2c_calibration_transfer_example
     examples/linux/i2c/advanced/calibration_transfer.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_control_workflow_example
+    examples/linux/i2c/advanced/control_workflow.c
+  )
+  ezo_add_linux_i2c_example(
+    ezo_linux_i2c_transport_switch_example
+    examples/linux/i2c/advanced/transport_switch.c
   )
 endif()
 
@@ -534,6 +591,7 @@ if(EZO_BUILD_EXAMPLES AND EZO_BUILD_POSIX_UART_ADAPTER AND CMAKE_SYSTEM_NAME STR
   add_library(ezo_uart_linux_example_common STATIC
     examples/linux/common/example_base.c
     examples/linux/common/example_uart.c
+    examples/linux/common/example_products.c
   )
 
   target_include_directories(ezo_uart_linux_example_common
@@ -584,24 +642,80 @@ if(EZO_BUILD_EXAMPLES AND EZO_BUILD_POSIX_UART_ADAPTER AND CMAKE_SYSTEM_NAME STR
     examples/linux/uart/advanced/ph_workflow.c
   )
   ezo_add_linux_uart_example(
+    ezo_linux_uart_ph_calibration_example
+    examples/linux/uart/advanced/ph_calibration.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_ph_temp_comp_from_rtd_example
+    examples/linux/uart/advanced/ph_temp_comp_from_rtd.c
+  )
+  ezo_add_linux_uart_example(
     ezo_linux_uart_do_workflow_example
     examples/linux/uart/advanced/do_workflow.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_do_calibration_example
+    examples/linux/uart/advanced/do_calibration.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_do_temp_comp_from_rtd_example
+    examples/linux/uart/advanced/do_temp_comp_from_rtd.c
   )
   ezo_add_linux_uart_example(
     ezo_linux_uart_ec_temp_comp_from_rtd_example
     examples/linux/uart/advanced/ec_temp_comp_from_rtd.c
   )
   ezo_add_linux_uart_example(
+    ezo_linux_uart_ec_workflow_example
+    examples/linux/uart/advanced/ec_workflow.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_ec_calibration_example
+    examples/linux/uart/advanced/ec_calibration.c
+  )
+  ezo_add_linux_uart_example(
     ezo_linux_uart_do_salinity_comp_from_ec_example
     examples/linux/uart/advanced/do_salinity_comp_from_ec.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_do_full_compensation_chain_example
+    examples/linux/uart/advanced/do_full_compensation_chain.c
   )
   ezo_add_linux_uart_example(
     ezo_linux_uart_rtd_workflow_example
     examples/linux/uart/advanced/rtd_workflow.c
   )
   ezo_add_linux_uart_example(
+    ezo_linux_uart_rtd_calibration_example
+    examples/linux/uart/advanced/rtd_calibration.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_orp_workflow_example
+    examples/linux/uart/advanced/orp_workflow.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_orp_calibration_example
+    examples/linux/uart/advanced/orp_calibration.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_hum_workflow_example
+    examples/linux/uart/advanced/hum_workflow.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_hum_temperature_calibration_example
+    examples/linux/uart/advanced/hum_temperature_calibration.c
+  )
+  ezo_add_linux_uart_example(
     ezo_linux_uart_calibration_transfer_example
     examples/linux/uart/advanced/calibration_transfer.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_control_workflow_example
+    examples/linux/uart/advanced/control_workflow.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_transport_switch_example
+    examples/linux/uart/advanced/transport_switch.c
   )
 endif()
 

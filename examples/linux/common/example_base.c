@@ -37,6 +37,23 @@ int ezo_example_parse_uint8_arg(const char *text, uint8_t *value_out) {
   return 1;
 }
 
+int ezo_example_parse_double_arg(const char *text, double *value_out) {
+  char *end = NULL;
+  double value = 0.0;
+
+  if (text == NULL || value_out == NULL || text[0] == '\0') {
+    return 0;
+  }
+
+  value = strtod(text, &end);
+  if (end == NULL || *end != '\0') {
+    return 0;
+  }
+
+  *value_out = value;
+  return 1;
+}
+
 int ezo_example_parse_baud_arg(const char *text,
                                ezo_uart_posix_baud_t *baud_out,
                                uint32_t *baud_rate_out) {
@@ -77,6 +94,19 @@ int ezo_example_parse_baud_arg(const char *text,
 
   *baud_rate_out = baud_rate;
   return 1;
+}
+
+int ezo_example_parse_product_id_arg(const char *text, ezo_product_id_t *product_id_out) {
+  size_t length = 0;
+  ezo_result_t result = EZO_OK;
+
+  if (text == NULL || product_id_out == NULL) {
+    return 0;
+  }
+
+  length = strlen(text);
+  result = ezo_product_id_from_short_code(text, length, product_id_out);
+  return result == EZO_OK;
 }
 
 static int ezo_example_resolve_default_baud(uint32_t default_baud_rate,
@@ -240,6 +270,14 @@ void ezo_example_wait_hint(const ezo_timing_hint_t *hint) {
   }
 
   usleep((useconds_t)(hint->wait_ms * 1000U));
+}
+
+void ezo_example_sleep_ms(uint32_t delay_ms) {
+  if (delay_ms == 0U) {
+    return;
+  }
+
+  usleep((useconds_t)(delay_ms * 1000U));
 }
 
 int ezo_example_print_error(const char *step, ezo_result_t result) {
