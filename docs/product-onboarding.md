@@ -108,11 +108,12 @@ Minimum validation for any new family:
 Recommended validation commands:
 
 ```sh
-cmake -S . -B build -DEZO_BUILD_TESTS=ON
-cmake --build build --config Debug
-ctest --test-dir build -C Debug --output-on-failure
-cmake --build build --config Release
-ctest --test-dir build -C Release --output-on-failure
+cmake --preset host-linux-debug
+cmake --build --preset host-linux-debug --parallel
+ctest --preset host-linux-debug
+cmake --preset host-linux-release
+cmake --build --preset host-linux-release --parallel
+ctest --preset host-linux-release
 git diff --check
 ```
 

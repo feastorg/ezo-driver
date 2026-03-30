@@ -69,26 +69,37 @@ Public guidance docs:
 
 ## Build
 
-Host builds and tests use CMake:
+Canonical host-side CMake usage is via presets:
 
 ```sh
-cmake -S . -B build -DEZO_BUILD_TESTS=ON -DEZO_BUILD_LINUX_ADAPTER=ON
-cmake --build build
-ctest --test-dir build --output-on-failure
+cmake --preset host-linux-debug
+cmake --build --preset host-linux-debug --parallel
+ctest --preset host-linux-debug
 ```
 
-To build the host-side examples, enable the host adapters explicitly:
+That Linux preset is the main maintained path. It enables:
+
+- host tests
+- Linux I2C adapter
+- Linux POSIX UART adapter
+- Linux examples
+
+For Windows development on the shared/core surface, use:
 
 ```sh
-cmake -S . -B build -DEZO_BUILD_EXAMPLES=ON -DEZO_BUILD_LINUX_ADAPTER=ON -DEZO_BUILD_POSIX_UART_ADAPTER=ON
+cmake --preset host-windows-debug
+cmake --build --preset host-windows-debug --parallel
+ctest --preset host-windows-debug
 ```
+
+The Windows preset is intentionally limited to the shared/core host test surface. Linux-only adapters and examples are not part of the Windows development contract. The tracked Windows presets target the Visual Studio 2022 generator.
 
 To install the public headers and static libraries for host-side consumption:
 
 ```sh
-cmake -S . -B build
-cmake --build build
-cmake --install build --prefix <install-prefix>
+cmake --preset host-linux-release
+cmake --build --preset host-linux-release --parallel
+cmake --install build/host-linux-release --prefix <install-prefix>
 ```
 
 ## Validation

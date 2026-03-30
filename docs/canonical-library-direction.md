@@ -4,7 +4,7 @@
 
 This document records the stable long-term direction for `ezo-driver`.
 
-It is not a phase checklist. It exists so the repo's intended end state is tracked in `docs/` instead of living only in disposable planning notes.
+It is not a phase checklist. It exists so the repo's intended end state is tracked in `docs/` instead of living only in disposable scratch notes.
 
 ## Current baseline
 

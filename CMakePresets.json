@@ -1,0 +1,132 @@
+{
+  "version": 2,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "linux-base",
+      "hidden": true,
+      "inherits": "base",
+      "generator": "Unix Makefiles"
+    },
+    {
+      "name": "windows-base",
+      "hidden": true,
+      "inherits": "base",
+      "generator": "Visual Studio 17 2022"
+    },
+    {
+      "name": "host-linux-debug",
+      "displayName": "Host Linux Debug",
+      "description": "Canonical Linux host debug build with tests, Linux adapters, POSIX UART adapter, and Linux examples enabled.",
+      "inherits": "linux-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "EZO_BUILD_TESTS": "ON",
+        "EZO_BUILD_LINUX_ADAPTER": "ON",
+        "EZO_BUILD_POSIX_UART_ADAPTER": "ON",
+        "EZO_BUILD_EXAMPLES": "ON"
+      }
+    },
+    {
+      "name": "host-linux-release",
+      "displayName": "Host Linux Release",
+      "description": "Canonical Linux host release build with tests, Linux adapters, POSIX UART adapter, and Linux examples enabled.",
+      "inherits": "linux-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "EZO_BUILD_TESTS": "ON",
+        "EZO_BUILD_LINUX_ADAPTER": "ON",
+        "EZO_BUILD_POSIX_UART_ADAPTER": "ON",
+        "EZO_BUILD_EXAMPLES": "ON"
+      }
+    },
+    {
+      "name": "host-windows-debug",
+      "displayName": "Host Windows Debug",
+      "description": "Canonical Windows development debug build for the shared/core host test surface using the Visual Studio 2022 generator. Linux-only adapters and examples remain disabled.",
+      "inherits": "windows-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "EZO_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "host-windows-release",
+      "displayName": "Host Windows Release",
+      "description": "Canonical Windows development release build for the shared/core host test surface using the Visual Studio 2022 generator. Linux-only adapters and examples remain disabled.",
+      "inherits": "windows-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "EZO_BUILD_TESTS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "host-linux-debug",
+      "displayName": "Host Linux Debug",
+      "configurePreset": "host-linux-debug"
+    },
+    {
+      "name": "host-linux-release",
+      "displayName": "Host Linux Release",
+      "configurePreset": "host-linux-release"
+    },
+    {
+      "name": "host-windows-debug",
+      "displayName": "Host Windows Debug",
+      "configurePreset": "host-windows-debug"
+    },
+    {
+      "name": "host-windows-release",
+      "displayName": "Host Windows Release",
+      "configurePreset": "host-windows-release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "host-linux-debug",
+      "displayName": "Host Linux Debug",
+      "configurePreset": "host-linux-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "host-linux-release",
+      "displayName": "Host Linux Release",
+      "configurePreset": "host-linux-release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "host-windows-debug",
+      "displayName": "Host Windows Debug",
+      "configurePreset": "host-windows-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "host-windows-release",
+      "displayName": "Host Windows Release",
+      "configurePreset": "host-windows-release",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

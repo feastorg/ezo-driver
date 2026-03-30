@@ -51,7 +51,7 @@ These docs are not a replacement for official vendor documentation.
 Use them for:
 
 - repo architecture decisions
-- product-aware API planning
+- product-aware API design
 - example and test design
 - caller expectations around output shape and timing
 
