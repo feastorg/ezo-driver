@@ -32,72 +32,6 @@ Next: jump to ../typed/read_<product>.c for a simple read or ../advanced/ for st
     }                                   \
   } while (0)
 
-#define I2C_QUERY_DEBUG(step_name, command_text, send_expr, read_expr)     \
-  do {                                                                     \
-    result = (send_expr);                                                  \
-    if (result != EZO_OK) {                                                \
-      ezo_example_print_readiness_query_result(step_name, "send", result); \
-      return result;                                                       \
-    }                                                                      \
-    ezo_example_wait_hint(&hint);                                          \
-    result = (read_expr);                                                  \
-    if (result != EZO_OK) {                                                \
-      ezo_example_print_readiness_query_result(step_name, "read", result); \
-      ezo_example_print_readiness_query_debug(device, step_name, command_text); \
-      return result;                                                       \
-    }                                                                      \
-  } while (0)
-
-static void ezo_example_print_readiness_query_result(const char *step_name,
-                                                     const char *phase,
-                                                     ezo_result_t result) {
-  if (step_name == NULL || phase == NULL) {
-    return;
-  }
-
-  printf("%s_%s_result=%s\n", step_name, phase, ezo_result_name(result));
-  printf("%s_%s_result_code=%d\n", step_name, phase, (int)result);
-}
-
-static void ezo_example_print_readiness_query_debug(ezo_i2c_device_t *device,
-                                                    const char *step_name,
-                                                    const char *command_text) {
-  ezo_timing_hint_t hint;
-  ezo_device_status_t status = EZO_STATUS_UNKNOWN;
-  char response[EZO_I2C_MAX_TEXT_RESPONSE_CAPACITY];
-  size_t response_len = 0;
-  ezo_result_t result = EZO_OK;
-  size_t i = 0;
-
-  if (device == NULL || step_name == NULL || command_text == NULL) {
-    return;
-  }
-
-  result = ezo_send_command(device, command_text, EZO_COMMAND_GENERIC, &hint);
-  ezo_example_print_readiness_query_result(step_name, "debug_send", result);
-  if (result != EZO_OK) {
-    return;
-  }
-
-  ezo_example_wait_hint(&hint);
-  result = ezo_read_response(device, response, sizeof(response), &response_len, &status);
-  ezo_example_print_readiness_query_result(step_name, "debug_read", result);
-  if (result != EZO_OK) {
-    return;
-  }
-
-  printf("%s_debug_device_status=%s\n", step_name, ezo_device_status_name(status));
-  printf("%s_debug_device_status_code=%u\n", step_name, (unsigned)status);
-  printf("%s_debug_response_len=%u\n", step_name, (unsigned)response_len);
-  printf("%s_debug_response=%.*s\n", step_name, (int)response_len, response);
-
-  printf("%s_debug_response_hex=", step_name);
-  for (i = 0; i < response_len; ++i) {
-    printf(i == 0 ? "%02X" : " %02X", (unsigned char)response[i]);
-  }
-  printf("\n");
-}
-
 static const char *support_name(ezo_product_support_t support) {
   switch (support) {
     case EZO_PRODUCT_SUPPORT_METADATA:
@@ -247,21 +181,13 @@ static ezo_result_t print_product_readiness_i2c(ezo_i2c_device_t *device,
       ezo_ph_slope_t slope;
       ezo_ph_extended_range_status_t extended_range;
 
-      I2C_QUERY_DEBUG("ph_temperature_query",
-                      "T,?",
-                      ezo_ph_send_temperature_query_i2c(device, &hint),
+      I2C_QUERY(ezo_ph_send_temperature_query_i2c(device, &hint),
                       ezo_ph_read_temperature_i2c(device, &temperature));
-      I2C_QUERY_DEBUG("ph_calibration_query",
-                      "Cal,?",
-                      ezo_ph_send_calibration_query_i2c(device, &hint),
+      I2C_QUERY(ezo_ph_send_calibration_query_i2c(device, &hint),
                       ezo_ph_read_calibration_status_i2c(device, &calibration));
-      I2C_QUERY_DEBUG("ph_slope_query",
-                      "Slope,?",
-                      ezo_ph_send_slope_query_i2c(device, &hint),
+      I2C_QUERY(ezo_ph_send_slope_query_i2c(device, &hint),
                       ezo_ph_read_slope_i2c(device, &slope));
-      I2C_QUERY_DEBUG("ph_extended_range_query",
-                      "pHext,?",
-                      ezo_ph_send_extended_range_query_i2c(device, &hint),
+      I2C_QUERY(ezo_ph_send_extended_range_query_i2c(device, &hint),
                       ezo_ph_read_extended_range_i2c(device, &extended_range));
 
       printf("ph_temperature_compensation_c=%.3f\n", temperature.temperature_c);

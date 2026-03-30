@@ -29,6 +29,12 @@ static void test_parse_helpers_cover_reading_and_queries(void) {
   assert(slope.acid_percent > 99.6 && slope.acid_percent < 99.8);
   assert(slope.base_percent > 100.2 && slope.base_percent < 100.4);
   assert(slope.neutral_mv > -0.90 && slope.neutral_mv < -0.88);
+  assert(ezo_ph_parse_slope("?SLOPE,100.0,100.0,-20.06",
+                            strlen("?SLOPE,100.0,100.0,-20.06"),
+                            &slope) == EZO_OK);
+  assert(slope.acid_percent > 99.9 && slope.acid_percent < 100.1);
+  assert(slope.base_percent > 99.9 && slope.base_percent < 100.1);
+  assert(slope.neutral_mv > -20.07 && slope.neutral_mv < -20.05);
 
   assert(ezo_ph_parse_extended_range("?pHext,1", strlen("?pHext,1"), &extended_range) ==
          EZO_OK);
