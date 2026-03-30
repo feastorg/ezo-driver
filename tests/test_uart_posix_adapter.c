@@ -7,7 +7,9 @@
 #include "ezo_uart_posix_serial.h"
 
 #include <assert.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -59,6 +61,44 @@ static void ezo_test_pty_close(ezo_test_pty_t *pty) {
   }
 }
 
+static size_t ezo_test_pty_read_exact(ezo_test_pty_t *pty,
+                                      uint8_t *buffer,
+                                      size_t expected_len,
+                                      int timeout_ms) {
+  size_t received_total = 0;
+
+  assert(pty != NULL);
+  assert(buffer != NULL);
+  assert(expected_len > 0);
+  assert(timeout_ms > 0);
+
+  while (received_total < expected_len) {
+    struct pollfd pfd;
+    ssize_t received_now = 0;
+    int poll_result = 0;
+
+    memset(&pfd, 0, sizeof(pfd));
+    pfd.fd = pty->master_fd;
+    pfd.events = POLLIN;
+
+    poll_result = poll(&pfd, 1, timeout_ms);
+    assert(poll_result > 0);
+    assert((pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) == 0);
+    assert((pfd.revents & POLLIN) != 0);
+
+    received_now =
+        read(pty->master_fd, buffer + received_total, expected_len - received_total);
+    if (received_now < 0 && errno == EINTR) {
+      continue;
+    }
+
+    assert(received_now > 0);
+    received_total += (size_t)received_now;
+  }
+
+  return received_total;
+}
+
 static void test_posix_uart_open_rejects_invalid_arguments(void) {
   ezo_uart_posix_serial_t serial;
 
@@ -78,7 +118,7 @@ static void test_posix_uart_send_command_writes_bytes(void) {
   ezo_uart_device_t device;
   ezo_timing_hint_t hint;
   uint8_t rx_buffer[8];
-  ssize_t received = 0;
+  size_t received = 0;
 
   ezo_test_pty_init(&pty);
   assert(ezo_uart_posix_serial_open(&serial, pty.slave_path, EZO_UART_POSIX_BAUD_9600, 100) ==
@@ -87,7 +127,7 @@ static void test_posix_uart_send_command_writes_bytes(void) {
   assert(ezo_uart_send_command(&device, "i", EZO_COMMAND_GENERIC, &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
 
-  received = read(pty.master_fd, rx_buffer, sizeof(rx_buffer));
+  received = ezo_test_pty_read_exact(&pty, rx_buffer, 2, 1000);
   assert(received == 2);
   assert(memcmp(rx_buffer, "i\r", 2) == 0);
 
