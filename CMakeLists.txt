@@ -371,7 +371,7 @@ if(EZO_BUILD_TESTS)
   endif()
 endif()
 
-if(EZO_BUILD_LINUX_ADAPTER)
+if((EZO_BUILD_LINUX_ADAPTER OR EZO_BUILD_TESTS) AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_library(ezo_i2c_linux_adapter STATIC
     platform/linux/ezo_i2c_linux_i2c.c
   )
@@ -731,7 +731,7 @@ install(FILES ${EZO_PUBLIC_HEADERS}
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-if(TARGET ezo_i2c_linux_adapter)
+if(EZO_BUILD_LINUX_ADAPTER AND TARGET ezo_i2c_linux_adapter)
   install(TARGETS ezo_i2c_linux_adapter
     EXPORT ezo_driver_targets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -742,6 +742,15 @@ endif()
 
 if(TARGET ezo_uart_posix_adapter)
   install(TARGETS ezo_uart_posix_adapter
+    EXPORT ezo_driver_targets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
+endif()
+
+if(TARGET ezo_linux_device_adapter)
+  install(TARGETS ezo_linux_device_adapter
     EXPORT ezo_driver_targets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

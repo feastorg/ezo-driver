@@ -1,3 +1,6 @@
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 #define _XOPEN_SOURCE 600
 
 #include "ezo_uart.h"
@@ -7,6 +10,7 @@
 #include <fcntl.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>

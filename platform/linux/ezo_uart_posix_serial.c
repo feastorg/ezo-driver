@@ -59,6 +59,85 @@ static ezo_result_t ezo_uart_posix_timeout_to_vtime(uint32_t read_timeout_ms, cc
   return EZO_OK;
 }
 
+static int ezo_uart_posix_serial_is_open(const ezo_uart_posix_serial_t *serial) {
+  return serial != NULL && serial->fd >= 0 && serial->owns_fd != 0 &&
+         serial->has_saved_termios != 0 && serial->read_timeout_ms > 0;
+}
+
+static void ezo_uart_posix_serial_reset(ezo_uart_posix_serial_t *serial) {
+  if (serial == NULL) {
+    return;
+  }
+
+  serial->fd = -1;
+  serial->read_timeout_ms = 0;
+  serial->owns_fd = 0;
+  serial->has_saved_termios = 0;
+}
+
+static ezo_result_t ezo_uart_posix_serial_open_fresh(ezo_uart_posix_serial_t *serial,
+                                                     const char *path,
+                                                     ezo_uart_posix_baud_t baud,
+                                                     uint32_t read_timeout_ms) {
+  struct termios configured_termios;
+  speed_t speed = 0;
+  cc_t vtime = 0;
+  int fd = -1;
+  ezo_result_t result = EZO_OK;
+
+  if (serial == NULL || path == NULL || path[0] == '\0') {
+    return EZO_ERR_INVALID_ARGUMENT;
+  }
+
+  ezo_uart_posix_serial_reset(serial);
+
+  result = ezo_uart_posix_map_baud(baud, &speed);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  result = ezo_uart_posix_timeout_to_vtime(read_timeout_ms, &vtime);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  fd = open(path, O_RDWR | O_NOCTTY);
+  if (fd < 0) {
+    return EZO_ERR_TRANSPORT;
+  }
+
+  if (tcgetattr(fd, &serial->saved_termios) != 0) {
+    close(fd);
+    return EZO_ERR_TRANSPORT;
+  }
+
+  configured_termios = serial->saved_termios;
+  configured_termios.c_iflag &=
+      ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON | IXOFF | IXANY);
+  configured_termios.c_oflag &= ~OPOST;
+  configured_termios.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+  configured_termios.c_cflag &= ~(CSIZE | PARENB | CSTOPB);
+  configured_termios.c_cflag |= (CS8 | CLOCAL | CREAD);
+#ifdef CRTSCTS
+  configured_termios.c_cflag &= ~CRTSCTS;
+#endif
+  configured_termios.c_cc[VMIN] = 0;
+  configured_termios.c_cc[VTIME] = vtime;
+
+  if (cfsetispeed(&configured_termios, speed) != 0 ||
+      cfsetospeed(&configured_termios, speed) != 0 ||
+      tcsetattr(fd, TCSANOW, &configured_termios) != 0) {
+    close(fd);
+    return EZO_ERR_TRANSPORT;
+  }
+
+  serial->fd = fd;
+  serial->read_timeout_ms = read_timeout_ms;
+  serial->owns_fd = 1;
+  serial->has_saved_termios = 1;
+  return EZO_OK;
+}
+
 static ezo_result_t ezo_uart_posix_write_bytes(void *context,
                                                const uint8_t *tx_data,
                                                size_t tx_len) {
@@ -148,66 +227,7 @@ ezo_result_t ezo_uart_posix_serial_open(ezo_uart_posix_serial_t *serial,
                                         const char *path,
                                         ezo_uart_posix_baud_t baud,
                                         uint32_t read_timeout_ms) {
-  struct termios configured_termios;
-  speed_t speed = 0;
-  cc_t vtime = 0;
-  int fd = -1;
-  ezo_result_t result = EZO_OK;
-
-  if (serial == NULL || path == NULL || path[0] == '\0') {
-    return EZO_ERR_INVALID_ARGUMENT;
-  }
-
-  serial->fd = -1;
-  serial->read_timeout_ms = 0;
-  serial->owns_fd = 0;
-  serial->has_saved_termios = 0;
-
-  result = ezo_uart_posix_map_baud(baud, &speed);
-  if (result != EZO_OK) {
-    return result;
-  }
-
-  result = ezo_uart_posix_timeout_to_vtime(read_timeout_ms, &vtime);
-  if (result != EZO_OK) {
-    return result;
-  }
-
-  fd = open(path, O_RDWR | O_NOCTTY);
-  if (fd < 0) {
-    return EZO_ERR_TRANSPORT;
-  }
-
-  if (tcgetattr(fd, &serial->saved_termios) != 0) {
-    close(fd);
-    return EZO_ERR_TRANSPORT;
-  }
-
-  configured_termios = serial->saved_termios;
-  configured_termios.c_iflag &=
-      ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON | IXOFF | IXANY);
-  configured_termios.c_oflag &= ~OPOST;
-  configured_termios.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-  configured_termios.c_cflag &= ~(CSIZE | PARENB | CSTOPB);
-  configured_termios.c_cflag |= (CS8 | CLOCAL | CREAD);
-#ifdef CRTSCTS
-  configured_termios.c_cflag &= ~CRTSCTS;
-#endif
-  configured_termios.c_cc[VMIN] = 0;
-  configured_termios.c_cc[VTIME] = vtime;
-
-  if (cfsetispeed(&configured_termios, speed) != 0 ||
-      cfsetospeed(&configured_termios, speed) != 0 ||
-      tcsetattr(fd, TCSANOW, &configured_termios) != 0) {
-    close(fd);
-    return EZO_ERR_TRANSPORT;
-  }
-
-  serial->fd = fd;
-  serial->read_timeout_ms = read_timeout_ms;
-  serial->owns_fd = 1;
-  serial->has_saved_termios = 1;
-  return EZO_OK;
+  return ezo_uart_posix_serial_open_fresh(serial, path, baud, read_timeout_ms);
 }
 
 void ezo_uart_posix_serial_close(ezo_uart_posix_serial_t *serial) {
@@ -215,18 +235,12 @@ void ezo_uart_posix_serial_close(ezo_uart_posix_serial_t *serial) {
     return;
   }
 
-  if (serial->fd >= 0 && serial->has_saved_termios) {
+  if (ezo_uart_posix_serial_is_open(serial)) {
     tcsetattr(serial->fd, TCSANOW, &serial->saved_termios);
-  }
-
-  if (serial->fd >= 0 && serial->owns_fd) {
     close(serial->fd);
   }
 
-  serial->fd = -1;
-  serial->read_timeout_ms = 0;
-  serial->owns_fd = 0;
-  serial->has_saved_termios = 0;
+  ezo_uart_posix_serial_reset(serial);
 }
 
 const ezo_uart_transport_t *ezo_uart_posix_serial_transport(void) {

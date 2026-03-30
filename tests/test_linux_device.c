@@ -38,9 +38,7 @@ static void reset_test_state(void) {
 int test_open(const char *path, int flags, ...) {
   g_i2c_io.open_call_count += 1;
   g_i2c_io.last_flags = flags;
-  if (path != NULL) {
-    strncpy(g_i2c_io.last_path, path, sizeof(g_i2c_io.last_path) - 1);
-  }
+  strncpy(g_i2c_io.last_path, path, sizeof(g_i2c_io.last_path) - 1);
   if (g_i2c_io.open_result < 0) {
     return g_i2c_io.open_result;
   }
@@ -95,7 +93,7 @@ ezo_result_t test_ezo_uart_posix_serial_open(ezo_uart_posix_serial_t *serial,
     serial->fd = 23;
     serial->read_timeout_ms = read_timeout_ms;
     serial->owns_fd = 1;
-    serial->has_saved_termios = 0;
+    serial->has_saved_termios = 1;
   }
   return g_uart_state.open_result;
 }
@@ -162,6 +160,46 @@ static void test_i2c_open_bus_formats_expected_path(void) {
   ezo_linux_i2c_device_close(&device);
 }
 
+static void test_i2c_reopen_closes_previous_fd_after_success(void) {
+  ezo_linux_i2c_device_t device;
+
+  reset_test_state();
+
+  assert(ezo_linux_i2c_device_open_path(&device, "/dev/i2c-7", 0x63) == EZO_OK);
+  g_i2c_io.next_fd = 29;
+  assert(ezo_linux_i2c_device_open_path(&device, "/dev/i2c-8", 0x64) == EZO_OK);
+  assert(g_i2c_io.open_call_count == 2);
+  assert(g_i2c_io.close_call_count == 1);
+  assert(g_i2c_io.last_closed_fd == 17);
+  assert(strcmp(g_i2c_io.last_path, "/dev/i2c-8") == 0);
+  assert(device.context.fd == 29);
+  assert(device.owns_fd == 1);
+  assert(ezo_device_get_address(&device.core) == 0x64);
+
+  ezo_linux_i2c_device_close(&device);
+  assert(g_i2c_io.close_call_count == 2);
+  assert(g_i2c_io.last_closed_fd == 29);
+}
+
+static void test_i2c_reopen_failure_keeps_existing_fd_open(void) {
+  ezo_linux_i2c_device_t device;
+
+  reset_test_state();
+
+  assert(ezo_linux_i2c_device_open_path(&device, "/dev/i2c-7", 0x63) == EZO_OK);
+  g_i2c_io.open_result = -1;
+  assert(ezo_linux_i2c_device_open_path(&device, "/dev/i2c-8", 0x64) == EZO_ERR_TRANSPORT);
+  assert(g_i2c_io.open_call_count == 2);
+  assert(g_i2c_io.close_call_count == 0);
+  assert(device.context.fd == 17);
+  assert(device.owns_fd == 1);
+  assert(ezo_device_get_address(&device.core) == 0x63);
+
+  ezo_linux_i2c_device_close(&device);
+  assert(g_i2c_io.close_call_count == 1);
+  assert(g_i2c_io.last_closed_fd == 17);
+}
+
 static void test_uart_open_initializes_device_and_close_calls_serial_close(void) {
   ezo_linux_uart_device_t device;
 
@@ -177,6 +215,39 @@ static void test_uart_open_initializes_device_and_close_calls_serial_close(void)
   ezo_linux_uart_device_close(&device);
   assert(g_uart_state.close_call_count == 1);
   assert(device.serial.fd == -1);
+}
+
+static void test_uart_reopen_closes_previous_session_after_success(void) {
+  ezo_linux_uart_device_t device;
+
+  reset_test_state();
+
+  assert(ezo_linux_uart_device_open(&device, "/dev/ttyS0", 9600, 250) == EZO_OK);
+  assert(ezo_linux_uart_device_open(&device, "/dev/ttyAMA0", 19200, 500) == EZO_OK);
+  assert(g_uart_state.open_call_count == 2);
+  assert(g_uart_state.close_call_count == 1);
+  assert(strcmp(g_uart_state.last_path, "/dev/ttyAMA0") == 0);
+  assert(g_uart_state.last_timeout_ms == 500);
+  assert(device.serial.fd == 23);
+
+  ezo_linux_uart_device_close(&device);
+  assert(g_uart_state.close_call_count == 2);
+}
+
+static void test_uart_reopen_failure_keeps_existing_session_open(void) {
+  ezo_linux_uart_device_t device;
+
+  reset_test_state();
+
+  assert(ezo_linux_uart_device_open(&device, "/dev/ttyS0", 9600, 250) == EZO_OK);
+  g_uart_state.open_result = EZO_ERR_TRANSPORT;
+  assert(ezo_linux_uart_device_open(&device, "/dev/ttyAMA0", 9600, 250) == EZO_ERR_TRANSPORT);
+  assert(g_uart_state.open_call_count == 2);
+  assert(g_uart_state.close_call_count == 0);
+  assert(device.serial.fd == 23);
+
+  ezo_linux_uart_device_close(&device);
+  assert(g_uart_state.close_call_count == 1);
 }
 
 static void test_open_helpers_reject_invalid_arguments(void) {
@@ -196,7 +267,11 @@ static void test_open_helpers_reject_invalid_arguments(void) {
 int main(void) {
   test_i2c_open_path_initializes_device_and_close_releases_fd();
   test_i2c_open_bus_formats_expected_path();
+  test_i2c_reopen_closes_previous_fd_after_success();
+  test_i2c_reopen_failure_keeps_existing_fd_open();
   test_uart_open_initializes_device_and_close_calls_serial_close();
+  test_uart_reopen_closes_previous_session_after_success();
+  test_uart_reopen_failure_keeps_existing_session_open();
   test_open_helpers_reject_invalid_arguments();
   return 0;
 }

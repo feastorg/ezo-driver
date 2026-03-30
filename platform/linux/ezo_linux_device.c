@@ -59,37 +59,59 @@ static void ezo_linux_uart_device_reset(ezo_linux_uart_device_t *device) {
   device->serial.fd = -1;
 }
 
+static int ezo_linux_i2c_device_is_open(const ezo_linux_i2c_device_t *device) {
+  return device != NULL && device->owns_fd != 0 && device->context.fd >= 0 &&
+         device->core.transport == ezo_linux_i2c_transport() &&
+         device->core.transport_context == (void *)&device->context;
+}
+
+static int ezo_linux_uart_device_is_open(const ezo_linux_uart_device_t *device) {
+  return device != NULL && device->serial.fd >= 0 && device->serial.owns_fd != 0 &&
+         device->serial.has_saved_termios != 0 && device->serial.read_timeout_ms > 0 &&
+         device->core.transport == ezo_uart_posix_serial_transport() &&
+         device->core.transport_context == (void *)&device->serial;
+}
+
 ezo_result_t ezo_linux_i2c_device_open_path(ezo_linux_i2c_device_t *device,
                                             const char *path,
                                             uint8_t address) {
+  ezo_linux_i2c_context_t next_context;
   int fd = -1;
+  int had_open = 0;
   ezo_result_t result = EZO_OK;
 
   if (device == NULL || path == NULL || path[0] == '\0') {
     return EZO_ERR_INVALID_ARGUMENT;
   }
 
-  ezo_linux_i2c_device_reset(device);
+  had_open = ezo_linux_i2c_device_is_open(device);
 
   fd = open(path, O_RDWR);
   if (fd < 0) {
     return EZO_ERR_TRANSPORT;
   }
 
-  result = ezo_linux_i2c_context_init(&device->context, fd);
+  result = ezo_linux_i2c_context_init(&next_context, fd);
   if (result != EZO_OK) {
     close(fd);
     return result;
   }
 
+  if (had_open) {
+    close(device->context.fd);
+  }
+
+  ezo_linux_i2c_device_reset(device);
+  device->context = next_context;
+  device->owns_fd = 1;
+
   result = ezo_device_init(&device->core, address, ezo_linux_i2c_transport(), &device->context);
   if (result != EZO_OK) {
-    close(fd);
+    close(device->context.fd);
     ezo_linux_i2c_device_reset(device);
     return result;
   }
 
-  device->owns_fd = 1;
   return EZO_OK;
 }
 
@@ -116,7 +138,7 @@ void ezo_linux_i2c_device_close(ezo_linux_i2c_device_t *device) {
     return;
   }
 
-  if (device->owns_fd && device->context.fd >= 0) {
+  if (ezo_linux_i2c_device_is_open(device)) {
     close(device->context.fd);
   }
 
@@ -136,24 +158,32 @@ ezo_result_t ezo_linux_uart_device_open(ezo_linux_uart_device_t *device,
                                         uint32_t baud_rate,
                                         uint32_t read_timeout_ms) {
   ezo_uart_posix_baud_t baud = EZO_UART_POSIX_BAUD_9600;
+  ezo_uart_posix_serial_t next_serial;
+  int had_open = 0;
   ezo_result_t result = EZO_OK;
 
   if (device == NULL) {
     return EZO_ERR_INVALID_ARGUMENT;
   }
 
-  ezo_linux_uart_device_reset(device);
+  had_open = ezo_linux_uart_device_is_open(device);
 
   result = ezo_linux_uart_map_baud_rate(baud_rate, &baud);
   if (result != EZO_OK) {
     return result;
   }
 
-  result = ezo_uart_posix_serial_open(&device->serial, path, baud, read_timeout_ms);
+  result = ezo_uart_posix_serial_open(&next_serial, path, baud, read_timeout_ms);
   if (result != EZO_OK) {
-    ezo_linux_uart_device_reset(device);
     return result;
   }
+
+  if (had_open) {
+    ezo_uart_posix_serial_close(&device->serial);
+  }
+
+  ezo_linux_uart_device_reset(device);
+  device->serial = next_serial;
 
   result = ezo_uart_device_init(&device->core, ezo_uart_posix_serial_transport(), &device->serial);
   if (result != EZO_OK) {
@@ -170,7 +200,10 @@ void ezo_linux_uart_device_close(ezo_linux_uart_device_t *device) {
     return;
   }
 
-  ezo_uart_posix_serial_close(&device->serial);
+  if (ezo_linux_uart_device_is_open(device)) {
+    ezo_uart_posix_serial_close(&device->serial);
+  }
+
   ezo_linux_uart_device_reset(device);
 }
 
