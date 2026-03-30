@@ -50,8 +50,8 @@ static ezo_result_t ezo_example_query_name_i2c(ezo_i2c_device_t *device,
                                                ezo_product_id_t product_id,
                                                ezo_control_name_t *name_out) {
   ezo_timing_hint_t hint;
-  uint8_t raw_buffer[96];
-  size_t raw_len = 0;
+  char text_buffer[EZO_I2C_MAX_TEXT_RESPONSE_CAPACITY];
+  size_t text_len = 0;
   ezo_device_status_t device_status = EZO_STATUS_UNKNOWN;
   ezo_result_t send_result = EZO_OK;
   ezo_result_t read_result = EZO_OK;
@@ -69,7 +69,7 @@ static ezo_result_t ezo_example_query_name_i2c(ezo_i2c_device_t *device,
 
   ezo_example_wait_hint(&hint);
   read_result =
-      ezo_read_response_raw(device, raw_buffer, sizeof(raw_buffer), &raw_len, &device_status);
+      ezo_read_response(device, text_buffer, sizeof(text_buffer), &text_len, &device_status);
   if (read_result != EZO_OK) {
     ezo_example_print_shared_control_result("shared_control_name_query_read", read_result);
     printf("shared_control_name_query_device_status=%s\n",
@@ -78,14 +78,17 @@ static ezo_result_t ezo_example_query_name_i2c(ezo_i2c_device_t *device,
     return read_result;
   }
 
-  parse_result = ezo_control_parse_name((const char *)raw_buffer, raw_len, name_out);
+  parse_result = ezo_control_parse_name(text_buffer, text_len, name_out);
   if (parse_result != EZO_OK) {
     printf("shared_control_name_query_device_status=%s\n",
            ezo_device_status_name(device_status));
     printf("shared_control_name_query_device_status_code=%u\n", (unsigned)device_status);
-    printf("shared_control_name_query_raw_len=%u\n", (unsigned)raw_len);
-    ezo_example_print_text_debug("shared_control_name_query_raw_text", raw_buffer, raw_len);
-    ezo_example_print_hex_debug("shared_control_name_query_raw_hex", raw_buffer, raw_len);
+    printf("shared_control_name_query_text_len=%u\n", (unsigned)text_len);
+    ezo_example_print_text_debug("shared_control_name_query_text", (const uint8_t *)text_buffer,
+                                 text_len);
+    ezo_example_print_hex_debug("shared_control_name_query_text_hex",
+                                (const uint8_t *)text_buffer,
+                                text_len);
     ezo_example_print_shared_control_result("shared_control_name_query_parse", parse_result);
     return parse_result;
   }
