@@ -213,6 +213,13 @@ ezo_result_t ezo_parse_query_response(const char *buffer,
     return EZO_ERR_BUFFER_TOO_SMALL;
   }
 
+  if (end == first_comma + 1U) {
+    fields_out[0].text = buffer + end;
+    fields_out[0].length = 0;
+    *field_count_out = 1;
+    return EZO_OK;
+  }
+
   return ezo_parse_csv_fields(buffer + first_comma + 1U,
                               end - first_comma - 1U,
                               fields_out,

@@ -15,6 +15,8 @@ static void test_parse_helpers_cover_shared_control_queries(void) {
 
   assert(ezo_control_parse_name("?Name,TANK-A", strlen("?Name,TANK-A"), &name) == EZO_OK);
   assert(strcmp(name.name, "TANK-A") == 0);
+  assert(ezo_control_parse_name("?NAME,", strlen("?NAME,"), &name) == EZO_OK);
+  assert(strcmp(name.name, "") == 0);
 
   assert(ezo_control_parse_status("?Status,P,5.038", strlen("?Status,P,5.038"), &status) ==
          EZO_OK);

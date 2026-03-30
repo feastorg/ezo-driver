@@ -56,6 +56,19 @@ static void test_parse_query_response_allows_prefix_only(void) {
   assert(field_count == 0);
 }
 
+static void test_parse_query_response_preserves_trailing_empty_field(void) {
+  static const char response[] = "?Name,";
+  ezo_text_span_t prefix;
+  ezo_text_span_t fields[1];
+  size_t field_count = 0;
+
+  assert(ezo_parse_query_response(response, strlen(response), &prefix, fields, 1, &field_count) ==
+         EZO_OK);
+  assert(ezo_text_span_equals_cstr(prefix, "?Name") == 1);
+  assert(field_count == 1);
+  assert(ezo_text_span_is_empty(fields[0]) == 1);
+}
+
 static void test_parse_text_span_uint32_reads_decimal_tokens(void) {
   ezo_text_span_t value_span = {"225", 3};
   uint32_t value = 0;
@@ -207,6 +220,7 @@ int main(void) {
   test_parse_csv_fields_trims_and_preserves_empty_fields();
   test_parse_query_response_extracts_prefix_and_fields();
   test_parse_query_response_allows_prefix_only();
+  test_parse_query_response_preserves_trailing_empty_field();
   test_parse_text_span_uint32_reads_decimal_tokens();
   test_parse_prefixed_fields_rejects_wrong_prefix();
   test_uart_sequence_tracks_data_and_terminal_status();
