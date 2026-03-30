@@ -308,6 +308,9 @@ ezo_result_t ezo_ph_parse_extended_range(const char *buffer,
 
   result = ezo_parse_prefixed_fields(buffer, buffer_len, "?pHext", fields, 1, &field_count);
   if (result != EZO_OK) {
+    result = ezo_parse_prefixed_fields(buffer, buffer_len, "?PHEXT", fields, 1, &field_count);
+  }
+  if (result != EZO_OK) {
     return result;
   }
 

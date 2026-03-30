@@ -39,6 +39,9 @@ static void test_parse_helpers_cover_reading_and_queries(void) {
   assert(ezo_ph_parse_extended_range("?pHext,1", strlen("?pHext,1"), &extended_range) ==
          EZO_OK);
   assert(extended_range.enabled == EZO_PH_EXTENDED_RANGE_ENABLED);
+  assert(ezo_ph_parse_extended_range("?PHEXT,0", strlen("?PHEXT,0"), &extended_range) ==
+         EZO_OK);
+  assert(extended_range.enabled == EZO_PH_EXTENDED_RANGE_DISABLED);
 }
 
 static void test_command_builders_format_expected_commands(void) {
