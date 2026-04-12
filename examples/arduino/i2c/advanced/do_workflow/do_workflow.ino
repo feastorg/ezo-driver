@@ -81,6 +81,10 @@ static void run_workflow() {
   Serial.print(F("apply_changes="));
   Serial.println((unsigned)APPLY_CHANGES);
 
+  if (APPLY_CHANGES == 0U) {
+    return;
+  }
+
   if (RUN_ONE_SHOT_TEMP_COMP_READ != 0U) {
     EZO_ARDUINO_CHECK_OK("send_read_with_temp_comp",
                          ezo_do_send_read_with_temp_comp_i2c(
@@ -89,10 +93,6 @@ static void run_workflow() {
     EZO_ARDUINO_CHECK_OK("read_response_with_temp_comp",
                          ezo_do_read_response_i2c(&device, output_config.enabled_mask, &reading));
     ezo_arduino_print_do_reading(F("one_shot_"), &reading);
-  }
-
-  if (APPLY_CHANGES == 0U) {
-    return;
   }
 
   EZO_ARDUINO_CHECK_OK("send_output_set",
