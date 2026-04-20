@@ -17,6 +17,16 @@ option(EZO_BUILD_ARDUINO_ADAPTER "Build Arduino adapter sources" OFF)
 option(EZO_BUILD_LINUX_ADAPTER "Build Linux adapter sources" OFF)
 option(EZO_BUILD_POSIX_UART_ADAPTER "Build POSIX UART adapter sources" OFF)
 
+function(ezo_enable_test_assertions target_name)
+  # Keep assert() active for test code in Release builds so test expressions
+  # with setup side effects still execute.
+  if(MSVC)
+    target_compile_options(${target_name} PRIVATE /UNDEBUG)
+  else()
+    target_compile_options(${target_name} PRIVATE -UNDEBUG)
+  endif()
+endfunction()
+
 set(EZO_PUBLIC_HEADERS
   src/ezo.h
   src/ezo_calibration_transfer.h
@@ -370,6 +380,34 @@ if(EZO_BUILD_TESTS)
       COMMAND ezo_linux_device_tests
     )
   endif()
+
+  set(ezo_test_targets
+    ezo_i2c_core_tests
+    ezo_i2c_cpp_tests
+    ezo_uart_core_tests
+    ezo_product_tests
+    ezo_parse_tests
+    ezo_control_tests
+    ezo_calibration_transfer_tests
+    ezo_ph_tests
+    ezo_orp_tests
+    ezo_rtd_tests
+    ezo_ec_tests
+    ezo_do_tests
+    ezo_hum_tests
+  )
+
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    list(APPEND ezo_test_targets
+      ezo_i2c_linux_adapter_tests
+      ezo_uart_posix_adapter_tests
+      ezo_linux_device_tests
+    )
+  endif()
+
+  foreach(ezo_test_target IN LISTS ezo_test_targets)
+    ezo_enable_test_assertions(${ezo_test_target})
+  endforeach()
 endif()
 
 if((EZO_BUILD_LINUX_ADAPTER OR EZO_BUILD_TESTS) AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
