@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include <fcntl.h>
+#include <poll.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -43,21 +44,6 @@ static ezo_result_t ezo_uart_posix_map_baud(ezo_uart_posix_baud_t baud, speed_t 
   }
 }
 
-static ezo_result_t ezo_uart_posix_timeout_to_vtime(uint32_t read_timeout_ms, cc_t *vtime_out) {
-  uint32_t deciseconds = 0;
-
-  if (vtime_out == NULL || read_timeout_ms == 0) {
-    return EZO_ERR_INVALID_ARGUMENT;
-  }
-
-  deciseconds = (read_timeout_ms + 99U) / 100U;
-  if (deciseconds == 0 || deciseconds > 255U) {
-    return EZO_ERR_INVALID_ARGUMENT;
-  }
-
-  *vtime_out = (cc_t)deciseconds;
-  return EZO_OK;
-}
 
 static int ezo_uart_posix_serial_is_open(const ezo_uart_posix_serial_t *serial) {
   return serial != NULL && serial->fd >= 0 && serial->owns_fd != 0 &&
@@ -81,7 +67,6 @@ static ezo_result_t ezo_uart_posix_serial_open_fresh(ezo_uart_posix_serial_t *se
                                                      uint32_t read_timeout_ms) {
   struct termios configured_termios;
   speed_t speed = 0;
-  cc_t vtime = 0;
   int fd = -1;
   ezo_result_t result = EZO_OK;
 
@@ -89,14 +74,13 @@ static ezo_result_t ezo_uart_posix_serial_open_fresh(ezo_uart_posix_serial_t *se
     return EZO_ERR_INVALID_ARGUMENT;
   }
 
+  if (read_timeout_ms == 0) {
+    return EZO_ERR_INVALID_ARGUMENT;
+  }
+
   ezo_uart_posix_serial_reset(serial);
 
   result = ezo_uart_posix_map_baud(baud, &speed);
-  if (result != EZO_OK) {
-    return result;
-  }
-
-  result = ezo_uart_posix_timeout_to_vtime(read_timeout_ms, &vtime);
   if (result != EZO_OK) {
     return result;
   }
@@ -121,8 +105,11 @@ static ezo_result_t ezo_uart_posix_serial_open_fresh(ezo_uart_posix_serial_t *se
 #ifdef CRTSCTS
   configured_termios.c_cflag &= ~CRTSCTS;
 #endif
+  /* VMIN=0, VTIME=0: non-blocking read; timeout is handled via poll() in
+   * ezo_uart_posix_read_bytes, which works correctly on both real serial
+   * hardware and PTY devices (VTIME is unreliable on PTY line discipline). */
   configured_termios.c_cc[VMIN] = 0;
-  configured_termios.c_cc[VTIME] = vtime;
+  configured_termios.c_cc[VTIME] = 0;
 
   if (cfsetispeed(&configured_termios, speed) != 0 ||
       cfsetospeed(&configured_termios, speed) != 0 ||
@@ -180,6 +167,8 @@ static ezo_result_t ezo_uart_posix_read_bytes(void *context,
                                               size_t rx_len,
                                               size_t *rx_received) {
   ezo_uart_posix_serial_t *serial = (ezo_uart_posix_serial_t *)context;
+  struct pollfd pfd;
+  int poll_result = 0;
 
   if (serial == NULL || serial->fd < 0 || rx_received == NULL) {
     return EZO_ERR_INVALID_ARGUMENT;
@@ -193,6 +182,30 @@ static ezo_result_t ezo_uart_posix_read_bytes(void *context,
 
   if (rx_len == 0) {
     return EZO_OK;
+  }
+
+  /* Use poll() for the read timeout. VTIME is unreliable on PTY devices
+   * (it is implemented in the hardware UART driver, not the PTY line
+   * discipline). poll() works correctly on both real hardware and PTY. */
+  pfd.fd = serial->fd;
+  pfd.events = POLLIN;
+  pfd.revents = 0;
+
+  do {
+    poll_result = poll(&pfd, 1, (int)serial->read_timeout_ms);
+  } while (poll_result < 0 && errno == EINTR);
+
+  if (poll_result < 0) {
+    return EZO_ERR_TRANSPORT;
+  }
+
+  if (poll_result == 0) {
+    /* Timeout expired — no data available. */
+    return EZO_OK;
+  }
+
+  if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+    return EZO_ERR_TRANSPORT;
   }
 
   for (;;) {
