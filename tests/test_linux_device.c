@@ -35,7 +35,7 @@ static void reset_test_state(void) {
   g_uart_state.open_result = EZO_OK;
 }
 
-int test_open(const char *path, int flags, ...) {
+int ezo_fake_open(const char *path, int flags, ...) {
   g_i2c_io.open_call_count += 1;
   g_i2c_io.last_flags = flags;
   strncpy(g_i2c_io.last_path, path, sizeof(g_i2c_io.last_path) - 1);
@@ -45,7 +45,7 @@ int test_open(const char *path, int flags, ...) {
   return g_i2c_io.next_fd;
 }
 
-int test_close(int fd) {
+int ezo_fake_close(int fd) {
   g_i2c_io.close_call_count += 1;
   g_i2c_io.last_closed_fd = fd;
   return g_i2c_io.close_result;
@@ -117,8 +117,8 @@ const ezo_uart_transport_t *test_ezo_uart_posix_serial_transport(void) {
   return &transport;
 }
 
-#define open test_open
-#define close test_close
+#define open ezo_fake_open
+#define close ezo_fake_close
 #define ezo_uart_posix_serial_open test_ezo_uart_posix_serial_open
 #define ezo_uart_posix_serial_close test_ezo_uart_posix_serial_close
 #define ezo_uart_posix_serial_transport test_ezo_uart_posix_serial_transport
