@@ -63,7 +63,7 @@ Public guidance docs:
 - `platform/`: host-only platform implementation code not intended for Arduino library builds
 - `examples/linux/`: full Linux reference example tree with `raw`, `commissioning`, `typed`, and `advanced` flows for I2C and UART
 - `examples/arduino/`: Arduino smoke, commissioning, full typed reads, broad I2C advanced workflows, and focused UART admin/routing sketches
-- `bindings/python/`: Linux-only Python bindings package and tests
+- `bindings/python/`: Linux-only Python bindings package and tests; its packaging (`pyproject.toml`, `setup.py`, `MANIFEST.in`) is at the repo root
 - `tests/`: host-side tests and fakes
 - `docs/`: tracked handoff docs and curated EZO product/protocol notes
 
@@ -108,7 +108,7 @@ cmake --install build/host-linux-release --prefix <install-prefix>
 - host CI also runs typed product-module tests for pH, ORP, RTD, EC, DO, and HUM
 - Linux I2C and Linux host POSIX UART adapter behavior are covered by host-side tests
 - PlatformIO CI compile-checks the full Arduino sketch surface on `uno` and the UART/helper path on `esp32dev`
-- Python CI installs `bindings/python` in editable mode and runs the Linux bindings pytest suite
+- Python CI builds the sdist, builds a wheel from it, checks both with `twine`, installs the wheel and runs the Linux bindings pytest suite against it from outside the source tree
 - Arduino IDE validation is manual by design
 
 ## Packaging

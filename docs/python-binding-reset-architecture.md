@@ -330,10 +330,10 @@ The package identity remains:
 - distribution: `ezo-driver`
 - import package: `ezo_driver`
 
-Install mode for now remains:
+Install from the repo root:
 
 ```bash
-python -m pip install -e bindings/python
+python -m pip install .
 ```
 
 The package builds against the canonical repo sources:

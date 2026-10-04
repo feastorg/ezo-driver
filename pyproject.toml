@@ -1,14 +1,15 @@
 [build-system]
-requires = ["setuptools>=68", "wheel", "cffi>=1.16"]
+requires = ["setuptools>=77", "cffi>=1.16"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ezo-driver"
 version = "0.5.1"
 description = "Linux Python bindings for ezo-driver"
-readme = "README.md"
+readme = "bindings/python/README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "ezo-driver maintainers" }]
 dependencies = ["cffi>=1.16"]
 classifiers = [
@@ -18,12 +19,16 @@ classifiers = [
   "Operating System :: POSIX :: Linux",
 ]
 
+[project.urls]
+Homepage = "https://github.com/feastorg/ezo-driver"
+Issues = "https://github.com/feastorg/ezo-driver/issues"
+
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = {"" = "bindings/python/src"}
 include-package-data = false
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["bindings/python/src"]
 
 [project.optional-dependencies]
 test = ["pytest>=7"]

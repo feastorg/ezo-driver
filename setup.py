@@ -4,5 +4,5 @@ from setuptools import setup
 
 
 setup(
-    cffi_modules=["build_ffi.py:ffibuilder"],
+    cffi_modules=["bindings/python/build_ffi.py:ffibuilder"],
 )

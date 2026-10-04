@@ -4,6 +4,14 @@ All notable tracked changes to this rewrite will be recorded here.
 
 ## [Unreleased]
 
+### Fixed
+
+- fixed the Python sdist: the packaging moved from `bindings/python/` to the repo root, so the sdist now carries the C sources and `LICENSE`, and a wheel builds from it; the wheel also ships `LICENSE`, with the `MIT` licence declared as an SPDX expression
+
+### Changed
+
+- Python CI now builds the sdist and a wheel from it, checks both with `twine`, and runs the bindings tests against the installed wheel instead of an editable install
+
 ## [0.5.1]
 
 ### Added
