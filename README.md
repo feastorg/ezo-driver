@@ -28,7 +28,7 @@ Current implementation includes:
 - Arduino integrations for both I2C and UART
 - Linux I2C integration
 - Linux host POSIX UART integration
-- Linux Python bindings with editable-install CI coverage
+- Linux Python bindings, tested in CI as a wheel built from the sdist
 - focused Arduino and Linux examples
 - host-side C and C++ tests plus fake transport coverage
 - PlatformIO Arduino compile validation in CI
@@ -37,7 +37,7 @@ Current support matrix:
 
 - I2C: C core, I2C C++ wrapper, Arduino `TwoWire`, Linux I2C adapter
 - UART: C core, Arduino `Stream`, Linux host POSIX serial adapter
-- Python: Linux-only bindings with editable-install and pytest coverage
+- Python: Linux-only bindings, with pytest run against the installed wheel
 - Product modules: full typed support for the initial six families, including shared control/admin coverage, calibration-transfer primitives, and advanced per-product helpers
 - Product foundation: identity, metadata, timing fallback, and parse/schema utilities for the initial six documented families
 - Shared: host-side tests and Arduino compile validation
