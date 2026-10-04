@@ -1,7 +1,6 @@
 include bindings/python/README.md
 include bindings/python/build_ffi.py
 recursive-include bindings/python/cdef *.h
-recursive-include bindings/python/testsupport *.c *.h
 recursive-include bindings/python/tests *.py
 recursive-include src *.c *.h
 recursive-include platform/linux *.c *.h

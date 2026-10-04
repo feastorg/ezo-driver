@@ -27,6 +27,8 @@ python -m pytest bindings/python/tests
 
 The packaging lives at the repo root (`pyproject.toml`, `setup.py`, `MANIFEST.in`) so the sdist carries the C sources from `src/` and `platform/linux/` and a wheel can be built from it.
 
+The shipped `ezo_driver._native` module holds the C core and the Linux transports only. The tests drive it through the fake transports from `tests/fakes/`, which `bindings/python/tests/_fakes.py` compiles into a separate test-only cffi module in a temporary directory each session; this needs a C compiler and the `test` extra. The C sources are found in the checkout that holds the tests; when the tests run from a copy elsewhere, point `EZO_DRIVER_SOURCE_DIR` at the checkout.
+
 ## Public modules
 
 - `ezo_driver.errors`
