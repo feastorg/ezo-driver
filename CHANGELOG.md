@@ -7,10 +7,12 @@ All notable tracked changes to this rewrite will be recorded here.
 ### Fixed
 
 - fixed the Python sdist: the packaging moved from `bindings/python/` to the repo root, so the sdist now carries the C sources and `LICENSE`, and a wheel builds from it; the wheel also ships `LICENSE`, with the `MIT` licence declared as an SPDX expression
+- kept the test fakes out of the shipped Python module: `ezo_driver._native` now compiles the C core and the Linux transports only, so `nm` on it shows no `ezo_fake_*` symbols; the Python test bridge under `bindings/python/testsupport/` is gone
 
 ### Changed
 
 - Python CI now builds the sdist and a wheel from it, checks both with `twine`, and runs the bindings tests against the installed wheel instead of an editable install
+- the Python bindings tests compile `tests/fakes/` into a separate test-only cffi module in a temporary directory each session (`bindings/python/tests/_fakes.py`), sharing C types with `_native` through `FFI.include`; the `test` extra adds `setuptools`, which cffi needs to compile at runtime on Python 3.12+, and the tests take `EZO_DRIVER_SOURCE_DIR` when they run from a copy outside the checkout, as CI does
 
 ## [0.5.1]
 

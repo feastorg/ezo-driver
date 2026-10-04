@@ -31,4 +31,4 @@ include-package-data = false
 where = ["bindings/python/src"]
 
 [project.optional-dependencies]
-test = ["pytest>=7"]
+test = ["pytest>=7", "setuptools"]
