@@ -28,7 +28,7 @@ Current implementation includes:
 - Arduino integrations for both I2C and UART
 - Linux I2C integration
 - Linux host POSIX UART integration
-- Linux Python bindings, tested in CI as a wheel built from the sdist
+- Linux Python bindings on PyPI as `ezo-driver`, with `cp39-abi3` wheels for x86_64 and aarch64
 - focused Arduino and Linux examples
 - host-side C and C++ tests plus fake transport coverage
 - PlatformIO Arduino compile validation in CI
@@ -37,7 +37,7 @@ Current support matrix:
 
 - I2C: C core, I2C C++ wrapper, Arduino `TwoWire`, Linux I2C adapter
 - UART: C core, Arduino `Stream`, Linux host POSIX serial adapter
-- Python: Linux-only bindings, with pytest run against the installed wheel
+- Python: Linux-only bindings, `pip install ezo-driver` on Python 3.9+ with wheels for x86_64 and aarch64
 - Product modules: full typed support for the initial six families, including shared control/admin coverage, calibration-transfer primitives, and advanced per-product helpers
 - Product foundation: identity, metadata, timing fallback, and parse/schema utilities for the initial six documented families
 - Shared: host-side tests and Arduino compile validation
@@ -63,7 +63,7 @@ Public guidance docs:
 - `platform/`: host-only platform implementation code not intended for Arduino library builds
 - `examples/linux/`: full Linux reference example tree with `raw`, `commissioning`, `typed`, and `advanced` flows for I2C and UART
 - `examples/arduino/`: Arduino smoke, commissioning, full typed reads, broad I2C advanced workflows, and focused UART admin/routing sketches
-- `bindings/python/`: Linux-only Python bindings package and tests; its packaging (`pyproject.toml`, `setup.py`, `MANIFEST.in`) is at the repo root
+- `bindings/python/`: Linux-only Python bindings package and tests; its packaging (`pyproject.toml`, `setup.py`, `setup.cfg`, `MANIFEST.in`) is at the repo root
 - `tests/`: host-side tests and fakes
 - `docs/`: tracked handoff docs and curated EZO product/protocol notes
 
@@ -109,6 +109,7 @@ cmake --install build/host-linux-release --prefix <install-prefix>
 - Linux I2C and Linux host POSIX UART adapter behavior are covered by host-side tests
 - PlatformIO CI compile-checks the full Arduino sketch surface on `uno` and the UART/helper path on `esp32dev`
 - Python CI builds the sdist, builds a wheel from it, checks both with `twine`, installs the wheel and runs the Linux bindings pytest suite against it from outside the source tree
+- the release workflow builds the `cp39-abi3` wheels for x86_64 and aarch64 Linux with cibuildwheel, runs the bindings tests against each inside its manylinux container, and publishes them to PyPI through Trusted Publishing
 - Arduino IDE validation is manual by design
 
 ## Packaging

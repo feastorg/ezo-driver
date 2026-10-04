@@ -2,7 +2,12 @@
 
 All notable tracked changes to this rewrite will be recorded here.
 
-## [Unreleased]
+## [0.6.0]
+
+### Added
+
+- published the Python bindings to PyPI as `ezo-driver`: `pip install ezo-driver` gets a `cp39-abi3` manylinux wheel for x86_64 or aarch64 Linux on any CPython 3.9 or newer, so a 64-bit Raspberry Pi needs no compiler; other platforms build from the sdist as before
+- the release workflow builds the sdist and the wheels with cibuildwheel, aarch64 on a native arm64 runner, runs the bindings tests against each wheel inside its manylinux container, publishes them to PyPI through Trusted Publishing from the `pypi` environment on `v*` tags, and attaches them to the GitHub release; running the workflow by hand builds them as workflow artifacts without publishing
 
 ### Fixed
 
@@ -11,7 +16,9 @@ All notable tracked changes to this rewrite will be recorded here.
 
 ### Changed
 
-- Python CI now builds the sdist and a wheel from it, checks both with `twine`, and runs the bindings tests against the installed wheel instead of an editable install
+- the Python wheel is tagged `cp39-abi3` (`setup.cfg`): cffi builds `ezo_driver._native` against the limited C API, so one wheel per architecture covers every supported Python instead of the one it was built with; the cdef no longer hand-types `uint8_t`, `uint32_t` and `size_t`, which cffi resolves against the compiler itself
+- the release workflow validates the version metadata in its own job, which the GitHub release and the PyPI publish both wait on
+- Python CI now builds the sdist and a wheel from it, checks both with `twine` and checks the wheel tag, and runs the bindings tests against the installed wheel instead of an editable install
 - the Python bindings tests compile `tests/fakes/` into a separate test-only cffi module in a temporary directory each session (`bindings/python/tests/_fakes.py`), sharing C types with `_native` through `FFI.include`; the `test` extra adds `setuptools`, which cffi needs to compile at runtime on Python 3.12+, and the tests take `EZO_DRIVER_SOURCE_DIR` when they run from a copy outside the checkout, as CI does
 
 ## [0.5.1]

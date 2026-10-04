@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ezo-driver"
-version = "0.5.1"
+version = "0.6.0"
 description = "Linux Python bindings for ezo-driver"
 readme = "bindings/python/README.md"
 requires-python = ">=3.9"
