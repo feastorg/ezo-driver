@@ -6,7 +6,7 @@ Linux-only Python bindings for the canonical `ezo-driver` C library.
 
 - Supported host platform: Linux
 - Supported transports: Linux I2C and POSIX UART
-- Supported Python install mode for this stage: editable install from the repo checkout
+- Supported Python install mode for this stage: install from the repo checkout or a built sdist or wheel
 - Public package name: `ezo-driver`
 - Public import package: `ezo_driver`
 
@@ -15,8 +15,17 @@ Linux-only Python bindings for the canonical `ezo-driver` C library.
 From the repo root:
 
 ```bash
-python -m pip install -e bindings/python
+python -m pip install .
 ```
+
+For development, install it editable with the test dependencies:
+
+```bash
+python -m pip install -e ".[test]"
+python -m pytest bindings/python/tests
+```
+
+The packaging lives at the repo root (`pyproject.toml`, `setup.py`, `MANIFEST.in`) so the sdist carries the C sources from `src/` and `platform/linux/` and a wheel can be built from it.
 
 ## Public modules
 

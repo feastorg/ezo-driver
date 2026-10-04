@@ -185,11 +185,26 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Python bindings package
-        run: python -m pip install -e "bindings/python[test]"
+      - name: Build sdist, then a wheel from the sdist
+        run: |
+          python -m pip install build twine
+          python -m build --outdir dist
 
-      - name: Run Python bindings tests
-        run: python -m pytest bindings/python/tests -q
+      - name: Check distributions
+        run: |
+          python -m twine check --strict dist/*
+          tar -tzf dist/*.tar.gz | grep -q '/LICENSE$'
+          python -m zipfile -l dist/*.whl | grep -q 'dist-info/licenses/LICENSE'
+
+      - name: Install the wheel
+        run: python -m pip install dist/*.whl pytest
+
+      - name: Run Python bindings tests against the installed wheel
+        run: |
+          cp -r bindings/python/tests "$RUNNER_TEMP/tests"
+          cd "$RUNNER_TEMP"
+          python -c "import ezo_driver; assert 'site-packages' in ezo_driver.__file__, ezo_driver.__file__"
+          python -m pytest tests -q
 
   # ─── Unified gate ─────────────────────────────────────────────
   # Branch protection requires only: CI / ok

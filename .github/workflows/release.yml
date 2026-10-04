@@ -46,11 +46,11 @@ jobs:
             raise SystemExit("Could not find project VERSION in CMakeLists.txt")
           checks["CMakeLists.txt"] = cmake_match.group(1)
 
-          pyproject_text = pathlib.Path("bindings/python/pyproject.toml").read_text()
+          pyproject_text = pathlib.Path("pyproject.toml").read_text()
           pyproject_match = re.search(r"(?m)^version\s*=\s*[\"']([^\"']+)[\"']", pyproject_text)
           if not pyproject_match:
-            raise SystemExit("Could not find project version in bindings/python/pyproject.toml")
-          checks["bindings/python/pyproject.toml"] = pyproject_match.group(1)
+            raise SystemExit("Could not find project version in pyproject.toml")
+          checks["pyproject.toml"] = pyproject_match.group(1)
 
           library_properties = pathlib.Path("library.properties").read_text().splitlines()
           for line in library_properties:
