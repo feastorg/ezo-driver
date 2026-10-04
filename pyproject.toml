@@ -32,3 +32,14 @@ where = ["bindings/python/src"]
 
 [project.optional-dependencies]
 test = ["pytest>=7", "setuptools"]
+
+# One abi3 wheel per architecture, built on CPython 3.9 and tested inside the
+# manylinux container, where the test extra and the image's compiler let the
+# tests build tests/fakes/ from the project checkout.
+[tool.cibuildwheel]
+build = ["cp39-manylinux_x86_64", "cp39-manylinux_aarch64"]
+test-extras = ["test"]
+test-command = [
+  "python -c \"import ezo_driver; assert 'site-packages' in ezo_driver.__file__, ezo_driver.__file__\"",
+  "EZO_DRIVER_SOURCE_DIR={project} python -m pytest {project}/bindings/python/tests -q",
+]
