@@ -119,7 +119,7 @@ jobs:
       # wheel per architecture, tested against the bindings tests inside the
       # manylinux container.
       - name: Build and test the wheel
-        uses: pypa/cibuildwheel@v4.2.1
+        uses: pypa/cibuildwheel@v4.3.1
 
       - uses: actions/upload-artifact@v7
         with:
