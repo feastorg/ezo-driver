@@ -1,8 +1,13 @@
 """Run every Python example in bindings/python/README.md against the fakes.
 
-The fake circuits only answer a command once the example sleeps after
-sending it, the way a real circuit is still busy until the returned delay has
-passed. An example that reads before it waits gets no response and fails.
+A fake circuit's reply is set only when the example sleeps after sending a
+command, the way a real circuit is busy until the returned delay has passed.
+A read before that wait gets whatever the fake held: nothing before the
+device's first wait, which raises EzoProtocolError, or the previous
+command's reply (an info reply read as a pH reading raises EzoParseError). A
+repeat of the same command reads its stale reply without failing, so the
+test cannot see a missing wait there. Each example must also sleep at least
+once.
 """
 
 from __future__ import annotations
