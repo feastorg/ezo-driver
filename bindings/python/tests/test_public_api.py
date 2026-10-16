@@ -1,11 +1,15 @@
 from __future__ import annotations
 
-from importlib.metadata import version
+import importlib
+import importlib.metadata
+import re
 
 import pytest
 
 import ezo_driver as ezo
 from ezo_driver import i2c, uart
+
+from ._fakes import source_dir
 
 
 def test_top_level_surface_is_curated():
@@ -17,9 +21,23 @@ def test_top_level_surface_is_curated():
     assert not hasattr(ezo, "FakeI2CDevice")
 
 
-def test_version_matches_the_installed_distribution():
-    assert isinstance(ezo.__version__, str)
-    assert ezo.__version__ == version("ezo-driver")
+def test_version_matches_pyproject():
+    pyproject = (source_dir() / "pyproject.toml").read_text()
+    expected = re.search(r'(?m)^version\s*=\s*"([^"]+)"', pyproject)
+    assert expected is not None
+    assert ezo.__version__ == expected.group(1)
+
+
+def test_version_without_distribution_metadata(monkeypatch):
+    def missing(name: str) -> str:
+        raise importlib.metadata.PackageNotFoundError(name)
+
+    monkeypatch.setattr(importlib.metadata, "version", missing)
+    try:
+        assert importlib.reload(ezo).__version__ == "0+unknown"
+    finally:
+        monkeypatch.undo()
+        importlib.reload(ezo)
 
 
 def test_transport_module_constants_are_exported():
