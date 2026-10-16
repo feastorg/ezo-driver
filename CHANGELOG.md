@@ -2,6 +2,16 @@
 
 All notable tracked changes to this rewrite will be recorded here.
 
+## [Unreleased]
+
+### Added
+
+- the Python binding README documents the split-phase read pattern, caching the EC, DO and HUM output masks, and the rules for sharing a bus between threads, each with an example; `bindings/python/tests/test_readme_examples.py` runs every Python example in the README against the fake transports, whose circuits answer only after the example waits
+
+### Fixed
+
+- the Python binding README's I2C and UART examples read the reply straight after sending the command; they now wait the returned delay first, since the bindings never sleep
+
 ## [0.6.0]
 
 ### Added
