@@ -9,9 +9,14 @@ from ._call import (
     scalar_reading_from_c,
 )
 from .errors import raise_for_result
+from .types import (
+    MultiOutputReading,
+    OutputSchema,
+    ScalarReading,
+)
 
 
-def get_output_schema(product_id):
+def get_output_schema(product_id) -> OutputSchema:
     out = ffi.new("ezo_output_schema_t *")
     raise_for_result(int(lib.ezo_schema_get_output_schema(int(product_id), out)))
     return output_schema_from_c(out[0])
@@ -26,14 +31,14 @@ def count_enabled_fields(schema, enabled_mask: int) -> int:
     return int(lib.ezo_schema_count_enabled_fields(c_schema, int(enabled_mask)))
 
 
-def parse_scalar_reading(text: str, field):
+def parse_scalar_reading(text: str, field) -> ScalarReading:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_scalar_reading_t *")
     raise_for_result(int(lib.ezo_schema_parse_scalar_reading(payload, len(payload), int(field), out)))
     return scalar_reading_from_c(out[0])
 
 
-def parse_multi_output_reading(text: str, schema, enabled_mask: int):
+def parse_multi_output_reading(text: str, schema, enabled_mask: int) -> MultiOutputReading:
     payload = ascii_bytes(text)
     c_schema = ffi.new("ezo_output_schema_t *")
     c_schema.product_id = int(schema.product_id)

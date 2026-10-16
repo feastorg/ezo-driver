@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from importlib.metadata import version
+
 import pytest
 
 import ezo_driver as ezo
@@ -13,6 +15,11 @@ def test_top_level_surface_is_curated():
     assert ezo.CommandKind.GENERIC.value == 0
     assert ezo.DeviceStatus.SUCCESS.value == 1
     assert not hasattr(ezo, "FakeI2CDevice")
+
+
+def test_version_matches_the_installed_distribution():
+    assert isinstance(ezo.__version__, str)
+    assert ezo.__version__ == version("ezo-driver")
 
 
 def test_transport_module_constants_are_exported():

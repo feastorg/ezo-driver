@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from importlib.metadata import version as _distribution_version
+
 from .errors import EzoArgumentError, EzoError, EzoParseError, EzoProtocolError, EzoTransportError
 from .enums import (
     CommandKind,
@@ -21,6 +23,8 @@ from .types import (
     ScalarReading,
 )
 from .uart import LinuxUARTDevice
+
+__version__: str = _distribution_version("ezo-driver")
 
 __all__ = [
     "LinuxI2CDevice",
