@@ -15,44 +15,52 @@ from ._call import (
 )
 from ._support import _unwrap_i2c_device, _unwrap_uart_device
 from .errors import raise_for_result
+from .types import (
+    EcCalibrationStatus,
+    EcOutputConfig,
+    EcProbeK,
+    EcReading,
+    EcTdsFactor,
+    EcTemperatureCompensation,
+)
 
 
-def parse_reading(text: str, enabled_mask: int):
+def parse_reading(text: str, enabled_mask: int) -> EcReading:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_ec_reading_t *")
     raise_for_result(int(lib.ezo_ec_parse_reading(payload, len(payload), int(enabled_mask), out)))
     return ec_reading_from_c(out[0])
 
 
-def parse_output_config(text: str):
+def parse_output_config(text: str) -> EcOutputConfig:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_ec_output_config_t *")
     raise_for_result(int(lib.ezo_ec_parse_output_config(payload, len(payload), out)))
     return ec_output_config_from_c(out[0])
 
 
-def parse_temperature(text: str):
+def parse_temperature(text: str) -> EcTemperatureCompensation:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_ec_temperature_compensation_t *")
     raise_for_result(int(lib.ezo_ec_parse_temperature(payload, len(payload), out)))
     return ec_temperature_compensation_from_c(out[0])
 
 
-def parse_probe_k(text: str):
+def parse_probe_k(text: str) -> EcProbeK:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_ec_probe_k_t *")
     raise_for_result(int(lib.ezo_ec_parse_probe_k(payload, len(payload), out)))
     return ec_probe_k_from_c(out[0])
 
 
-def parse_tds_factor(text: str):
+def parse_tds_factor(text: str) -> EcTdsFactor:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_ec_tds_factor_t *")
     raise_for_result(int(lib.ezo_ec_parse_tds_factor(payload, len(payload), out)))
     return ec_tds_factor_from_c(out[0])
 
 
-def parse_calibration_status(text: str):
+def parse_calibration_status(text: str) -> EcCalibrationStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_ec_calibration_status_t *")
     raise_for_result(int(lib.ezo_ec_parse_calibration_status(payload, len(payload), out)))
@@ -137,27 +145,27 @@ def send_clear_calibration_i2c(device) -> int:
     return _timed_send(lib.ezo_ec_send_clear_calibration_i2c, _unwrap_i2c_device(device))
 
 
-def read_response_i2c(device, enabled_mask: int):
+def read_response_i2c(device, enabled_mask: int) -> EcReading:
     return read_struct(lib.ezo_ec_read_response_i2c, "ezo_ec_reading_t", ec_reading_from_c, _unwrap_i2c_device(device), int(enabled_mask))
 
 
-def read_output_config_i2c(device):
+def read_output_config_i2c(device) -> EcOutputConfig:
     return read_struct(lib.ezo_ec_read_output_config_i2c, "ezo_ec_output_config_t", ec_output_config_from_c, _unwrap_i2c_device(device))
 
 
-def read_temperature_i2c(device):
+def read_temperature_i2c(device) -> EcTemperatureCompensation:
     return read_struct(lib.ezo_ec_read_temperature_i2c, "ezo_ec_temperature_compensation_t", ec_temperature_compensation_from_c, _unwrap_i2c_device(device))
 
 
-def read_probe_k_i2c(device):
+def read_probe_k_i2c(device) -> EcProbeK:
     return read_struct(lib.ezo_ec_read_probe_k_i2c, "ezo_ec_probe_k_t", ec_probe_k_from_c, _unwrap_i2c_device(device))
 
 
-def read_tds_factor_i2c(device):
+def read_tds_factor_i2c(device) -> EcTdsFactor:
     return read_struct(lib.ezo_ec_read_tds_factor_i2c, "ezo_ec_tds_factor_t", ec_tds_factor_from_c, _unwrap_i2c_device(device))
 
 
-def read_calibration_status_i2c(device):
+def read_calibration_status_i2c(device) -> EcCalibrationStatus:
     return read_struct(lib.ezo_ec_read_calibration_status_i2c, "ezo_ec_calibration_status_t", ec_calibration_status_from_c, _unwrap_i2c_device(device))
 
 
@@ -213,25 +221,25 @@ def send_clear_calibration_uart(device) -> int:
     return _timed_send(lib.ezo_ec_send_clear_calibration_uart, _unwrap_uart_device(device))
 
 
-def read_response_uart(device, enabled_mask: int):
+def read_response_uart(device, enabled_mask: int) -> EcReading:
     return read_struct(lib.ezo_ec_read_response_uart, "ezo_ec_reading_t", ec_reading_from_c, _unwrap_uart_device(device), int(enabled_mask))
 
 
-def read_output_config_uart(device):
+def read_output_config_uart(device) -> EcOutputConfig:
     return read_struct(lib.ezo_ec_read_output_config_uart, "ezo_ec_output_config_t", ec_output_config_from_c, _unwrap_uart_device(device))
 
 
-def read_temperature_uart(device):
+def read_temperature_uart(device) -> EcTemperatureCompensation:
     return read_struct(lib.ezo_ec_read_temperature_uart, "ezo_ec_temperature_compensation_t", ec_temperature_compensation_from_c, _unwrap_uart_device(device))
 
 
-def read_probe_k_uart(device):
+def read_probe_k_uart(device) -> EcProbeK:
     return read_struct(lib.ezo_ec_read_probe_k_uart, "ezo_ec_probe_k_t", ec_probe_k_from_c, _unwrap_uart_device(device))
 
 
-def read_tds_factor_uart(device):
+def read_tds_factor_uart(device) -> EcTdsFactor:
     return read_struct(lib.ezo_ec_read_tds_factor_uart, "ezo_ec_tds_factor_t", ec_tds_factor_from_c, _unwrap_uart_device(device))
 
 
-def read_calibration_status_uart(device):
+def read_calibration_status_uart(device) -> EcCalibrationStatus:
     return read_struct(lib.ezo_ec_read_calibration_status_uart, "ezo_ec_calibration_status_t", ec_calibration_status_from_c, _unwrap_uart_device(device))

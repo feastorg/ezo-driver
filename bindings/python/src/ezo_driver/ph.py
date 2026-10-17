@@ -14,37 +14,44 @@ from ._call import (
 )
 from ._support import _unwrap_i2c_device, _unwrap_uart_device
 from .errors import raise_for_result
+from .types import (
+    PhCalibrationStatus,
+    PhExtendedRangeStatus,
+    PhReading,
+    PhSlope,
+    PhTemperatureCompensation,
+)
 
 
-def parse_reading(text: str):
+def parse_reading(text: str) -> PhReading:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_ph_reading_t *")
     raise_for_result(int(lib.ezo_ph_parse_reading(payload, len(payload), out)))
     return ph_reading_from_c(out[0])
 
 
-def parse_temperature(text: str):
+def parse_temperature(text: str) -> PhTemperatureCompensation:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_ph_temperature_compensation_t *")
     raise_for_result(int(lib.ezo_ph_parse_temperature(payload, len(payload), out)))
     return ph_temperature_compensation_from_c(out[0])
 
 
-def parse_calibration_status(text: str):
+def parse_calibration_status(text: str) -> PhCalibrationStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_ph_calibration_status_t *")
     raise_for_result(int(lib.ezo_ph_parse_calibration_status(payload, len(payload), out)))
     return ph_calibration_status_from_c(out[0])
 
 
-def parse_slope(text: str):
+def parse_slope(text: str) -> PhSlope:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_ph_slope_t *")
     raise_for_result(int(lib.ezo_ph_parse_slope(payload, len(payload), out)))
     return ph_slope_from_c(out[0])
 
 
-def parse_extended_range(text: str):
+def parse_extended_range(text: str) -> PhExtendedRangeStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_ph_extended_range_status_t *")
     raise_for_result(int(lib.ezo_ph_parse_extended_range(payload, len(payload), out)))
@@ -109,23 +116,23 @@ def send_extended_range_set_i2c(device, enabled) -> int:
     return _timed_send(lib.ezo_ph_send_extended_range_set_i2c, _unwrap_i2c_device(device), int(enabled))
 
 
-def read_response_i2c(device):
+def read_response_i2c(device) -> PhReading:
     return read_struct(lib.ezo_ph_read_response_i2c, "ezo_ph_reading_t", ph_reading_from_c, _unwrap_i2c_device(device))
 
 
-def read_temperature_i2c(device):
+def read_temperature_i2c(device) -> PhTemperatureCompensation:
     return read_struct(lib.ezo_ph_read_temperature_i2c, "ezo_ph_temperature_compensation_t", ph_temperature_compensation_from_c, _unwrap_i2c_device(device))
 
 
-def read_calibration_status_i2c(device):
+def read_calibration_status_i2c(device) -> PhCalibrationStatus:
     return read_struct(lib.ezo_ph_read_calibration_status_i2c, "ezo_ph_calibration_status_t", ph_calibration_status_from_c, _unwrap_i2c_device(device))
 
 
-def read_slope_i2c(device):
+def read_slope_i2c(device) -> PhSlope:
     return read_struct(lib.ezo_ph_read_slope_i2c, "ezo_ph_slope_t", ph_slope_from_c, _unwrap_i2c_device(device))
 
 
-def read_extended_range_i2c(device):
+def read_extended_range_i2c(device) -> PhExtendedRangeStatus:
     return read_struct(lib.ezo_ph_read_extended_range_i2c, "ezo_ph_extended_range_status_t", ph_extended_range_status_from_c, _unwrap_i2c_device(device))
 
 
@@ -169,25 +176,25 @@ def send_extended_range_set_uart(device, enabled) -> int:
     return _timed_send(lib.ezo_ph_send_extended_range_set_uart, _unwrap_uart_device(device), int(enabled))
 
 
-def read_response_uart(device):
+def read_response_uart(device) -> PhReading:
     return read_struct(lib.ezo_ph_read_response_uart, "ezo_ph_reading_t", ph_reading_from_c, _unwrap_uart_device(device))
 
 
-def read_response_with_temp_comp_uart(device):
+def read_response_with_temp_comp_uart(device) -> PhReading:
     return read_struct(lib.ezo_ph_read_response_with_temp_comp_uart, "ezo_ph_reading_t", ph_reading_from_c, _unwrap_uart_device(device))
 
 
-def read_temperature_uart(device):
+def read_temperature_uart(device) -> PhTemperatureCompensation:
     return read_struct(lib.ezo_ph_read_temperature_uart, "ezo_ph_temperature_compensation_t", ph_temperature_compensation_from_c, _unwrap_uart_device(device))
 
 
-def read_calibration_status_uart(device):
+def read_calibration_status_uart(device) -> PhCalibrationStatus:
     return read_struct(lib.ezo_ph_read_calibration_status_uart, "ezo_ph_calibration_status_t", ph_calibration_status_from_c, _unwrap_uart_device(device))
 
 
-def read_slope_uart(device):
+def read_slope_uart(device) -> PhSlope:
     return read_struct(lib.ezo_ph_read_slope_uart, "ezo_ph_slope_t", ph_slope_from_c, _unwrap_uart_device(device))
 
 
-def read_extended_range_uart(device):
+def read_extended_range_uart(device) -> PhExtendedRangeStatus:
     return read_struct(lib.ezo_ph_read_extended_range_uart, "ezo_ph_extended_range_status_t", ph_extended_range_status_from_c, _unwrap_uart_device(device))

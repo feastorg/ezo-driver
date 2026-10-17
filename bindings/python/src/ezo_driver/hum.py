@@ -12,23 +12,28 @@ from ._call import (
 )
 from ._support import _unwrap_i2c_device, _unwrap_uart_device
 from .errors import raise_for_result
+from .types import (
+    HumOutputConfig,
+    HumReading,
+    HumTemperatureCalibrationStatus,
+)
 
 
-def parse_reading(text: str, enabled_mask: int):
+def parse_reading(text: str, enabled_mask: int) -> HumReading:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_hum_reading_t *")
     raise_for_result(int(lib.ezo_hum_parse_reading(payload, len(payload), int(enabled_mask), out)))
     return hum_reading_from_c(out[0])
 
 
-def parse_output_config(text: str):
+def parse_output_config(text: str) -> HumOutputConfig:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_hum_output_config_t *")
     raise_for_result(int(lib.ezo_hum_parse_output_config(payload, len(payload), out)))
     return hum_output_config_from_c(out[0])
 
 
-def parse_temperature_calibration_status(text: str):
+def parse_temperature_calibration_status(text: str) -> HumTemperatureCalibrationStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_hum_temperature_calibration_status_t *")
     raise_for_result(int(lib.ezo_hum_parse_temperature_calibration_status(payload, len(payload), out)))
@@ -73,15 +78,15 @@ def send_clear_temperature_calibration_i2c(device) -> int:
     return _timed_send(lib.ezo_hum_send_clear_temperature_calibration_i2c, _unwrap_i2c_device(device))
 
 
-def read_response_i2c(device, enabled_mask: int):
+def read_response_i2c(device, enabled_mask: int) -> HumReading:
     return read_struct(lib.ezo_hum_read_response_i2c, "ezo_hum_reading_t", hum_reading_from_c, _unwrap_i2c_device(device), int(enabled_mask))
 
 
-def read_output_config_i2c(device):
+def read_output_config_i2c(device) -> HumOutputConfig:
     return read_struct(lib.ezo_hum_read_output_config_i2c, "ezo_hum_output_config_t", hum_output_config_from_c, _unwrap_i2c_device(device))
 
 
-def read_temperature_calibration_status_i2c(device):
+def read_temperature_calibration_status_i2c(device) -> HumTemperatureCalibrationStatus:
     return read_struct(lib.ezo_hum_read_temperature_calibration_status_i2c, "ezo_hum_temperature_calibration_status_t", hum_temperature_calibration_status_from_c, _unwrap_i2c_device(device))
 
 
@@ -109,13 +114,13 @@ def send_clear_temperature_calibration_uart(device) -> int:
     return _timed_send(lib.ezo_hum_send_clear_temperature_calibration_uart, _unwrap_uart_device(device))
 
 
-def read_response_uart(device, enabled_mask: int):
+def read_response_uart(device, enabled_mask: int) -> HumReading:
     return read_struct(lib.ezo_hum_read_response_uart, "ezo_hum_reading_t", hum_reading_from_c, _unwrap_uart_device(device), int(enabled_mask))
 
 
-def read_output_config_uart(device):
+def read_output_config_uart(device) -> HumOutputConfig:
     return read_struct(lib.ezo_hum_read_output_config_uart, "ezo_hum_output_config_t", hum_output_config_from_c, _unwrap_uart_device(device))
 
 
-def read_temperature_calibration_status_uart(device):
+def read_temperature_calibration_status_uart(device) -> HumTemperatureCalibrationStatus:
     return read_struct(lib.ezo_hum_read_temperature_calibration_status_uart, "ezo_hum_temperature_calibration_status_t", hum_temperature_calibration_status_from_c, _unwrap_uart_device(device))

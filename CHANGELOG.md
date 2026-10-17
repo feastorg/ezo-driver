@@ -6,6 +6,9 @@ All notable tracked changes to this rewrite will be recorded here.
 
 ### Added
 
+- the Python package ships a `py.typed` marker, so type checkers read the bindings' annotations instead of treating `ezo_driver` as untyped; every public function in the binding modules declares its return type (parameters such as `device` stay unannotated), and the device classes return their own type from `with`
+- `ezo_driver.__version__`, read from the installed distribution's metadata so it always matches `pyproject.toml`
+- Python CI checks that the wheel carries `py.typed` and runs pyright against the installed wheel on a consumer script (`bindings/python/tests/typecheck_consumer.py`) that pins the public return types with `assert_type`
 - the Python binding README documents the split-phase read pattern, caching the EC, DO and HUM output masks, and the rules for sharing a bus between threads, each with an example; `bindings/python/tests/test_readme_examples.py` runs every Python example in the README against the fake transports, whose circuits answer only after the example waits
 
 ### Fixed

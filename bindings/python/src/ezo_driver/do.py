@@ -15,44 +15,52 @@ from ._call import (
 )
 from ._support import _unwrap_i2c_device, _unwrap_uart_device
 from .errors import raise_for_result
+from .types import (
+    DoCalibrationStatus,
+    DoOutputConfig,
+    DoPressureCompensation,
+    DoReading,
+    DoSalinityCompensation,
+    DoTemperatureCompensation,
+)
 
 
-def parse_reading(text: str, enabled_mask: int):
+def parse_reading(text: str, enabled_mask: int) -> DoReading:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_do_reading_t *")
     raise_for_result(int(lib.ezo_do_parse_reading(payload, len(payload), int(enabled_mask), out)))
     return do_reading_from_c(out[0])
 
 
-def parse_output_config(text: str):
+def parse_output_config(text: str) -> DoOutputConfig:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_do_output_config_t *")
     raise_for_result(int(lib.ezo_do_parse_output_config(payload, len(payload), out)))
     return do_output_config_from_c(out[0])
 
 
-def parse_temperature(text: str):
+def parse_temperature(text: str) -> DoTemperatureCompensation:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_do_temperature_compensation_t *")
     raise_for_result(int(lib.ezo_do_parse_temperature(payload, len(payload), out)))
     return do_temperature_compensation_from_c(out[0])
 
 
-def parse_salinity(text: str):
+def parse_salinity(text: str) -> DoSalinityCompensation:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_do_salinity_compensation_t *")
     raise_for_result(int(lib.ezo_do_parse_salinity(payload, len(payload), out)))
     return do_salinity_compensation_from_c(out[0])
 
 
-def parse_pressure(text: str):
+def parse_pressure(text: str) -> DoPressureCompensation:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_do_pressure_compensation_t *")
     raise_for_result(int(lib.ezo_do_parse_pressure(payload, len(payload), out)))
     return do_pressure_compensation_from_c(out[0])
 
 
-def parse_calibration_status(text: str):
+def parse_calibration_status(text: str) -> DoCalibrationStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_do_calibration_status_t *")
     raise_for_result(int(lib.ezo_do_parse_calibration_status(payload, len(payload), out)))
@@ -137,27 +145,27 @@ def send_clear_calibration_i2c(device) -> int:
     return _timed_send(lib.ezo_do_send_clear_calibration_i2c, _unwrap_i2c_device(device))
 
 
-def read_response_i2c(device, enabled_mask: int):
+def read_response_i2c(device, enabled_mask: int) -> DoReading:
     return read_struct(lib.ezo_do_read_response_i2c, "ezo_do_reading_t", do_reading_from_c, _unwrap_i2c_device(device), int(enabled_mask))
 
 
-def read_output_config_i2c(device):
+def read_output_config_i2c(device) -> DoOutputConfig:
     return read_struct(lib.ezo_do_read_output_config_i2c, "ezo_do_output_config_t", do_output_config_from_c, _unwrap_i2c_device(device))
 
 
-def read_temperature_i2c(device):
+def read_temperature_i2c(device) -> DoTemperatureCompensation:
     return read_struct(lib.ezo_do_read_temperature_i2c, "ezo_do_temperature_compensation_t", do_temperature_compensation_from_c, _unwrap_i2c_device(device))
 
 
-def read_salinity_i2c(device):
+def read_salinity_i2c(device) -> DoSalinityCompensation:
     return read_struct(lib.ezo_do_read_salinity_i2c, "ezo_do_salinity_compensation_t", do_salinity_compensation_from_c, _unwrap_i2c_device(device))
 
 
-def read_pressure_i2c(device):
+def read_pressure_i2c(device) -> DoPressureCompensation:
     return read_struct(lib.ezo_do_read_pressure_i2c, "ezo_do_pressure_compensation_t", do_pressure_compensation_from_c, _unwrap_i2c_device(device))
 
 
-def read_calibration_status_i2c(device):
+def read_calibration_status_i2c(device) -> DoCalibrationStatus:
     return read_struct(lib.ezo_do_read_calibration_status_i2c, "ezo_do_calibration_status_t", do_calibration_status_from_c, _unwrap_i2c_device(device))
 
 
@@ -213,25 +221,25 @@ def send_clear_calibration_uart(device) -> int:
     return _timed_send(lib.ezo_do_send_clear_calibration_uart, _unwrap_uart_device(device))
 
 
-def read_response_uart(device, enabled_mask: int):
+def read_response_uart(device, enabled_mask: int) -> DoReading:
     return read_struct(lib.ezo_do_read_response_uart, "ezo_do_reading_t", do_reading_from_c, _unwrap_uart_device(device), int(enabled_mask))
 
 
-def read_output_config_uart(device):
+def read_output_config_uart(device) -> DoOutputConfig:
     return read_struct(lib.ezo_do_read_output_config_uart, "ezo_do_output_config_t", do_output_config_from_c, _unwrap_uart_device(device))
 
 
-def read_temperature_uart(device):
+def read_temperature_uart(device) -> DoTemperatureCompensation:
     return read_struct(lib.ezo_do_read_temperature_uart, "ezo_do_temperature_compensation_t", do_temperature_compensation_from_c, _unwrap_uart_device(device))
 
 
-def read_salinity_uart(device):
+def read_salinity_uart(device) -> DoSalinityCompensation:
     return read_struct(lib.ezo_do_read_salinity_uart, "ezo_do_salinity_compensation_t", do_salinity_compensation_from_c, _unwrap_uart_device(device))
 
 
-def read_pressure_uart(device):
+def read_pressure_uart(device) -> DoPressureCompensation:
     return read_struct(lib.ezo_do_read_pressure_uart, "ezo_do_pressure_compensation_t", do_pressure_compensation_from_c, _unwrap_uart_device(device))
 
 
-def read_calibration_status_uart(device):
+def read_calibration_status_uart(device) -> DoCalibrationStatus:
     return read_struct(lib.ezo_do_read_calibration_status_uart, "ezo_do_calibration_status_t", do_calibration_status_from_c, _unwrap_uart_device(device))

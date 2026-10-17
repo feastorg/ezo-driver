@@ -16,51 +16,60 @@ from ._call import (
 )
 from ._support import _unwrap_i2c_device, _unwrap_uart_device
 from .errors import raise_for_result
+from .types import (
+    RtdCalibrationStatus,
+    RtdLoggerStatus,
+    RtdMemoryEntry,
+    RtdMemoryStatus,
+    RtdMemoryValue,
+    RtdReading,
+    RtdScaleStatus,
+)
 
 
-def parse_reading(text: str, scale):
+def parse_reading(text: str, scale) -> RtdReading:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_rtd_reading_t *")
     raise_for_result(int(lib.ezo_rtd_parse_reading(payload, len(payload), int(scale), out)))
     return rtd_reading_from_c(out[0])
 
 
-def parse_scale(text: str):
+def parse_scale(text: str) -> RtdScaleStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_rtd_scale_status_t *")
     raise_for_result(int(lib.ezo_rtd_parse_scale(payload, len(payload), out)))
     return rtd_scale_status_from_c(out[0])
 
 
-def parse_calibration_status(text: str):
+def parse_calibration_status(text: str) -> RtdCalibrationStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_rtd_calibration_status_t *")
     raise_for_result(int(lib.ezo_rtd_parse_calibration_status(payload, len(payload), out)))
     return rtd_calibration_status_from_c(out[0])
 
 
-def parse_logger_status(text: str):
+def parse_logger_status(text: str) -> RtdLoggerStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_rtd_logger_status_t *")
     raise_for_result(int(lib.ezo_rtd_parse_logger_status(payload, len(payload), out)))
     return rtd_logger_status_from_c(out[0])
 
 
-def parse_memory_status(text: str):
+def parse_memory_status(text: str) -> RtdMemoryStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_rtd_memory_status_t *")
     raise_for_result(int(lib.ezo_rtd_parse_memory_status(payload, len(payload), out)))
     return rtd_memory_status_from_c(out[0])
 
 
-def parse_memory_entry(text: str, scale):
+def parse_memory_entry(text: str, scale) -> RtdMemoryEntry:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_rtd_memory_entry_t *")
     raise_for_result(int(lib.ezo_rtd_parse_memory_entry(payload, len(payload), int(scale), out)))
     return rtd_memory_entry_from_c(out[0])
 
 
-def parse_memory_all(text: str, scale) -> list:
+def parse_memory_all(text: str, scale) -> list[RtdMemoryValue]:
     payload = ascii_bytes(text)
     values = ffi.new("ezo_rtd_memory_value_t[128]")
     count = ffi.new("size_t *")
@@ -134,31 +143,31 @@ def send_memory_clear_i2c(device) -> int:
     return _timed_send(lib.ezo_rtd_send_memory_clear_i2c, _unwrap_i2c_device(device))
 
 
-def read_response_i2c(device, scale):
+def read_response_i2c(device, scale) -> RtdReading:
     return read_struct(lib.ezo_rtd_read_response_i2c, "ezo_rtd_reading_t", rtd_reading_from_c, _unwrap_i2c_device(device), int(scale))
 
 
-def read_scale_i2c(device):
+def read_scale_i2c(device) -> RtdScaleStatus:
     return read_struct(lib.ezo_rtd_read_scale_i2c, "ezo_rtd_scale_status_t", rtd_scale_status_from_c, _unwrap_i2c_device(device))
 
 
-def read_calibration_status_i2c(device):
+def read_calibration_status_i2c(device) -> RtdCalibrationStatus:
     return read_struct(lib.ezo_rtd_read_calibration_status_i2c, "ezo_rtd_calibration_status_t", rtd_calibration_status_from_c, _unwrap_i2c_device(device))
 
 
-def read_logger_i2c(device):
+def read_logger_i2c(device) -> RtdLoggerStatus:
     return read_struct(lib.ezo_rtd_read_logger_i2c, "ezo_rtd_logger_status_t", rtd_logger_status_from_c, _unwrap_i2c_device(device))
 
 
-def read_memory_status_i2c(device):
+def read_memory_status_i2c(device) -> RtdMemoryStatus:
     return read_struct(lib.ezo_rtd_read_memory_status_i2c, "ezo_rtd_memory_status_t", rtd_memory_status_from_c, _unwrap_i2c_device(device))
 
 
-def read_memory_entry_i2c(device, scale):
+def read_memory_entry_i2c(device, scale) -> RtdMemoryEntry:
     return read_struct(lib.ezo_rtd_read_memory_entry_i2c, "ezo_rtd_memory_entry_t", rtd_memory_entry_from_c, _unwrap_i2c_device(device), int(scale))
 
 
-def read_memory_all_i2c(device, scale) -> list:
+def read_memory_all_i2c(device, scale) -> list[RtdMemoryValue]:
     values = ffi.new("ezo_rtd_memory_value_t[128]")
     count = ffi.new("size_t *")
     raise_for_result(int(lib.ezo_rtd_read_memory_all_i2c(_unwrap_i2c_device(device), int(scale), values, 128, count)))
@@ -213,31 +222,31 @@ def send_memory_clear_uart(device) -> int:
     return _timed_send(lib.ezo_rtd_send_memory_clear_uart, _unwrap_uart_device(device))
 
 
-def read_response_uart(device, scale):
+def read_response_uart(device, scale) -> RtdReading:
     return read_struct(lib.ezo_rtd_read_response_uart, "ezo_rtd_reading_t", rtd_reading_from_c, _unwrap_uart_device(device), int(scale))
 
 
-def read_scale_uart(device):
+def read_scale_uart(device) -> RtdScaleStatus:
     return read_struct(lib.ezo_rtd_read_scale_uart, "ezo_rtd_scale_status_t", rtd_scale_status_from_c, _unwrap_uart_device(device))
 
 
-def read_calibration_status_uart(device):
+def read_calibration_status_uart(device) -> RtdCalibrationStatus:
     return read_struct(lib.ezo_rtd_read_calibration_status_uart, "ezo_rtd_calibration_status_t", rtd_calibration_status_from_c, _unwrap_uart_device(device))
 
 
-def read_logger_uart(device):
+def read_logger_uart(device) -> RtdLoggerStatus:
     return read_struct(lib.ezo_rtd_read_logger_uart, "ezo_rtd_logger_status_t", rtd_logger_status_from_c, _unwrap_uart_device(device))
 
 
-def read_memory_status_uart(device):
+def read_memory_status_uart(device) -> RtdMemoryStatus:
     return read_struct(lib.ezo_rtd_read_memory_status_uart, "ezo_rtd_memory_status_t", rtd_memory_status_from_c, _unwrap_uart_device(device))
 
 
-def read_memory_entry_uart(device, scale):
+def read_memory_entry_uart(device, scale) -> RtdMemoryEntry:
     return read_struct(lib.ezo_rtd_read_memory_entry_uart, "ezo_rtd_memory_entry_t", rtd_memory_entry_from_c, _unwrap_uart_device(device), int(scale))
 
 
-def read_memory_all_uart(device, scale) -> list:
+def read_memory_all_uart(device, scale) -> list[RtdMemoryValue]:
     values = ffi.new("ezo_rtd_memory_value_t[128]")
     count = ffi.new("size_t *")
     raise_for_result(int(lib.ezo_rtd_read_memory_all_uart(_unwrap_uart_device(device), int(scale), values, 128, count)))

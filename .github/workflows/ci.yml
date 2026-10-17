@@ -195,6 +195,7 @@ jobs:
           python -m twine check --strict dist/*
           tar -tzf dist/*.tar.gz | grep -q '/LICENSE$'
           python -m zipfile -l dist/*.whl | grep -q 'dist-info/licenses/LICENSE'
+          python -m zipfile -l dist/*.whl | grep -q 'ezo_driver/py.typed'
           ls dist/*-cp39-abi3-*.whl
 
       - name: Install the wheel with the test extra
@@ -209,6 +210,12 @@ jobs:
           cd "$RUNNER_TEMP"
           python -c "import ezo_driver; assert 'site-packages' in ezo_driver.__file__, ezo_driver.__file__"
           python -m pytest tests -q
+
+      - name: Type-check a consumer against the installed wheel
+        run: |
+          python -m pip install "pyright==1.1.414"
+          cd "$RUNNER_TEMP/tests"
+          pyright --pythonpath "$(command -v python)" typecheck_consumer.py
 
   # ─── Unified gate ─────────────────────────────────────────────
   # Branch protection requires only: CI / ok

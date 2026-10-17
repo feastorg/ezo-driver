@@ -12,9 +12,10 @@ from ._call import (
 from ._support import _unwrap_i2c_device, _unwrap_uart_device
 from .enums import DeviceStatus, UARTResponseKind
 from .errors import raise_for_result
+from .types import CalibrationExportInfo, CalibrationImportResult
 
 
-def parse_export_info(text: str):
+def parse_export_info(text: str) -> CalibrationExportInfo:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_calibration_export_info_t *")
     raise_for_result(int(lib.ezo_calibration_parse_export_info(payload, len(payload), out)))
@@ -48,7 +49,7 @@ def send_import_i2c(device, product_id, payload: bytes | str) -> int:
     )
 
 
-def read_export_info_i2c(device):
+def read_export_info_i2c(device) -> CalibrationExportInfo:
     return read_struct(
         lib.ezo_calibration_read_export_info_i2c,
         "ezo_calibration_export_info_t",
@@ -70,7 +71,7 @@ def read_import_status_i2c(device) -> DeviceStatus:
     return DeviceStatus(int(status[0]))
 
 
-def read_import_result_i2c(device):
+def read_import_result_i2c(device) -> CalibrationImportResult:
     return read_struct(
         lib.ezo_calibration_read_import_result_i2c,
         "ezo_calibration_import_result_t",
@@ -96,7 +97,7 @@ def send_import_uart(device, product_id, payload: bytes | str) -> int:
     )
 
 
-def read_export_info_uart(device):
+def read_export_info_uart(device) -> CalibrationExportInfo:
     return read_struct(
         lib.ezo_calibration_read_export_info_uart,
         "ezo_calibration_export_info_t",
