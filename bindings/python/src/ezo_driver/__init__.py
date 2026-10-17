@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from importlib.metadata import PackageNotFoundError as _PackageNotFoundError
+from importlib.metadata import version as _distribution_version
+
 from .errors import EzoArgumentError, EzoError, EzoParseError, EzoProtocolError, EzoTransportError
 from .enums import (
     CommandKind,
@@ -21,6 +24,12 @@ from .types import (
     ScalarReading,
 )
 from .uart import LinuxUARTDevice
+
+# A source tree used without installing has no distribution metadata.
+try:
+    __version__: str = _distribution_version("ezo-driver")
+except _PackageNotFoundError:
+    __version__ = "0+unknown"
 
 __all__ = [
     "LinuxI2CDevice",

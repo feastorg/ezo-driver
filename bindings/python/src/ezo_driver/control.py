@@ -15,9 +15,18 @@ from ._call import (
     read_struct,
 )
 from ._support import _unwrap_i2c_device, _unwrap_uart_device
+from .types import (
+    ControlBaudStatus,
+    ControlLedStatus,
+    ControlName,
+    ControlProtocolLockStatus,
+    ControlResponseCodeStatus,
+    ControlStatus,
+    DeviceInfo,
+)
 
 
-def parse_name(text: str):
+def parse_name(text: str) -> ControlName:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_control_name_t *")
     from .errors import raise_for_result
@@ -26,7 +35,7 @@ def parse_name(text: str):
     return control_name_from_c(out[0])
 
 
-def parse_status(text: str):
+def parse_status(text: str) -> ControlStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_control_status_t *")
     from .errors import raise_for_result
@@ -35,7 +44,7 @@ def parse_status(text: str):
     return control_status_from_c(out[0])
 
 
-def parse_led(text: str):
+def parse_led(text: str) -> ControlLedStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_control_led_status_t *")
     from .errors import raise_for_result
@@ -44,7 +53,7 @@ def parse_led(text: str):
     return control_led_status_from_c(out[0])
 
 
-def parse_protocol_lock(text: str):
+def parse_protocol_lock(text: str) -> ControlProtocolLockStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_control_protocol_lock_status_t *")
     from .errors import raise_for_result
@@ -53,7 +62,7 @@ def parse_protocol_lock(text: str):
     return control_protocol_lock_status_from_c(out[0])
 
 
-def parse_baud(text: str):
+def parse_baud(text: str) -> ControlBaudStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_control_baud_status_t *")
     from .errors import raise_for_result
@@ -62,7 +71,7 @@ def parse_baud(text: str):
     return control_baud_status_from_c(out[0])
 
 
-def parse_response_code(text: str):
+def parse_response_code(text: str) -> ControlResponseCodeStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_control_response_code_status_t *")
     from .errors import raise_for_result
@@ -169,23 +178,23 @@ def send_switch_to_uart_i2c(device, product_id, baud_rate: int) -> int:
     return _timed_send(lib.ezo_control_send_switch_to_uart_i2c, _unwrap_i2c_device(device), int(product_id), int(baud_rate))
 
 
-def read_info_i2c(device):
+def read_info_i2c(device) -> DeviceInfo:
     return _read_i2c(lib.ezo_control_read_info_i2c, "ezo_device_info_t", device_info_from_c, device)
 
 
-def read_name_i2c(device):
+def read_name_i2c(device) -> ControlName:
     return _read_i2c(lib.ezo_control_read_name_i2c, "ezo_control_name_t", control_name_from_c, device)
 
 
-def read_status_i2c(device):
+def read_status_i2c(device) -> ControlStatus:
     return _read_i2c(lib.ezo_control_read_status_i2c, "ezo_control_status_t", control_status_from_c, device)
 
 
-def read_led_i2c(device):
+def read_led_i2c(device) -> ControlLedStatus:
     return _read_i2c(lib.ezo_control_read_led_i2c, "ezo_control_led_status_t", control_led_status_from_c, device)
 
 
-def read_protocol_lock_i2c(device):
+def read_protocol_lock_i2c(device) -> ControlProtocolLockStatus:
     return _read_i2c(
         lib.ezo_control_read_protocol_lock_i2c,
         "ezo_control_protocol_lock_status_t",
@@ -273,23 +282,23 @@ def send_switch_to_uart_uart(device, product_id, baud_rate: int) -> int:
     return _timed_send(lib.ezo_control_send_switch_to_uart_uart, _unwrap_uart_device(device), int(product_id), int(baud_rate))
 
 
-def read_info_uart(device):
+def read_info_uart(device) -> DeviceInfo:
     return _read_uart(lib.ezo_control_read_info_uart, "ezo_device_info_t", device_info_from_c, device)
 
 
-def read_name_uart(device):
+def read_name_uart(device) -> ControlName:
     return _read_uart(lib.ezo_control_read_name_uart, "ezo_control_name_t", control_name_from_c, device)
 
 
-def read_status_uart(device):
+def read_status_uart(device) -> ControlStatus:
     return _read_uart(lib.ezo_control_read_status_uart, "ezo_control_status_t", control_status_from_c, device)
 
 
-def read_led_uart(device):
+def read_led_uart(device) -> ControlLedStatus:
     return _read_uart(lib.ezo_control_read_led_uart, "ezo_control_led_status_t", control_led_status_from_c, device)
 
 
-def read_protocol_lock_uart(device):
+def read_protocol_lock_uart(device) -> ControlProtocolLockStatus:
     return _read_uart(
         lib.ezo_control_read_protocol_lock_uart,
         "ezo_control_protocol_lock_status_t",
@@ -298,11 +307,11 @@ def read_protocol_lock_uart(device):
     )
 
 
-def read_baud_uart(device):
+def read_baud_uart(device) -> ControlBaudStatus:
     return _read_uart(lib.ezo_control_read_baud_uart, "ezo_control_baud_status_t", control_baud_status_from_c, device)
 
 
-def read_response_code_uart(device):
+def read_response_code_uart(device) -> ControlResponseCodeStatus:
     return _read_uart(
         lib.ezo_control_read_response_code_uart,
         "ezo_control_response_code_status_t",

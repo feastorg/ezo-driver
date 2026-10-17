@@ -1,8 +1,13 @@
 from __future__ import annotations
 
+from typing import TypeVar
+
 from ._call import ascii_bytes, decode_cstr, ffi, lib
 from .enums import CommandKind, DeviceStatus, UARTResponseKind
 from .errors import raise_for_result
+
+_PublicI2CDeviceT = TypeVar("_PublicI2CDeviceT", bound="_PublicI2CDeviceBase")
+_PublicUARTDeviceT = TypeVar("_PublicUARTDeviceT", bound="_PublicUARTDeviceBase")
 
 
 def _coerce_command_kind(kind: CommandKind | int) -> int:
@@ -193,7 +198,7 @@ class _PublicI2CDeviceBase:
     def close(self) -> None:
         self._cdev.close()
 
-    def __enter__(self):
+    def __enter__(self: _PublicI2CDeviceT) -> _PublicI2CDeviceT:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> bool:
@@ -244,7 +249,7 @@ class _PublicUARTDeviceBase:
     def close(self) -> None:
         self._cdev.close()
 
-    def __enter__(self):
+    def __enter__(self: _PublicUARTDeviceT) -> _PublicUARTDeviceT:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> bool:

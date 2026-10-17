@@ -12,23 +12,28 @@ from ._call import (
 )
 from ._support import _unwrap_i2c_device, _unwrap_uart_device
 from .errors import raise_for_result
+from .types import (
+    OrpCalibrationStatus,
+    OrpExtendedScaleStatus,
+    OrpReading,
+)
 
 
-def parse_reading(text: str):
+def parse_reading(text: str) -> OrpReading:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_orp_reading_t *")
     raise_for_result(int(lib.ezo_orp_parse_reading(payload, len(payload), out)))
     return orp_reading_from_c(out[0])
 
 
-def parse_calibration_status(text: str):
+def parse_calibration_status(text: str) -> OrpCalibrationStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_orp_calibration_status_t *")
     raise_for_result(int(lib.ezo_orp_parse_calibration_status(payload, len(payload), out)))
     return orp_calibration_status_from_c(out[0])
 
 
-def parse_extended_scale(text: str):
+def parse_extended_scale(text: str) -> OrpExtendedScaleStatus:
     payload = ascii_bytes(text)
     out = ffi.new("ezo_orp_extended_scale_status_t *")
     raise_for_result(int(lib.ezo_orp_parse_extended_scale(payload, len(payload), out)))
@@ -73,15 +78,15 @@ def send_extended_scale_set_i2c(device, enabled) -> int:
     return _timed_send(lib.ezo_orp_send_extended_scale_set_i2c, _unwrap_i2c_device(device), int(enabled))
 
 
-def read_response_i2c(device):
+def read_response_i2c(device) -> OrpReading:
     return read_struct(lib.ezo_orp_read_response_i2c, "ezo_orp_reading_t", orp_reading_from_c, _unwrap_i2c_device(device))
 
 
-def read_calibration_status_i2c(device):
+def read_calibration_status_i2c(device) -> OrpCalibrationStatus:
     return read_struct(lib.ezo_orp_read_calibration_status_i2c, "ezo_orp_calibration_status_t", orp_calibration_status_from_c, _unwrap_i2c_device(device))
 
 
-def read_extended_scale_i2c(device):
+def read_extended_scale_i2c(device) -> OrpExtendedScaleStatus:
     return read_struct(lib.ezo_orp_read_extended_scale_i2c, "ezo_orp_extended_scale_status_t", orp_extended_scale_status_from_c, _unwrap_i2c_device(device))
 
 
@@ -109,13 +114,13 @@ def send_extended_scale_set_uart(device, enabled) -> int:
     return _timed_send(lib.ezo_orp_send_extended_scale_set_uart, _unwrap_uart_device(device), int(enabled))
 
 
-def read_response_uart(device):
+def read_response_uart(device) -> OrpReading:
     return read_struct(lib.ezo_orp_read_response_uart, "ezo_orp_reading_t", orp_reading_from_c, _unwrap_uart_device(device))
 
 
-def read_calibration_status_uart(device):
+def read_calibration_status_uart(device) -> OrpCalibrationStatus:
     return read_struct(lib.ezo_orp_read_calibration_status_uart, "ezo_orp_calibration_status_t", orp_calibration_status_from_c, _unwrap_uart_device(device))
 
 
-def read_extended_scale_uart(device):
+def read_extended_scale_uart(device) -> OrpExtendedScaleStatus:
     return read_struct(lib.ezo_orp_read_extended_scale_uart, "ezo_orp_extended_scale_status_t", orp_extended_scale_status_from_c, _unwrap_uart_device(device))
