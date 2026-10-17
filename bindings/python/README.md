@@ -57,17 +57,27 @@ The shipped `ezo_driver._native` module holds the C core and the Linux transport
 
 Top-level `ezo_driver` exports only the stable transport constructors, exception hierarchy, and shared enums/types.
 
+## Split-phase reads
+
+Every exchange with a circuit has two halves. A `send_*` helper writes the command and returns how long the circuit needs, in milliseconds. The matching `read_*` helper fetches the reply. The bindings never sleep, so the caller waits in between, and the wait is the caller's to schedule: block a thread, or do other work and come back.
+
+On I2C, a read that comes too early raises `EzoProtocolError` with the device's `last_status` at `DeviceStatus.NOT_READY`: the circuit is still working, so wait and read again.
+
 ## I2C example
 
 ```python
+import time
+
 from ezo_driver import LinuxI2CDevice, ProductId
 from ezo_driver import control, ph
 
 with LinuxI2CDevice(bus=1, address=0x63) as dev:
     wait_ms = control.send_info_query_i2c(dev, ProductId.PH)
+    time.sleep(wait_ms / 1000)
     info = control.read_info_i2c(dev)
 
     wait_ms = ph.send_read_i2c(dev)
+    time.sleep(wait_ms / 1000)
     reading = ph.read_response_i2c(dev)
 
 print(info)
@@ -77,19 +87,113 @@ print(reading)
 ## UART example
 
 ```python
+import time
+
 from ezo_driver import LinuxUARTDevice, ProductId
 from ezo_driver import control, ph
 
 with LinuxUARTDevice("/dev/ttyUSB0", baud=9600, read_timeout_ms=1000) as dev:
     wait_ms = control.send_info_query_uart(dev, ProductId.PH)
+    time.sleep(wait_ms / 1000)
     info = control.read_info_uart(dev)
 
     wait_ms = ph.send_read_uart(dev)
+    time.sleep(wait_ms / 1000)
     reading = ph.read_response_uart(dev)
 
 print(info)
 print(reading)
 ```
+
+## Caching output masks
+
+EC, DO and HUM circuits report only the outputs that are switched on, so `ec.read_response_*`, `do.read_response_*` and `hum.read_response_*` take the enabled-output mask that tells them how to split the reply. Query it once with `send_output_query_*` and `read_output_config_*`, keep `enabled_mask`, and pass it to every read. The mask changes only when an output is switched with `send_output_set_*`, so query it again after that, or after anything else that may have reconfigured the circuit (a factory reset, or another program).
+
+```python
+import time
+
+from ezo_driver import LinuxI2CDevice
+from ezo_driver import ec
+from ezo_driver.enums import ECOutputMask
+
+with LinuxI2CDevice(bus=1, address=0x64) as dev:
+    time.sleep(ec.send_output_query_i2c(dev) / 1000)
+    mask = ec.read_output_config_i2c(dev).enabled_mask
+
+    for _ in range(3):
+        time.sleep(ec.send_read_i2c(dev) / 1000)
+        reading = ec.read_response_i2c(dev, mask)
+        if ECOutputMask.CONDUCTIVITY in reading.present_mask:
+            print(reading.conductivity_us_cm)
+```
+
+## Sharing a bus between threads
+
+The bindings take no locks. The rules follow from the transport:
+
+- A circuit holds the reply to its last command only, so the whole send, wait, read cycle for one circuit must run without another command to that circuit in between.
+- A device object is not safe for concurrent use. Use each `LinuxI2CDevice` or `LinuxUARTDevice` from one thread, or guard it with a lock held across the whole cycle. `set_address()` changes the address for every later call on that object.
+- Each `LinuxI2CDevice` opens its own file descriptor on `/dev/i2c-<bus>` and sets the address before each transfer, so separate device objects on one bus can run in separate threads; the kernel serialises the transfers on the bus. Open one object per circuit rather than sharing one and switching its address.
+- A UART port carries one circuit. Open it once.
+
+```python
+import threading
+import time
+
+from ezo_driver import LinuxI2CDevice
+from ezo_driver import ec, ph
+
+results = {}
+
+
+def poll_ph():
+    with LinuxI2CDevice(bus=1, address=0x63) as dev:
+        time.sleep(ph.send_read_i2c(dev) / 1000)
+        results["ph"] = ph.read_response_i2c(dev).ph
+
+
+def poll_ec():
+    with LinuxI2CDevice(bus=1, address=0x64) as dev:
+        time.sleep(ec.send_output_query_i2c(dev) / 1000)
+        mask = ec.read_output_config_i2c(dev).enabled_mask
+        time.sleep(ec.send_read_i2c(dev) / 1000)
+        results["ec"] = ec.read_response_i2c(dev, mask).conductivity_us_cm
+
+
+threads = [threading.Thread(target=poll_ph), threading.Thread(target=poll_ec)]
+for thread in threads:
+    thread.start()
+for thread in threads:
+    thread.join()
+print(results)
+```
+
+To share one device object between threads instead, hold one `threading.Lock` per circuit around each cycle:
+
+```python
+import threading
+import time
+
+from ezo_driver import LinuxI2CDevice
+from ezo_driver import ph
+
+dev = LinuxI2CDevice(bus=1, address=0x63)
+dev_lock = threading.Lock()
+
+
+def read_ph():
+    with dev_lock:
+        time.sleep(ph.send_read_i2c(dev) / 1000)
+        return ph.read_response_i2c(dev).ph
+
+
+try:
+    print(read_ph())
+finally:
+    dev.close()
+```
+
+The tests run every Python example in this README against the fake transports (`bindings/python/tests/test_readme_examples.py`).
 
 ## Design constraints
 
