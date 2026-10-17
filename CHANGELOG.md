@@ -10,6 +10,7 @@ All notable tracked changes to this rewrite will be recorded here.
 - `ezo_driver.__version__`, read from the installed distribution's metadata so it always matches `pyproject.toml`
 - Python CI checks that the wheel carries `py.typed` and runs pyright against the installed wheel on a consumer script (`bindings/python/tests/typecheck_consumer.py`) that pins the public return types with `assert_type`
 - the Python binding README documents the split-phase read pattern, caching the EC, DO and HUM output masks, and the rules for sharing a bus between threads, each with an example; `bindings/python/tests/test_readme_examples.py` runs every Python example in the README against the fake transports, whose circuits answer only after the example waits
+- `EzoNotReadyError` and `EzoDeviceStatusError`, both subclasses of `EzoProtocolError`, so existing `except EzoProtocolError` handlers still catch them: a Python I2C read that fails on status `NOT_READY` raises `EzoNotReadyError`, and one that fails on `FAIL` or `NO_DATA` raises `EzoDeviceStatusError`, whose `status` holds the `DeviceStatus`; the message stays `protocol failure`, and UART reads, parse-only failures and an `UNKNOWN` status still raise `EzoProtocolError` itself
 
 ### Fixed
 

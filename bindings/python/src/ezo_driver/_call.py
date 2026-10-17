@@ -125,7 +125,7 @@ def parse_text(func, text: str, ctype: str, converter, *args):
 
 def read_struct(func, ctype: str, converter, *args):
     out = ffi.new(f"{ctype} *")
-    raise_for_result(int(func(*args, out)))
+    raise_for_result(int(func(*args, out)), device=args[0] if args else None)
     return converter(out[0])
 
 

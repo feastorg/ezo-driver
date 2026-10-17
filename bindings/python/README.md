@@ -61,7 +61,7 @@ Top-level `ezo_driver` exports only the stable transport constructors, exception
 
 Every exchange with a circuit has two halves. A `send_*` helper writes the command and returns how long the circuit needs, in milliseconds. The matching `read_*` helper fetches the reply. The bindings never sleep, so the caller waits in between, and the wait is the caller's to schedule: block a thread, or do other work and come back.
 
-On I2C, a read that comes too early raises `EzoProtocolError` with the device's `last_status` at `DeviceStatus.NOT_READY`: the circuit is still working, so wait and read again.
+On I2C, a read that comes too early raises `EzoNotReadyError` with the device's `last_status` at `DeviceStatus.NOT_READY`: the circuit is still working, so wait and read again. A read that gets `DeviceStatus.FAIL` or `DeviceStatus.NO_DATA` raises `EzoDeviceStatusError`, whose `status` says which. Both subclass `EzoProtocolError`, which still catches them; UART reads and other protocol failures raise `EzoProtocolError` itself.
 
 ## I2C example
 
