@@ -3,7 +3,15 @@ from __future__ import annotations
 from importlib.metadata import PackageNotFoundError as _PackageNotFoundError
 from importlib.metadata import version as _distribution_version
 
-from .errors import EzoArgumentError, EzoError, EzoParseError, EzoProtocolError, EzoTransportError
+from .errors import (
+    EzoArgumentError,
+    EzoDeviceStatusError,
+    EzoError,
+    EzoNotReadyError,
+    EzoParseError,
+    EzoProtocolError,
+    EzoTransportError,
+)
 from .enums import (
     CommandKind,
     DeviceStatus,
@@ -38,6 +46,8 @@ __all__ = [
     "EzoArgumentError",
     "EzoTransportError",
     "EzoProtocolError",
+    "EzoNotReadyError",
+    "EzoDeviceStatusError",
     "EzoParseError",
     "CommandKind",
     "DeviceStatus",

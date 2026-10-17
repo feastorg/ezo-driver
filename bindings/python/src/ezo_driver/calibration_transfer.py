@@ -61,13 +61,15 @@ def read_export_info_i2c(device) -> CalibrationExportInfo:
 def read_export_chunk_i2c(device) -> bytes:
     buffer = ffi.new("char[256]")
     length = ffi.new("size_t *")
-    raise_for_result(int(lib.ezo_calibration_read_export_chunk_i2c(_unwrap_i2c_device(device), buffer, 256, length)))
+    core = _unwrap_i2c_device(device)
+    raise_for_result(int(lib.ezo_calibration_read_export_chunk_i2c(core, buffer, 256, length)), device=core)
     return bytes(ffi.buffer(buffer, int(length[0])))
 
 
 def read_import_status_i2c(device) -> DeviceStatus:
     status = ffi.new("ezo_device_status_t *")
-    raise_for_result(int(lib.ezo_calibration_read_import_status_i2c(_unwrap_i2c_device(device), status)))
+    core = _unwrap_i2c_device(device)
+    raise_for_result(int(lib.ezo_calibration_read_import_status_i2c(core, status)), device=core)
     return DeviceStatus(int(status[0]))
 
 

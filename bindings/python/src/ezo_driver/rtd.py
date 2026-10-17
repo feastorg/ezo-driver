@@ -170,7 +170,8 @@ def read_memory_entry_i2c(device, scale) -> RtdMemoryEntry:
 def read_memory_all_i2c(device, scale) -> list[RtdMemoryValue]:
     values = ffi.new("ezo_rtd_memory_value_t[128]")
     count = ffi.new("size_t *")
-    raise_for_result(int(lib.ezo_rtd_read_memory_all_i2c(_unwrap_i2c_device(device), int(scale), values, 128, count)))
+    core = _unwrap_i2c_device(device)
+    raise_for_result(int(lib.ezo_rtd_read_memory_all_i2c(core, int(scale), values, 128, count)), device=core)
     return rtd_memory_values_from_c(values, count[0])
 
 

@@ -84,7 +84,8 @@ class _I2CDeviceBase:
                     length,
                     status,
                 )
-            )
+            ),
+            device=self._core,
         )
         return int(status[0]), bytes(ffi.buffer(buffer, int(length[0])))
 
@@ -101,7 +102,8 @@ class _I2CDeviceBase:
                     length,
                     status,
                 )
-            )
+            ),
+            device=self._core,
         )
         return int(status[0]), decode_cstr(buffer)
 
