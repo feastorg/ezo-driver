@@ -1,5 +1,9 @@
 # EZO Driver
 
+[![CI](https://github.com/feastorg/ezo-driver/actions/workflows/ci.yml/badge.svg)](https://github.com/feastorg/ezo-driver/actions/workflows/ci.yml)
+[![PlatformIO Registry](https://badges.registry.platformio.org/packages/cameronbrooks11/library/ezo-driver.svg)](https://registry.platformio.org/libraries/cameronbrooks11/ezo-driver)
+[![PyPI](https://img.shields.io/pypi/v/ezo-driver)](https://pypi.org/project/ezo-driver/)
+
 Cross-platform Atlas Scientific EZO driver with:
 
 - a platform-agnostic C99 core
