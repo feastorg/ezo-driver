@@ -115,7 +115,22 @@ cmake --install build/host-linux-release --prefix <install-prefix>
 ## Packaging
 
 - `library.properties`: Arduino tooling metadata for the combined library
-- `library.json`: PlatformIO metadata for the combined library
+- `library.json`: PlatformIO metadata for the combined library; its `export` list is what the registry package carries
+
+## Releasing
+
+1. On a branch, set the version in `CMakeLists.txt`, `pyproject.toml`, `library.properties` and `library.json`, which `release.yml` checks against the tag, and move the `[Unreleased]` CHANGELOG entries under the new version. Open the PR and let CI pass.
+2. Squash-merge it, then tag the squash commit on `main` with an annotated `vX.Y.Z` and push the tag. `release.yml` builds the GitHub release, then holds the PyPI upload for approval in the `pypi` environment.
+3. Publish to the PlatformIO registry by hand, from a `git archive` of the tag rather than the working tree, which `pio pkg publish` packs as it finds it, untracked files included. A published version cannot be replaced, so list the packed files first:
+
+   ```sh
+   d=$(mktemp -d)
+   git archive --format=tar vX.Y.Z | tar -x -C "$d"
+   (cd "$d" && pio pkg pack -o pkg.tar.gz && tar -tzf pkg.tar.gz)
+   pio pkg publish --no-interactive "$d/pkg.tar.gz"
+   ```
+
+   Then confirm it resolves: `pio pkg show cameronbrooks11/ezo-driver@X.Y.Z`.
 
 ## Examples
 
