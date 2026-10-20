@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/schema/library.json",
   "name": "ezo-driver",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Cross-platform Atlas Scientific EZO driver with explicit I2C/UART cores, shared control helpers, and typed product modules",
   "keywords": [
     "ezo",
@@ -10,6 +10,30 @@
     "atlas scientific",
     "arduino"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/feastorg/ezo-driver.git"
+  },
+  "authors": [
+    {
+      "name": "Cameron K. Brooks",
+      "email": "cambrooks3393@gmail.com",
+      "maintainer": true
+    },
+    {
+      "name": "Atlas Scientific"
+    }
+  ],
+  "license": "MIT",
+  "export": {
+    "include": [
+      "src",
+      "examples/arduino",
+      "README.md",
+      "CHANGELOG.md",
+      "LICENSE"
+    ]
+  },
   "frameworks": [
     "arduino"
   ],

@@ -2,6 +2,12 @@
 
 All notable tracked changes to this rewrite will be recorded here.
 
+## [0.7.1]
+
+### Changed
+
+- `library.json` declares `repository`, `authors`, `license` (MIT) and an `export` list, so the PlatformIO package carries `src`, `examples/arduino`, `README.md`, `CHANGELOG.md` and `LICENSE`, not the Python bindings, tests, docs or CI files; 0.7.1 is the first version published to the PlatformIO registry (#25). No library code changes.
+
 ## [0.7.0]
 
 ### Added
