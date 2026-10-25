@@ -63,6 +63,8 @@ Every exchange with a circuit has two halves. A `send_*` helper writes the comma
 
 On I2C, a read that comes too early raises `EzoNotReadyError` with the device's `last_status` at `DeviceStatus.NOT_READY`: the circuit is still working, so wait and read again. A read that gets `DeviceStatus.FAIL` or `DeviceStatus.NO_DATA` raises `EzoDeviceStatusError`, whose `status` says which. Both subclass `EzoProtocolError`, which still catches them; UART reads and other protocol failures raise `EzoProtocolError` itself.
 
+A transport failure raises `EzoTransportError` with three attributes, each `None` where unknown. `errno` is the OS error the Linux I2C transport recorded: for example `ENOENT` when `LinuxI2CDevice(bus, address)` names a bus with no `/dev/i2c-N`, or `EIO` for a short write. `bus` is the bus number given to `LinuxI2CDevice`, and `address` the device's I2C address. A fake I2C transport sets only `address`, and UART sets none of them. The message stays `transport failure`.
+
 ## I2C example
 
 ```python

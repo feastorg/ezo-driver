@@ -89,7 +89,7 @@ def build_calibration_command(point, reference_value: float, decimals: int = 2) 
 
 def _timed_send(func, device, *args) -> int:
     timing = ffi.new("ezo_timing_hint_t *")
-    raise_for_result(int(func(device, *args, timing)))
+    raise_for_result(int(func(device, *args, timing)), transport_device=device)
     return int(timing.wait_ms)
 
 

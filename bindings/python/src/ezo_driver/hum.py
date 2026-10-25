@@ -50,7 +50,7 @@ def build_temperature_calibration_command(temperature_c: float, decimals: int = 
 
 def _timed_send(func, device, *args) -> int:
     timing = ffi.new("ezo_timing_hint_t *")
-    raise_for_result(int(func(device, *args, timing)))
+    raise_for_result(int(func(device, *args, timing)), transport_device=device)
     return int(timing.wait_ms)
 
 
