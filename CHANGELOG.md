@@ -2,6 +2,12 @@
 
 All notable tracked changes to this rewrite will be recorded here.
 
+## [Unreleased]
+
+### Added
+
+- `ezo_linux_i2c_context_t` gains `last_errno`: the Linux I2C transport records the errno of a failed `ioctl(I2C_SLAVE)`, `write` or `read`, and `EIO` for a short write, which sets no errno; `ezo_linux_i2c_device_open_path()` and `ezo_linux_i2c_device_open_bus()` record the errno of a failed `open()`. A successful transport call or `ezo_linux_i2c_context_init()` sets it to 0 (#24)
+
 ## [0.7.1]
 
 ### Changed

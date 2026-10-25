@@ -1,6 +1,7 @@
 #include "ezo_i2c_linux_i2c.h"
 
 #include <assert.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -12,6 +13,7 @@ typedef struct {
   int ioctl_result;
   ssize_t write_result;
   ssize_t read_result;
+  int failure_errno;
   uint8_t read_bytes[32];
   size_t read_bytes_len;
   int ioctl_call_count;
@@ -44,6 +46,9 @@ int test_ioctl(int fd, unsigned long request, ...) {
   g_test_linux_syscalls.last_address = address;
   g_test_linux_syscalls.last_ioctl_request = request;
 
+  if (g_test_linux_syscalls.ioctl_result < 0) {
+    errno = g_test_linux_syscalls.failure_errno;
+  }
   return g_test_linux_syscalls.ioctl_result;
 }
 
@@ -56,6 +61,9 @@ ssize_t test_write(int fd, const void *buffer, size_t len) {
     memcpy(g_test_linux_syscalls.last_write_bytes, buffer, len);
   }
 
+  if (g_test_linux_syscalls.write_result < 0) {
+    errno = g_test_linux_syscalls.failure_errno;
+  }
   return g_test_linux_syscalls.write_result;
 }
 
@@ -66,6 +74,7 @@ ssize_t test_read(int fd, void *buffer, size_t len) {
   g_test_linux_syscalls.last_fd = fd;
 
   if (g_test_linux_syscalls.read_result < 0) {
+    errno = g_test_linux_syscalls.failure_errno;
     return g_test_linux_syscalls.read_result;
   }
 
@@ -99,6 +108,15 @@ static void test_context_init_rejects_invalid_arguments(void) {
   assert(ezo_linux_i2c_context_init(&context, -1) == EZO_ERR_INVALID_ARGUMENT);
 }
 
+static void test_context_init_clears_last_errno(void) {
+  ezo_linux_i2c_context_t context;
+
+  memset(&context, 0xFF, sizeof(context));
+  assert(ezo_linux_i2c_context_init(&context, 3) == EZO_OK);
+  assert(context.fd == 3);
+  assert(context.last_errno == 0);
+}
+
 static void test_transport_rejects_invalid_arguments(void) {
   ezo_linux_i2c_context_t context;
   const ezo_i2c_transport_t *transport = ezo_linux_i2c_transport();
@@ -122,11 +140,13 @@ static void test_transport_returns_transport_error_when_ioctl_fails(void) {
 
   reset_test_linux_syscalls();
   g_test_linux_syscalls.ioctl_result = -1;
+  g_test_linux_syscalls.failure_errno = EBUSY;
 
   assert(ezo_linux_i2c_context_init(&context, 5) == EZO_OK);
   assert(transport->write_then_read(&context, 100, &tx, 1, NULL, 0, &rx_received) ==
          EZO_ERR_TRANSPORT);
   assert(rx_received == 0);
+  assert(context.last_errno == EBUSY);
   assert(g_test_linux_syscalls.ioctl_call_count == 1);
   assert(g_test_linux_syscalls.last_ioctl_request == I2C_SLAVE);
   assert(g_test_linux_syscalls.last_address == 100);
@@ -144,6 +164,7 @@ static void test_transport_returns_transport_error_on_short_write(void) {
   g_test_linux_syscalls.write_result = 3;
 
   assert(ezo_linux_i2c_context_init(&context, 6) == EZO_OK);
+  errno = 0;
   assert(transport->write_then_read(&context,
                                     101,
                                     tx,
@@ -152,6 +173,7 @@ static void test_transport_returns_transport_error_on_short_write(void) {
                                     0,
                                     &rx_received) == EZO_ERR_TRANSPORT);
   assert(rx_received == 0);
+  assert(context.last_errno == EIO);
   assert(g_test_linux_syscalls.ioctl_call_count == 1);
   assert(g_test_linux_syscalls.last_ioctl_request == I2C_SLAVE);
   assert(g_test_linux_syscalls.last_address == 101);
@@ -159,6 +181,51 @@ static void test_transport_returns_transport_error_on_short_write(void) {
   assert(g_test_linux_syscalls.read_call_count == 0);
   assert(g_test_linux_syscalls.last_write_len == sizeof(tx));
   assert(memcmp(g_test_linux_syscalls.last_write_bytes, tx, sizeof(tx)) == 0);
+}
+
+static void test_transport_records_errno_when_write_fails(void) {
+  ezo_linux_i2c_context_t context;
+  const ezo_i2c_transport_t *transport = ezo_linux_i2c_transport();
+  const uint8_t tx[] = {'r'};
+  size_t rx_received = 99;
+
+  reset_test_linux_syscalls();
+  g_test_linux_syscalls.write_result = -1;
+  g_test_linux_syscalls.failure_errno = EREMOTEIO;
+
+  assert(ezo_linux_i2c_context_init(&context, 6) == EZO_OK);
+  assert(transport->write_then_read(&context,
+                                    101,
+                                    tx,
+                                    sizeof(tx),
+                                    NULL,
+                                    0,
+                                    &rx_received) == EZO_ERR_TRANSPORT);
+  assert(rx_received == 0);
+  assert(context.last_errno == EREMOTEIO);
+  assert(g_test_linux_syscalls.write_call_count == 1);
+  assert(g_test_linux_syscalls.read_call_count == 0);
+}
+
+static void test_transport_clears_last_errno_on_success(void) {
+  ezo_linux_i2c_context_t context;
+  const ezo_i2c_transport_t *transport = ezo_linux_i2c_transport();
+  const uint8_t tx[] = {'r'};
+  size_t rx_received = 99;
+
+  reset_test_linux_syscalls();
+  g_test_linux_syscalls.write_result = (ssize_t)sizeof(tx);
+
+  assert(ezo_linux_i2c_context_init(&context, 8) == EZO_OK);
+  context.last_errno = ENXIO;
+  assert(transport->write_then_read(&context,
+                                    102,
+                                    tx,
+                                    sizeof(tx),
+                                    NULL,
+                                    0,
+                                    &rx_received) == EZO_OK);
+  assert(context.last_errno == 0);
 }
 
 static void test_transport_supports_write_only_transactions(void) {
@@ -194,11 +261,13 @@ static void test_transport_returns_transport_error_on_read_failure(void) {
 
   reset_test_linux_syscalls();
   g_test_linux_syscalls.read_result = -1;
+  g_test_linux_syscalls.failure_errno = ENXIO;
 
   assert(ezo_linux_i2c_context_init(&context, 9) == EZO_OK);
   assert(transport->write_then_read(&context, 103, NULL, 0, rx, sizeof(rx), &rx_received) ==
          EZO_ERR_TRANSPORT);
   assert(rx_received == 0);
+  assert(context.last_errno == ENXIO);
   assert(g_test_linux_syscalls.ioctl_call_count == 1);
   assert(g_test_linux_syscalls.last_ioctl_request == I2C_SLAVE);
   assert(g_test_linux_syscalls.last_address == 103);
@@ -242,9 +311,12 @@ static void test_transport_reads_bytes_and_reports_actual_count(void) {
 
 int main(void) {
   test_context_init_rejects_invalid_arguments();
+  test_context_init_clears_last_errno();
   test_transport_rejects_invalid_arguments();
   test_transport_returns_transport_error_when_ioctl_fails();
   test_transport_returns_transport_error_on_short_write();
+  test_transport_records_errno_when_write_fails();
+  test_transport_clears_last_errno_on_success();
   test_transport_supports_write_only_transactions();
   test_transport_returns_transport_error_on_read_failure();
   test_transport_reads_bytes_and_reports_actual_count();
