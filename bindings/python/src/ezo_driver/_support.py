@@ -34,7 +34,7 @@ class _I2CDeviceBase:
         timing = ffi.new("ezo_timing_hint_t *")
         raise_for_result(
             int(lib.ezo_send_command(self._core, payload, _coerce_command_kind(kind), timing)),
-            transport_device=self._core,
+            device=self._core,
         )
         return int(timing.wait_ms)
 
@@ -57,20 +57,20 @@ class _I2CDeviceBase:
                     timing,
                 )
             ),
-            transport_device=self._core,
+            device=self._core,
         )
         return int(timing.wait_ms)
 
     def send_read(self) -> int:
         timing = ffi.new("ezo_timing_hint_t *")
-        raise_for_result(int(lib.ezo_send_read(self._core, timing)), transport_device=self._core)
+        raise_for_result(int(lib.ezo_send_read(self._core, timing)), device=self._core)
         return int(timing.wait_ms)
 
     def send_read_with_temp_comp(self, temperature_c: float, decimals: int = 2) -> int:
         timing = ffi.new("ezo_timing_hint_t *")
         raise_for_result(
             int(lib.ezo_send_read_with_temp_comp(self._core, float(temperature_c), int(decimals), timing)),
-            transport_device=self._core,
+            device=self._core,
         )
         return int(timing.wait_ms)
 

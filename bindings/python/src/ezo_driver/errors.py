@@ -92,16 +92,7 @@ def _raise_for_i2c_status(device, message: str) -> None:
         raise EzoDeviceStatusError(message, status)
 
 
-def raise_for_result(
-    result: int, *, message: str | None = None, device=None, transport_device=None
-) -> None:
-    """Raise the exception for a non-zero ``ezo_result_t``.
-
-    ``device`` is the I2C core a read used: its status picks the protocol
-    error subclass, and it fills in a transport error's details.
-    ``transport_device`` fills in only the transport details, for a send,
-    where the core's status is left over from an earlier read.
-    """
+def raise_for_result(result: int, *, message: str | None = None, device=None) -> None:
     if result == 0:
         return
     if result == 1:
@@ -109,7 +100,7 @@ def raise_for_result(
     if result == 2:
         raise EzoArgumentError(message or "buffer too small")
     if result == 3:
-        raise _transport_error(device if device is not None else transport_device, message or "transport failure")
+        raise _transport_error(device, message or "transport failure")
     if result == 4:
         _raise_for_i2c_status(device, message or "protocol failure")
         raise EzoProtocolError(message or "protocol failure")
