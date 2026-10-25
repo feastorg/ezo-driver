@@ -40,6 +40,48 @@ def test_linux_open_on_a_missing_bus_carries_errno_bus_and_address():
     assert raised.value.address == 0x63
 
 
+class _OpenPathInsteadOfBus:
+    """Stands in for the native lib in ``ezo_driver.i2c`` during one test.
+
+    ``ezo_linux_i2c_device_open_bus`` opens ``path`` with the real
+    ``ezo_linux_i2c_device_open_path`` instead of ``/dev/i2c-N``, so the real
+    constructor and the real Linux transport run on a host with no bus.
+    """
+
+    def __init__(self, path: bytes):
+        self.path = path
+
+    def __getattr__(self, name):
+        return getattr(lib, name)
+
+    def ezo_linux_i2c_device_open_bus(self, device, bus, address):
+        return lib.ezo_linux_i2c_device_open_path(device, self.path, address)
+
+
+@pytest.mark.skipif(not os.path.exists("/dev/null"), reason="needs /dev/null")
+@pytest.mark.parametrize(
+    "call",
+    [
+        pytest.param(lambda dev: dev.send_read(), id="send_read"),
+        pytest.param(lambda dev: dev.read_response(), id="read_response"),
+    ],
+)
+def test_linux_ioctl_failure_carries_the_kernel_errno(call, monkeypatch):
+    # ioctl(I2C_SLAVE) on a file that is not an I2C adapter fails with ENOTTY.
+    monkeypatch.setattr(i2c, "lib", _OpenPathInsteadOfBus(b"/dev/null"))
+    dev = LinuxI2CDevice(bus=4, address=0x61)
+
+    with pytest.raises(EzoTransportError) as raised:
+        call(dev)
+
+    assert type(raised.value) is EzoTransportError
+    assert str(raised.value) == "transport failure"
+    assert raised.value.errno == errno.ENOTTY
+    assert raised.value.bus == 4
+    assert raised.value.address == 0x61
+    dev.close()
+
+
 class _OpenOntoFakeTransport:
     """Stands in for the native lib in ``ezo_driver.i2c`` during one test.
 
