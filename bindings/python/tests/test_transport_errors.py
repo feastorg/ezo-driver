@@ -7,7 +7,7 @@ import os
 
 import pytest
 
-from ezo_driver import EzoError, EzoTransportError, LinuxI2CDevice, control, i2c, ph
+from ezo_driver import EzoError, EzoTransportError, LinuxI2CDevice, calibration_transfer, control, do, ec, hum, i2c, orp, ph, rtd
 from ezo_driver._ffi import lib
 from ezo_driver.enums import ProductId
 
@@ -20,11 +20,22 @@ MISSING_BUS = 999
 I2C_CALLS = [
     pytest.param(lambda dev: dev.send_read(), id="send_read"),
     pytest.param(lambda dev: dev.send_command("i"), id="send_command"),
+    pytest.param(lambda dev: dev.send_command_with_float("t,", 25.0), id="send_command_with_float"),
+    pytest.param(lambda dev: dev.send_read_with_temp_comp(25.0), id="send_read_with_temp_comp"),
     pytest.param(lambda dev: dev.read_response(), id="read_response"),
     pytest.param(ph.send_read_i2c, id="ph.send_read_i2c"),
     pytest.param(ph.read_response_i2c, id="ph.read_response_i2c"),
     pytest.param(lambda dev: control.send_info_query_i2c(dev, ProductId.PH), id="control.send_info_query_i2c"),
     pytest.param(control.read_info_i2c, id="control.read_info_i2c"),
+    pytest.param(
+        lambda dev: calibration_transfer.send_export_info_query_i2c(dev, ProductId.PH),
+        id="calibration_transfer.send_export_info_query_i2c",
+    ),
+    pytest.param(do.send_read_i2c, id="do.send_read_i2c"),
+    pytest.param(ec.send_read_i2c, id="ec.send_read_i2c"),
+    pytest.param(hum.send_read_i2c, id="hum.send_read_i2c"),
+    pytest.param(orp.send_read_i2c, id="orp.send_read_i2c"),
+    pytest.param(rtd.send_read_i2c, id="rtd.send_read_i2c"),
 ]
 
 
