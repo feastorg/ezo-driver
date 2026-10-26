@@ -1,12 +1,14 @@
 #include "ezo_linux_device.h"
 
 #include <assert.h>
+#include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 
 typedef struct {
   int open_result;
+  int open_errno;
   int close_result;
   int open_call_count;
   int close_call_count;
@@ -124,6 +126,7 @@ int ezo_fake_open(const char *path, int flags, ...) {
   g_i2c_io.last_flags = flags;
   strncpy(g_i2c_io.last_path, path, sizeof(g_i2c_io.last_path) - 1);
   if (g_i2c_io.open_result < 0) {
+    errno = g_i2c_io.open_errno;
     return g_i2c_io.open_result;
   }
   return g_i2c_io.next_fd;
@@ -194,7 +197,9 @@ static void test_i2c_reopen_failure_keeps_existing_fd_open(void) {
 
   assert(ezo_linux_i2c_device_open_path(&device, "/dev/i2c-7", 0x63) == EZO_OK);
   g_i2c_io.open_result = -1;
+  g_i2c_io.open_errno = EACCES;
   assert(ezo_linux_i2c_device_open_path(&device, "/dev/i2c-8", 0x64) == EZO_ERR_TRANSPORT);
+  assert(device.context.last_errno == EACCES);
   assert(g_i2c_io.open_call_count == 2);
   assert(g_i2c_io.close_call_count == 0);
   assert(device.context.fd == 17);
@@ -204,6 +209,32 @@ static void test_i2c_reopen_failure_keeps_existing_fd_open(void) {
   ezo_linux_i2c_device_close(&device);
   assert(g_i2c_io.close_call_count == 1);
   assert(g_i2c_io.last_closed_fd == 17);
+}
+
+static void test_i2c_open_failure_records_errno(void) {
+  ezo_linux_i2c_device_t device;
+
+  reset_test_state();
+  memset(&device, 0, sizeof(device));
+  g_i2c_io.open_result = -1;
+  g_i2c_io.open_errno = ENOENT;
+
+  assert(ezo_linux_i2c_device_open_bus(&device, 999, 0x63) == EZO_ERR_TRANSPORT);
+  assert(strcmp(g_i2c_io.last_path, "/dev/i2c-999") == 0);
+  assert(device.context.last_errno == ENOENT);
+}
+
+static void test_i2c_open_success_clears_last_errno(void) {
+  ezo_linux_i2c_device_t device;
+
+  reset_test_state();
+  memset(&device, 0, sizeof(device));
+  device.context.last_errno = ENOENT;
+
+  assert(ezo_linux_i2c_device_open_path(&device, "/dev/i2c-7", 0x63) == EZO_OK);
+  assert(device.context.last_errno == 0);
+
+  ezo_linux_i2c_device_close(&device);
 }
 
 static void test_uart_open_initializes_device_and_close_calls_serial_close(void) {
@@ -275,6 +306,8 @@ int main(void) {
   test_i2c_open_bus_formats_expected_path();
   test_i2c_reopen_closes_previous_fd_after_success();
   test_i2c_reopen_failure_keeps_existing_fd_open();
+  test_i2c_open_failure_records_errno();
+  test_i2c_open_success_clears_last_errno();
   test_uart_open_initializes_device_and_close_calls_serial_close();
   test_uart_reopen_closes_previous_session_after_success();
   test_uart_reopen_failure_keeps_existing_session_open();

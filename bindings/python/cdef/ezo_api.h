@@ -947,7 +947,7 @@ ezo_result_t ezo_hum_read_response_uart(ezo_uart_device_t *device, ezo_hum_outpu
 ezo_result_t ezo_hum_read_output_config_uart(ezo_uart_device_t *device, ezo_hum_output_config_t *config_out);
 ezo_result_t ezo_hum_read_temperature_calibration_status_uart(ezo_uart_device_t *device, ezo_hum_temperature_calibration_status_t *status_out);
 
-typedef struct { int fd; } ezo_linux_i2c_context_t;
+typedef struct { int fd; int last_errno; } ezo_linux_i2c_context_t;
 
 typedef struct {
   int fd;

@@ -2,6 +2,13 @@
 
 All notable tracked changes to this rewrite will be recorded here.
 
+## [Unreleased]
+
+### Added
+
+- `ezo_linux_i2c_context_t` gains `last_errno`: the Linux I2C transport records the errno of a failed `ioctl(I2C_SLAVE)`, `write` or `read`, and `EIO` for a short write, which sets no errno; `ezo_linux_i2c_device_open_path()` and `ezo_linux_i2c_device_open_bus()` record the errno of a failed `open()`. A successful transport call or `ezo_linux_i2c_context_init()` sets it to 0. The field makes `ezo_linux_i2c_context_t`, and `ezo_linux_i2c_device_t` that embeds it, larger, so C code built against the 0.7.1 header must be rebuilt (#24)
+- `EzoTransportError` gains `errno`, `bus` and `address` attributes, each `None` where unknown: a Linux I2C failure, from opening the bus or from any I2C send or read after it, sets all three, with `errno` from `last_errno`; a non-Linux I2C transport sets only `address`, and UART sets none. The class and the message (`transport failure`) are unchanged, so existing `except EzoTransportError` code still catches it (#24)
+
 ## [0.7.1]
 
 ### Changed

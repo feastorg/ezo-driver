@@ -1,5 +1,6 @@
 #include "ezo_i2c_linux_i2c.h"
 
+#include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -26,7 +27,10 @@ static ezo_result_t ezo_linux_write_then_read(void *context,
     return EZO_ERR_INVALID_ARGUMENT;
   }
 
+  linux_context->last_errno = 0;
+
   if (ioctl(linux_context->fd, I2C_SLAVE, address) < 0) {
+    linux_context->last_errno = errno;
     if (rx_received != NULL) {
       *rx_received = 0;
     }
@@ -36,6 +40,7 @@ static ezo_result_t ezo_linux_write_then_read(void *context,
   if (tx_len > 0) {
     io_result = write(linux_context->fd, tx_data, tx_len);
     if (io_result < 0 || (size_t)io_result != tx_len) {
+      linux_context->last_errno = io_result < 0 ? errno : EIO;
       if (rx_received != NULL) {
         *rx_received = 0;
       }
@@ -53,6 +58,7 @@ static ezo_result_t ezo_linux_write_then_read(void *context,
 
   io_result = read(linux_context->fd, rx_data, rx_len);
   if (io_result < 0) {
+    linux_context->last_errno = errno;
     return EZO_ERR_TRANSPORT;
   }
 
@@ -69,6 +75,7 @@ ezo_result_t ezo_linux_i2c_context_init(ezo_linux_i2c_context_t *context, int fd
   }
 
   context->fd = fd;
+  context->last_errno = 0;
   return EZO_OK;
 }
 

@@ -50,7 +50,7 @@ def build_extended_scale_command(enabled) -> str:
 
 def _timed_send(func, device, *args) -> int:
     timing = ffi.new("ezo_timing_hint_t *")
-    raise_for_result(int(func(device, *args, timing)))
+    raise_for_result(int(func(device, *args, timing)), device=device)
     return int(timing.wait_ms)
 
 

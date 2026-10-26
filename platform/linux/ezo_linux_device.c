@@ -1,5 +1,6 @@
 #include "ezo_linux_device.h"
 
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
@@ -88,6 +89,7 @@ ezo_result_t ezo_linux_i2c_device_open_path(ezo_linux_i2c_device_t *device,
 
   fd = open(path, O_RDWR);
   if (fd < 0) {
+    device->context.last_errno = errno;
     return EZO_ERR_TRANSPORT;
   }
 

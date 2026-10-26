@@ -37,6 +37,12 @@ def check_status_error(error: ezo_driver.EzoDeviceStatusError) -> None:
     assert_type(error.status, DeviceStatus)
 
 
+def check_transport_error(error: ezo_driver.EzoTransportError) -> None:
+    assert_type(error.errno, int | None)
+    assert_type(error.bus, int | None)
+    assert_type(error.address, int | None)
+
+
 def check_i2c(dev: LinuxI2CDevice) -> None:
     with dev as opened:
         assert_type(opened, LinuxI2CDevice)
