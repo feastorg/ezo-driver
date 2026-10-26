@@ -2,7 +2,7 @@
 
 All notable tracked changes to this rewrite will be recorded here.
 
-## [Unreleased]
+## [0.8.0]
 
 ### Added
 
