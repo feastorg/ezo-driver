@@ -119,7 +119,7 @@ jobs:
       # wheel per architecture, tested against the bindings tests inside the
       # manylinux container.
       - name: Build and test the wheel
-        uses: pypa/cibuildwheel@v4.3.1
+        uses: pypa/cibuildwheel@v4.3.4
 
       - uses: actions/upload-artifact@v7
         with:
@@ -258,6 +258,6 @@ jobs:
           merge-multiple: true
 
       - name: Publish
-        uses: pypa/gh-action-pypi-publish@v1.14.2
+        uses: pypa/gh-action-pypi-publish@v1.14.3
         with:
           print-hash: true
