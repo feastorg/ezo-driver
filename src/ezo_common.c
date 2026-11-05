@@ -173,14 +173,31 @@ ezo_result_t ezo_common_format_fixed_command(char *buffer,
   return ezo_common_append_uint64(buffer, buffer_len, &used, fractional_part, decimals);
 }
 
+/*
+ * The digits are gathered into one integer mantissa and scaled by a single
+ * multiplication or division by a power of ten. While the mantissa is at most
+ * 2^53 and the power at most 10^22, both operands are exact doubles, so the
+ * one IEEE-754 operation returns the nearest double to the decimal text. That
+ * covers every reply up to 15 significant digits without needing strtod(),
+ * which is not available on every embedded target. Where double is 32 bits,
+ * as on AVR, the same holds for a mantissa up to 2^24 and a power up to 10^10.
+ *
+ * Digits beyond what a uint64_t holds still count toward the magnitude but no
+ * longer toward the mantissa, so longer texts parse to a close but not
+ * necessarily nearest value.
+ */
 ezo_result_t ezo_common_parse_double(const char *buffer,
                                      size_t buffer_len,
                                      double *value_out) {
   size_t i = 0;
   int sign = 1;
   int saw_digit = 0;
+  uint64_t mantissa = 0;
+  long exponent = 0;
+  int mantissa_full = 0;
   double value = 0.0;
-  double fractional_scale = 0.1;
+  double scale = 1.0;
+  unsigned long scale_power = 0;
 
   if (buffer == NULL || value_out == NULL || buffer_len == 0) {
     return EZO_ERR_INVALID_ARGUMENT;
@@ -199,9 +216,11 @@ ezo_result_t ezo_common_parse_double(const char *buffer,
 
   while (i < buffer_len && isdigit((unsigned char)buffer[i])) {
     saw_digit = 1;
-    value = (value * 10.0) + (double)(buffer[i] - '0');
-    if (!isfinite(value)) {
-      return EZO_ERR_PARSE;
+    if (!mantissa_full && mantissa <= (UINT64_MAX - 9u) / 10u) {
+      mantissa = (mantissa * 10u) + (uint64_t)(buffer[i] - '0');
+    } else {
+      mantissa_full = 1;
+      exponent += 1;
     }
     i += 1;
   }
@@ -210,11 +229,12 @@ ezo_result_t ezo_common_parse_double(const char *buffer,
     i += 1;
     while (i < buffer_len && isdigit((unsigned char)buffer[i])) {
       saw_digit = 1;
-      value += (double)(buffer[i] - '0') * fractional_scale;
-      if (!isfinite(value)) {
-        return EZO_ERR_PARSE;
+      if (!mantissa_full && mantissa <= (UINT64_MAX - 9u) / 10u) {
+        mantissa = (mantissa * 10u) + (uint64_t)(buffer[i] - '0');
+        exponent -= 1;
+      } else {
+        mantissa_full = 1;
       }
-      fractional_scale *= 0.1;
       i += 1;
     }
   }
@@ -228,6 +248,19 @@ ezo_result_t ezo_common_parse_double(const char *buffer,
       return EZO_ERR_PARSE;
     }
     i += 1;
+  }
+
+  scale_power = (unsigned long)(exponent < 0 ? -exponent : exponent);
+  while (scale_power > 0 && isfinite(scale)) {
+    scale *= 10.0;
+    scale_power -= 1;
+  }
+
+  value = (double)mantissa;
+  if (exponent < 0) {
+    value /= scale;
+  } else {
+    value *= scale;
   }
 
   if (sign < 0) {

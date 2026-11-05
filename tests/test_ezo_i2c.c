@@ -358,6 +358,46 @@ static void test_parse_double_accepts_signed_decimal_with_spaces(void) {
   assert(value < -12.49 && value > -12.51);
 }
 
+static void assert_read_response_parses_to(const char *text, double expected) {
+  uint8_t response[16];
+  ezo_fake_i2c_transport_t fake;
+  ezo_i2c_device_t device;
+  ezo_device_status_t status = EZO_STATUS_UNKNOWN;
+  ezo_result_t result;
+  char buffer[16];
+  size_t text_len = strlen(text);
+  size_t response_len = 0;
+  double value = 0.0;
+
+  assert(text_len + 2 <= sizeof(response));
+  response[0] = 1;
+  memcpy(&response[1], text, text_len);
+  response[text_len + 1] = 0;
+
+  ezo_fake_i2c_transport_init(&fake);
+  ezo_fake_i2c_transport_set_response(&fake, response, text_len + 2);
+  result = ezo_device_init(&device, 100, ezo_fake_i2c_transport_vtable(), &fake);
+  assert(result == EZO_OK);
+
+  result = ezo_read_response(&device, buffer, sizeof(buffer), &response_len, &status);
+  assert(result == EZO_OK);
+  assert(status == EZO_STATUS_SUCCESS);
+  assert(response_len == text_len);
+
+  result = ezo_parse_double(buffer, response_len, &value);
+  assert(result == EZO_OK);
+  /* Exact: the reply must decode to the double nearest its decimal text. */
+  assert(value == expected);
+}
+
+static void test_read_response_parses_to_nearest_double(void) {
+  /* Replies captured from pH (firmware 2.15) and DO (2.17) circuits. */
+  assert_read_response_parses_to("6.079", 6.079);
+  assert_read_response_parses_to("5.32", 5.32);
+  assert_read_response_parses_to("0.88", 0.88);
+  assert_read_response_parses_to("0.68", 0.68);
+}
+
 static void test_read_response_rejects_oversized_text_buffer(void) {
   ezo_fake_i2c_transport_t fake;
   ezo_i2c_device_t device;
@@ -398,6 +438,7 @@ int main(void) {
   test_transport_failure_is_not_device_status();
   test_parse_double_rejects_trailing_garbage();
   test_parse_double_accepts_signed_decimal_with_spaces();
+  test_read_response_parses_to_nearest_double();
   test_read_response_rejects_oversized_text_buffer();
   return 0;
 }

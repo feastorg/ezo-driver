@@ -4,6 +4,11 @@
 #include "ezo_schema.h"
 
 #include <assert.h>
+#include <float.h>
+#include <math.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static void test_parse_csv_fields_trims_and_preserves_empty_fields(void) {
@@ -215,6 +220,122 @@ static void test_product_resolve_timing_hint_prefers_metadata_and_falls_back(voi
   assert(hint.wait_ms == 1000);
 }
 
+/*
+ * The oracle below is the host C library's strtod(), which glibc and the
+ * Windows UCRT round correctly. It is used here only; the driver itself must
+ * stay free of strtod() so it builds on Arduino targets.
+ */
+static void format_scaled_decimal(char *text,
+                                  size_t text_len,
+                                  int negative,
+                                  uint64_t mantissa,
+                                  unsigned decimals) {
+  uint64_t scale = 1;
+  unsigned i;
+  int written;
+
+  for (i = 0; i < decimals; ++i) {
+    scale *= 10u;
+  }
+
+  if (decimals == 0) {
+    written = snprintf(text, text_len, "%s%llu", negative ? "-" : "",
+                       (unsigned long long)mantissa);
+  } else {
+    written = snprintf(text, text_len, "%s%llu.%0*llu", negative ? "-" : "",
+                       (unsigned long long)(mantissa / scale), (int)decimals,
+                       (unsigned long long)(mantissa % scale));
+  }
+  assert(written > 0 && (size_t)written < text_len);
+}
+
+static void assert_parse_double_matches_strtod(const char *text) {
+  double parsed = 0.0;
+  double expected = strtod(text, NULL);
+
+  if (ezo_parse_double(text, strlen(text), &parsed) != EZO_OK ||
+      memcmp(&parsed, &expected, sizeof(parsed)) != 0) {
+    fprintf(stderr, "ezo_parse_double(\"%s\") = %.17g, nearest double is %.17g\n",
+            text, parsed, expected);
+    assert(0);
+  }
+}
+
+static void test_parse_double_is_nearest_for_cited_replies(void) {
+  double value = 0.0;
+
+  assert(ezo_parse_double("6.079", 5, &value) == EZO_OK && value == 6.079);
+  assert(ezo_parse_double("5.32", 4, &value) == EZO_OK && value == 5.32);
+  assert(ezo_parse_double("0.88", 4, &value) == EZO_OK && value == 0.88);
+  assert(ezo_parse_double("0.68", 4, &value) == EZO_OK && value == 0.68);
+}
+
+static void test_parse_double_is_nearest_over_reply_range(void) {
+  /*
+   * Every decimal text with up to seven significant digits (below 2000000)
+   * and up to six decimal places. That covers each circuit's reply format,
+   * e.g. RTD "1254.000", EC "200000", pH "14.000", ORP "-1019.9".
+   * Odd mantissas carry a minus sign so both signs are exercised.
+   */
+  char text[32];
+  unsigned decimals;
+  uint64_t mantissa;
+
+  for (decimals = 0; decimals <= 6; ++decimals) {
+    for (mantissa = 0; mantissa < 2000000u; ++mantissa) {
+      format_scaled_decimal(text, sizeof(text), (int)(mantissa & 1u), mantissa, decimals);
+      assert_parse_double_matches_strtod(text);
+    }
+  }
+}
+
+static uint64_t splitmix64(uint64_t *state) {
+  uint64_t z = (*state += UINT64_C(0x9E3779B97F4A7C15));
+  z = (z ^ (z >> 30)) * UINT64_C(0xBF58476D1CE4E5B9);
+  z = (z ^ (z >> 27)) * UINT64_C(0x94D049BB133111EB);
+  return z ^ (z >> 31);
+}
+
+static void test_parse_double_is_nearest_up_to_fifteen_digits(void) {
+  /* Deterministic sample of 15-significant-digit texts, 0 to 15 decimals. */
+  uint64_t state = 32u;
+  char text[40];
+  int i;
+
+  for (i = 0; i < 1000000; ++i) {
+    uint64_t mantissa = splitmix64(&state) % UINT64_C(1000000000000000);
+    unsigned decimals = (unsigned)(splitmix64(&state) % 16u);
+    format_scaled_decimal(text, sizeof(text), i & 1, mantissa, decimals);
+    assert_parse_double_matches_strtod(text);
+  }
+
+  assert_parse_double_matches_strtod("9007199254740992");
+  assert_parse_double_matches_strtod("9007199254.740992");
+  assert_parse_double_matches_strtod("0.0000000000000000000001");
+  assert_parse_double_matches_strtod("1234567890123456789012");
+  assert_parse_double_matches_strtod("007.120");
+  assert_parse_double_matches_strtod(".5");
+  assert_parse_double_matches_strtod("5.");
+}
+
+static void test_parse_double_long_texts_stay_close(void) {
+  /* Beyond the exact range the result is still within a few ulp. */
+  static const char *const texts[] = {
+    "12345678901234567890123456789",
+    "0.12345678901234567890123456789",
+    "98765432109876543210.0123456789",
+    "0.000000000000000000000000000001"
+  };
+  size_t i;
+
+  for (i = 0; i < sizeof(texts) / sizeof(texts[0]); ++i) {
+    double parsed = 0.0;
+    double expected = strtod(texts[i], NULL);
+    assert(ezo_parse_double(texts[i], strlen(texts[i]), &parsed) == EZO_OK);
+    assert(fabs(parsed - expected) <= fabs(expected) * DBL_EPSILON * 4.0);
+  }
+}
+
 int main(void) {
   test_result_name_maps_public_results();
   test_parse_csv_fields_trims_and_preserves_empty_fields();
@@ -230,5 +351,9 @@ int main(void) {
   test_schema_parse_multi_output_reading_with_sparse_mask();
   test_schema_parse_multi_output_reading_rejects_field_count_mismatch();
   test_product_resolve_timing_hint_prefers_metadata_and_falls_back();
+  test_parse_double_is_nearest_for_cited_replies();
+  test_parse_double_is_nearest_over_reply_range();
+  test_parse_double_is_nearest_up_to_fifteen_digits();
+  test_parse_double_long_texts_stay_close();
   return 0;
 }

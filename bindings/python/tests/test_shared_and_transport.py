@@ -73,6 +73,11 @@ def test_uart_read_line_raises_on_oversized_payload():
         dev.read_line()
 
 
+def test_parse_double_returns_the_nearest_double():
+    for text in ("6.079", "5.32", "0.88", "0.68", "0.3", "-1019.9", "1254.000"):
+        assert base.parse_double(text) == float(text)
+
+
 def test_base_product_parse_and_schema_helpers_cover_shared_surface():
     assert base.get_timing_hint_for_command_kind(CommandKind.READ) == 1000
     assert base.result_name(enums.ResultCode.OK) == "EZO_OK"
