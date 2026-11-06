@@ -2,6 +2,12 @@
 
 All notable tracked changes to this rewrite will be recorded here.
 
+## [Unreleased]
+
+### Fixed
+
+- `ezo_parse_double()`, and every typed read built on it, returns the nearest double to the reply text: it gathers all the digits into one integer and scales it by a single multiplication or division by a power of ten, instead of adding each fractional digit times a running `0.1` scale. Replies such as `6.079`, `5.32`, `0.88` and `0.68` decoded one or two units in the last place off, so they printed digits the circuit never sent and failed an equality check against the reply text; about 27% of texts with up to seven significant digits and six decimals were affected. The result is exact for up to 15 significant digits and 22 decimal places, and the parser still does not use `strtod()` (#32)
+
 ## [0.8.0]
 
 ### Added
