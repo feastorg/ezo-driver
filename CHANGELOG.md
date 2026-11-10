@@ -2,6 +2,12 @@
 
 All notable tracked changes to this rewrite will be recorded here.
 
+## [Unreleased]
+
+### Documentation
+
+- each `docs/ezo/products/*.md` page has a firmware caveats section: the minimum version for the helpers that need one and the known issues below a fixed version; `docs/support-matrix.md` gains the firmware for each product's full surface; `docs/ezo/common/i2c.md` warns against I2C `Sleep` below pH 2.16, ORP 2.13 and EC 2.12 (#33)
+
 ## [0.8.1]
 
 ### Fixed

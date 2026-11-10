@@ -87,6 +87,24 @@ RTD follows the same "never do a blind calibration" rule as the other products. 
 
 Vendor guidance is unusually explicit here: recalibration is generally recommended about every three years rather than on every maintenance cycle.
 
+## Firmware Caveats
+
+Read the circuit's firmware with `i` before relying on a feature that arrived late. These versions come from the vendor's firmware changelog; none of them has been checked on a circuit.
+
+Minimum firmware for the helpers that need one:
+
+- protocol lock: `1.02`
+- find, and calibration export and import: `2.10`
+- the `*OK` and `Baud` commands: `2.01`; older firmware named them `response` and `Serial`
+
+Known issues below the version that fixed them:
+
+- below `2.15`: the changelog lists sleep improvements at `2.15`
+- below `2.11`: the first reading after boot could be `-1024`
+- below `2.02`: calibration did not accept floating-point values
+- below `1.11`: a blank name could produce garbage output
+- below `1.03`: losing power 900 ms into startup could erase the EEPROM
+
 ## Timing Notes
 
 The generic repo read hint is conservative for RTD and broadly safe across the vendor timing views. Logger and memory operations should still be treated as their own product behaviors rather than folded into the normal read path.

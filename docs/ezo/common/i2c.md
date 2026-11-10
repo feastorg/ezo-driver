@@ -68,6 +68,16 @@ Some command families can reboot the board, change protocol state, or enter slee
 
 Those cases belong to product or protocol-control logic above the raw I2C transport surface.
 
+## Sleep Over I2C
+
+`Sleep` gets no response over I2C, and any later command is meant to wake the circuit. On older firmware that does not always hold, so read `i` first and do not send `Sleep` over I2C below pH `2.16`, ORP `2.13` or EC `2.12`.
+
+- On a pH circuit at `2.15`, I2C `Sleep` left it unreachable: every later command and raw write was NACKed until a power cycle, and its calibration survived (#33).
+- The vendor changelogs list fixes at pH `2.16` and ORP `2.13` (I2C timing and sleep) and EC `2.12` (the circuit could wake at a different I2C address). That those versions cure the failure above is read from the changelogs, not tested.
+- A DO circuit reporting `2.17` woke on the first command.
+
+The driver sends `Sleep` on every version and does not check firmware.
+
 ## Repo Implications
 
 The current I2C layer intentionally keeps these boundaries:

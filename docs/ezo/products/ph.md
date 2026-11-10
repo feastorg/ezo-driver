@@ -140,6 +140,24 @@ Do not over-interpret a poor slope result as automatic probe failure. Contaminat
 - Arduino staged example: `examples/arduino/i2c/advanced/ph_calibration/ph_calibration.ino`
 - Calibration transfer helpers: `src/ezo_calibration_transfer.h`
 
+## Firmware Caveats
+
+Read the circuit's firmware with `i` before relying on a feature that arrived late. These versions come from the vendor's firmware changelog; only the Sleep behaviour on `2.15` has been checked on a circuit.
+
+Minimum firmware for the helpers that need one:
+
+- protocol lock: `1.95`
+- find, and calibration export and import: `2.10`
+- read with temperature compensation (`RT`): `2.12`
+- extended range (`pHext`): `2.14`
+
+Known issues below the version that fixed them:
+
+- below `2.16`: a bug in I2C timing and sleep. On `2.15`, I2C `Sleep` left a circuit unreachable until it was power-cycled (#33); see [`../common/i2c.md`](../common/i2c.md#sleep-over-i2c). `2.17` lists further sleep improvements
+- below `2.13`: the changelog adds the calibration offset to the slope at this version, so the third `Slope` field may be absent on older firmware. Not tested
+- below `2.12`: `Cal,clear` did not clear the stored calibration
+- below `1.96`: losing power 900 ms into startup could erase the EEPROM
+
 ## Timing Notes
 
 The vendor material for pH reads is slightly context-dependent, but it stays below the generic `1000 ms` fallback in [`src/ezo.c`](../../src/ezo.c). The current repo hint remains acceptable as a conservative default, but product-aware code should prefer the pH-specific expectation.

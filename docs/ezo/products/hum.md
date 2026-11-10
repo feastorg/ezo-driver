@@ -89,6 +89,12 @@ The documented I2C processing delay for this family is `300 ms`.
 
 This calibration path exists because humidity is temperature-sensitive. It does not mean the device expects routine user humidity calibration in the same way pH, ORP, EC, DO, or RTD do.
 
+## Firmware Caveats
+
+Read the circuit's firmware with `i` before relying on a feature that arrived late. These versions come from the vendor's firmware changelog; it has not been checked on a circuit.
+
+The temperature calibration helpers (`Tcal`) need firmware `1.1`. The EZO-HUM-C changelog lists it as `1.1` and the embedded-probe changelog as `1.01`, both dated March 2024, so check what your circuit reports.
+
 ## Timing Notes
 
 HUM is the strongest example of a transport-specific timing difference in the current product set:

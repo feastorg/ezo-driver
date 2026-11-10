@@ -140,6 +140,24 @@ EC must not be calibrated on a moving value. The vendor guidance explicitly warn
 
 The vendor position here is stronger than for most sensor types: a properly calibrated conductivity probe usually does not need routine recalibration. Recalibration is more likely after things that change the electrical characteristics of the system, such as changing cable length or moving the probe and circuit into a different machine or electrical environment.
 
+## Firmware Caveats
+
+Read the circuit's firmware with `i` before relying on a feature that arrived late. These versions come from the vendor's firmware changelog; none of them has been checked on a circuit.
+
+Minimum firmware for the helpers that need one:
+
+- protocol lock: `1.95`
+- find, and calibration export and import: `2.10`
+- read with temperature compensation (`RT`): `2.13`
+- probe `K` values down to `0.01`: `2.14`
+
+Known issues below the version that fixed them:
+
+- below `2.12`: a circuit could wake from sleep at a different I2C address; see [`../common/i2c.md`](../common/i2c.md#sleep-over-i2c). `2.17` lists further sleep improvements
+- below `2.11`: `Sleep` could draw excessive current
+- below `2.15`: output did not always round to `0`
+- below `1.96`: losing power 900 ms into startup could erase the EEPROM
+
 ## Timing Notes
 
 The current repo read fallback of `1000 ms` is conservative for EC reads. Product-aware callers can usually wait less than that, but exact timing should still be treated as command-specific for calibration and control operations.

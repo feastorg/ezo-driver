@@ -91,6 +91,23 @@ Vendor guidance is at least annual calibration. If the application spends long p
 - Arduino staged example: `examples/arduino/i2c/advanced/orp_calibration/orp_calibration.ino`
 - Calibration transfer helpers: `src/ezo_calibration_transfer.h`
 
+## Firmware Caveats
+
+Read the circuit's firmware with `i` before relying on a feature that arrived late. These versions come from the vendor's firmware changelog; none of them has been checked on a circuit.
+
+Minimum firmware for the helpers that need one:
+
+- protocol lock: `1.95`
+- find, and calibration export and import: `2.10`
+- extended range (`ORPext`): `2.14`
+
+Known issues below the version that fixed them:
+
+- below `2.13`: a bug in I2C timing and sleep, the same entry as pH `2.16`; see [`../common/i2c.md`](../common/i2c.md#sleep-over-i2c)
+- below `2.11`: a cleared calibration could come back after a restart
+- below `1.97`: a bug in `Cal,clear`
+- below `1.96`: losing power 900 ms into startup could erase the EEPROM
+
 ## Timing Notes
 
 The broad repo read hint of `1000 ms` matches the product summary well enough for ORP. That makes ORP a good example of where the generic timing hint is conservative but not misleading.

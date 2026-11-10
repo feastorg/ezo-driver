@@ -32,14 +32,16 @@ Future family onboarding follows [`docs/product-onboarding.md`](./product-onboar
 
 ## Product Matrix
 
-| Product | Tier | Typed Reads | Shared Control | Calibration Transfer | Product-Specific Advanced Surface |
-| --- | --- | --- | --- | --- | --- |
-| pH | `FULL` | yes | yes | yes | temperature compensation, calibration, slope, extended range |
-| ORP | `FULL` | yes | yes | yes | calibration, extended range |
-| EC | `FULL` | yes | yes | yes | output config, temperature, probe `K`, TDS factor, calibration |
-| DO | `FULL` | yes | yes | yes | output config, temperature, salinity, pressure, calibration |
-| RTD | `FULL` | yes | yes | yes | scale, logger, sequential memory, bulk memory, calibration |
-| HUM | `FULL` | yes | yes | no | output config, temperature calibration |
+| Product | Tier | Typed Reads | Shared Control | Calibration Transfer | Product-Specific Advanced Surface | Firmware For The Full Surface |
+| --- | --- | --- | --- | --- | --- | --- |
+| pH | `FULL` | yes | yes | yes | temperature compensation, calibration, slope, extended range | `2.14` |
+| ORP | `FULL` | yes | yes | yes | calibration, extended range | `2.14` |
+| EC | `FULL` | yes | yes | yes | output config, temperature, probe `K`, TDS factor, calibration | `2.14` |
+| DO | `FULL` | yes | yes | yes | output config, temperature, salinity, pressure, calibration | `2.13` |
+| RTD | `FULL` | yes | yes | yes | scale, logger, sequential memory, bulk memory, calibration | `2.10` |
+| HUM | `FULL` | yes | yes | no | output config, temperature calibration | `1.1` |
+
+The firmware column is the version the vendor's changelog gives for the newest command in that surface. Older firmware can still take readings. Each product page in [`docs/ezo/products/`](./ezo/products/) lists the minimum per helper and the known issues.
 
 ## Transport And Platform Matrix
 

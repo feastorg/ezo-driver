@@ -128,6 +128,23 @@ This is only needed when the operating temperature is materially different from 
 
 DO calibration is extremely sensitive to blind calibration. If the reading is still walking when you issue `Cal` or `Cal,0`, the post-calibration output will drift instead of staying fixed.
 
+## Firmware Caveats
+
+Read the circuit's firmware with `i` before relying on a feature that arrived late. These versions come from the vendor's firmware changelog; only Sleep and wake on `2.17` has been checked on a circuit.
+
+Minimum firmware for the helpers that need one:
+
+- protocol lock: `1.95`
+- find, and calibration export and import: `2.10`
+- read with temperature compensation (`RT`): `2.13`
+
+Known issues below the version that fixed them:
+
+- below `2.16`: the changelog lists sleep improvements at `2.16`. A circuit reporting `2.17`, newer than the last changelog entry, woke normally on the first command ([bench record](../../bench/2026-11-01-ezo-ph-do.md))
+- below `2.14`: the output buffer could overflow when the `Cal` and `Cal,0` points were too close together
+- below `2.11`: temperature compensation could default to `0` at startup
+- below `1.96`: losing power 900 ms into startup could erase the EEPROM
+
 ## Timing Notes
 
 The generic repo read hint is conservative for normal DO reads. Calibration and compensation changes should still be treated as command-specific operations rather than inferred from the measurement timing alone.
