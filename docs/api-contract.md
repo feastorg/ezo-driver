@@ -10,6 +10,7 @@ Source of truth:
 - DO product API: `src/ezo_do.h`
 - EC product API: `src/ezo_ec.h`
 - HUM product API: `src/ezo_hum.h`
+- O2 product API: `src/ezo_o2.h`
 - shared parse API: `src/ezo_parse.h`
 - shared schema API: `src/ezo_schema.h`
 - I2C C API: `src/ezo_i2c.h`

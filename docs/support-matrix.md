@@ -41,7 +41,7 @@ Future family onboarding follows [`docs/product-onboarding.md`](./product-onboar
 | RTD | `FULL` | yes | yes | yes | scale, logger, sequential memory, bulk memory, calibration | `2.10` |
 | HUM | `FULL` | yes | yes | no | output config, temperature calibration | `1.1` |
 | CO2 | `METADATA` | no | no | no | none | none |
-| O2 | `METADATA` | no | no | no | none | none |
+| O2 | `TYPED_READ` | yes | no | no | output config, temperature compensation | none |
 | RGB | `METADATA` | no | no | no | none | none |
 | PRS | `METADATA` | no | no | no | none | none |
 | FLO | `METADATA` | no | no | no | none | none |

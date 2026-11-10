@@ -29,6 +29,7 @@ HEADERS = [
     "ezo_ec.h",
     "ezo_do.h",
     "ezo_hum.h",
+    "ezo_o2.h",
     "ezo_linux_device.h",
 ]
 INCLUDE_DIRS = [str(REPO_ROOT), str(SRC_DIR), str(LINUX_DIR)]
