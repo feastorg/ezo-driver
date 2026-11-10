@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from ._ffi import ffi, lib
 from .enums import (
+    ResultCode,
     DeviceStatus,
     DOOutputMask,
     DOSalinityUnit,
@@ -22,6 +23,7 @@ from .enums import (
 )
 from .errors import raise_for_result
 from .types import (
+    FirmwareVersion,
     CalibrationExportInfo,
     CalibrationImportResult,
     ControlBaudStatus,
@@ -145,11 +147,22 @@ def timing_profile_from_c(raw) -> ProductTimingProfile:
     )
 
 
+def firmware_version_to_c(version: FirmwareVersion):
+    return ffi.new("ezo_firmware_version_t *", (version.major, version.minor))
+
+
 def device_info_from_c(raw) -> DeviceInfo:
+    firmware_version = decode_cstr(raw.firmware_version)
+    payload = firmware_version.encode("ascii", "replace")
+    parsed = ffi.new("ezo_firmware_version_t *")
+    firmware = None
+    if int(lib.ezo_parse_firmware_version(payload, len(payload), parsed)) == int(ResultCode.OK):
+        firmware = FirmwareVersion(int(parsed.major), int(parsed.minor_hundredths))
     return DeviceInfo(
         product_id=ProductId(int(raw.product_id)),
         product_code=decode_cstr(raw.product_code),
-        firmware_version=decode_cstr(raw.firmware_version),
+        firmware_version=firmware_version,
+        firmware=firmware,
     )
 
 

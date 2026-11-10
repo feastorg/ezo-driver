@@ -76,7 +76,7 @@ Those cases belong to product or protocol-control logic above the raw I2C transp
 - The vendor changelogs list fixes at pH `2.16` and ORP `2.13` (I2C timing and sleep) and EC `2.12` (the circuit could wake at a different I2C address). That those versions cure the failure above is read from the changelogs, not tested.
 - A DO circuit reporting `2.17` woke on the first command.
 
-The driver sends `Sleep` on every version and does not check firmware.
+The driver sends `Sleep` on every version and does not check firmware. To decide for yourself, read `i` and ask `ezo_product_firmware_has_issue()` with `EZO_FIRMWARE_ISSUE_I2C_SLEEP_WAKE`.
 
 ## Repo Implications
 

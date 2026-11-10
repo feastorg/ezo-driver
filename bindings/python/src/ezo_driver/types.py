@@ -31,11 +31,20 @@ class ProductTimingProfile:
     calibration_ms: int
 
 
+@dataclass(frozen=True, order=True)
+class FirmwareVersion:
+    """A firmware version as a decimal: "1.1" and "1.10" are both ``FirmwareVersion(1, 10)``."""
+
+    major: int
+    minor: int
+
+
 @dataclass(frozen=True)
 class DeviceInfo:
     product_id: ProductId
     product_code: str
     firmware_version: str
+    firmware: FirmwareVersion | None = None
 
 
 @dataclass(frozen=True)

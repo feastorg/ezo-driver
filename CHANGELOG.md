@@ -4,6 +4,11 @@ All notable tracked changes to this rewrite will be recorded here.
 
 ## [Unreleased]
 
+### Added
+
+- `ezo_parse_firmware_version()` and `ezo_firmware_version_compare()` read and compare firmware versions as decimals, so `1.1` equals `1.10` and is above `1.05`; `ezo_product_firmware_has_feature()` and `ezo_product_firmware_has_issue()` answer from a table of the vendor firmware changelogs for Find, calibration export and import, protocol lock, `RT`, the extended pH and ORP ranges and HUM `Tcal`, and for the I2C sleep-wake bug on pH, ORP and EC and the RTD first-reading bug. A feature or issue that does not apply to a product is false. No send helper consults the table, so the core behaves the same on every version (#34)
+- Python: `FirmwareVersion`, `FirmwareFeature`, `FirmwareIssue`, `DeviceInfo.firmware` and `product.parse_firmware_version()`, `product.firmware_has_feature()` and `product.firmware_has_issue()` (#34)
+
 ### Documentation
 
 - each `docs/ezo/products/*.md` page has a firmware caveats section: the minimum version for the helpers that need one and the known issues below a fixed version; `docs/support-matrix.md` gains the firmware for each product's full surface; `docs/ezo/common/i2c.md` warns against I2C `Sleep` below pH 2.16, ORP 2.13 and EC 2.12 (#33)
