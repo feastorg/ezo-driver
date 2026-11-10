@@ -14,6 +14,7 @@ Inside `src/`:
 - `ezo_ec.h`, `ezo_ec.c`: typed EC product module
 - `ezo_hum.h`, `ezo_hum.c`: typed HUM product module
 - `ezo_o2.h`, `ezo_o2.c`: typed O2 product module
+- `ezo_co2.h`, `ezo_co2.c`: typed CO2 product module
 - `ezo_i2c.h`, `ezo_i2c.c`: I2C C core
 - `ezo_i2c.hpp`: thin I2C C++ wrapper
 - `ezo_i2c_arduino_wire.h`, `ezo_i2c_arduino_wire.cpp`: Arduino `TwoWire` I2C adapter

@@ -8,6 +8,7 @@ from .enums import (
     DOSalinityUnit,
     ECOutputMask,
     HUMOutputMask,
+    CO2OutputMask,
     O2OutputMask,
     MeasurementField,
     ORPExtendedScale,
@@ -47,6 +48,8 @@ from .types import (
     EcTdsFactor,
     EcTemperatureCompensation,
     HumOutputConfig,
+    CO2OutputConfig,
+    CO2Reading,
     O2OutputConfig,
     O2Reading,
     O2TemperatureCompensation,
@@ -390,6 +393,19 @@ def do_calibration_status_from_c(raw) -> DoCalibrationStatus:
     return DoCalibrationStatus(level=int(raw.level))
 
 
+def co2_reading_from_c(raw) -> CO2Reading:
+    return CO2Reading(
+        present_mask=CO2OutputMask(int(raw.present_mask)),
+        ppm=float(raw.ppm),
+        internal_temperature_c=float(raw.internal_temperature_c),
+        warming=bool(raw.warming),
+    )
+
+
+def co2_output_config_from_c(raw) -> CO2OutputConfig:
+    return CO2OutputConfig(enabled_mask=CO2OutputMask(int(raw.enabled_mask)))
+
+
 def o2_reading_from_c(raw) -> O2Reading:
     return O2Reading(
         present_mask=O2OutputMask(int(raw.present_mask)),
@@ -477,6 +493,8 @@ __all__ = [
     "do_salinity_compensation_from_c",
     "do_pressure_compensation_from_c",
     "do_calibration_status_from_c",
+    "co2_reading_from_c",
+    "co2_output_config_from_c",
     "o2_reading_from_c",
     "o2_output_config_from_c",
     "o2_temperature_compensation_from_c",

@@ -46,6 +46,7 @@
     "ezo_ec.h",
     "ezo_hum.h",
     "ezo_o2.h",
+    "ezo_co2.h",
     "ezo_i2c.h",
     "ezo_i2c.hpp",
     "ezo_i2c_arduino_wire.h",

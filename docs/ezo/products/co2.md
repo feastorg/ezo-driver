@@ -8,7 +8,7 @@ This page captures the repo-relevant behavior of the EZO carbon dioxide family.
 
 ## Repo Status
 
-This family is at the `METADATA` tier: the driver identifies it from `i` and records its default address and timing. There are no typed reads or product helpers; use the raw transport APIs. The firmware lookup in `src/ezo_product.h` does not cover it.
+This family is at the `TYPED_READ` tier. `src/ezo_co2.h` covers `R` and `O` over I2C and UART. Calibration and `Alarm` are deferred; use the raw transport APIs for those. The firmware lookup in `src/ezo_product.h` does not cover it. None of this has been run on a circuit.
 
 ## Product Summary
 
@@ -21,7 +21,9 @@ This family is at the `METADATA` tier: the driver identifies it from `i` and rec
 
 ## Measurement Model
 
-A reading is one CO2 value in ppm. `O,t,1` adds the internal temperature to the output string, and that is off by default, so the default output is one field.
+A reading is one CO2 value in ppm. `O,t,1` adds the internal temperature to the output string, and that is off by default, so the default output is one field. No datasheet page prints a two-value reading; the driver parses it as ppm, then temperature, inferred from the `?O,ppm,t` query reply. Confirm that on a circuit before relying on it.
+
+For the 10 s after power-up or wake the circuit outputs `*warm`. The read helpers return success with `warming` set and no outputs present. Whether `*OK` follows `*warm` over UART is not printed; the UART reader expects it to, as for any reading.
 
 ## Timing Notes
 

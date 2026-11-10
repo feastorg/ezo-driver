@@ -26,7 +26,7 @@ Current implementation includes:
 - shared control-plane helpers for identity, status, LED, UART response-code mode, sleep, factory reset, protocol lock, and mode switching
 - shared calibration-transfer helpers for export/import workflows
 - typed scalar product modules for pH, ORP, and RTD
-- typed multi-output product modules for EC, DO, and HUM, and typed reads for O2
+- typed multi-output product modules for EC, DO, and HUM, and typed reads for O2 and CO2
 - complete I2C core with text and raw response decoding
 - complete UART core with line-based response handling
 - Arduino integrations for both I2C and UART
@@ -216,6 +216,7 @@ Primary public headers:
 - [`src/ezo_ec.h`](./src/ezo_ec.h)
 - [`src/ezo_hum.h`](./src/ezo_hum.h)
 - [`src/ezo_o2.h`](./src/ezo_o2.h)
+- [`src/ezo_co2.h`](./src/ezo_co2.h)
 - [`src/ezo_calibration_transfer.h`](./src/ezo_calibration_transfer.h)
 - [`src/ezo_control.h`](./src/ezo_control.h)
 - [`src/ezo_parse.h`](./src/ezo_parse.h)
@@ -242,6 +243,7 @@ Primary implementation files:
 - [`src/ezo_ec.c`](./src/ezo_ec.c)
 - [`src/ezo_hum.c`](./src/ezo_hum.c)
 - [`src/ezo_o2.c`](./src/ezo_o2.c)
+- [`src/ezo_co2.c`](./src/ezo_co2.c)
 - [`src/ezo_i2c.c`](./src/ezo_i2c.c)
 - [`src/ezo_i2c_arduino_wire.cpp`](./src/ezo_i2c_arduino_wire.cpp)
 - [`platform/linux/ezo_i2c_linux_i2c.c`](./platform/linux/ezo_i2c_linux_i2c.c)

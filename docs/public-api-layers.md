@@ -63,7 +63,7 @@ These helpers stay transport-explicit and do not hide reconnect or reboot handli
 Headers:
 
 - scalar products: `src/ezo_ph.h`, `src/ezo_orp.h`, `src/ezo_rtd.h`
-- multi-output products: `src/ezo_ec.h`, `src/ezo_do.h`, `src/ezo_hum.h`, `src/ezo_o2.h`
+- multi-output products: `src/ezo_ec.h`, `src/ezo_do.h`, `src/ezo_hum.h`, `src/ezo_o2.h`, `src/ezo_co2.h`
 
 Use this layer when you want:
 

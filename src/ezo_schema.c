@@ -27,6 +27,7 @@ static const ezo_schema_registry_entry_t ezo_schema_registry[] = {
       EZO_MEASUREMENT_FIELD_AIR_TEMPERATURE,
       EZO_MEASUREMENT_FIELD_DEW_POINT}},
     {EZO_PRODUCT_O2, 2, {EZO_MEASUREMENT_FIELD_OXYGEN_PERCENT, EZO_MEASUREMENT_FIELD_OXYGEN_PPT}},
+    {EZO_PRODUCT_CO2, 2, {EZO_MEASUREMENT_FIELD_CO2_PPM, EZO_MEASUREMENT_FIELD_INTERNAL_TEMPERATURE}},
 };
 
 static const ezo_schema_registry_entry_t *ezo_schema_find_entry(
