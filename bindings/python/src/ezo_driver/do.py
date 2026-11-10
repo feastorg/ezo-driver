@@ -225,6 +225,10 @@ def read_response_uart(device, enabled_mask: int) -> DoReading:
     return read_struct(lib.ezo_do_read_response_uart, "ezo_do_reading_t", do_reading_from_c, _unwrap_uart_device(device), int(enabled_mask))
 
 
+def read_response_with_temp_comp_uart(device, enabled_mask: int) -> DoReading:
+    return read_struct(lib.ezo_do_read_response_with_temp_comp_uart, "ezo_do_reading_t", do_reading_from_c, _unwrap_uart_device(device), int(enabled_mask))
+
+
 def read_output_config_uart(device) -> DoOutputConfig:
     return read_struct(lib.ezo_do_read_output_config_uart, "ezo_do_output_config_t", do_output_config_from_c, _unwrap_uart_device(device))
 

@@ -225,6 +225,10 @@ def read_response_uart(device, enabled_mask: int) -> EcReading:
     return read_struct(lib.ezo_ec_read_response_uart, "ezo_ec_reading_t", ec_reading_from_c, _unwrap_uart_device(device), int(enabled_mask))
 
 
+def read_response_with_temp_comp_uart(device, enabled_mask: int) -> EcReading:
+    return read_struct(lib.ezo_ec_read_response_with_temp_comp_uart, "ezo_ec_reading_t", ec_reading_from_c, _unwrap_uart_device(device), int(enabled_mask))
+
+
 def read_output_config_uart(device) -> EcOutputConfig:
     return read_struct(lib.ezo_ec_read_output_config_uart, "ezo_ec_output_config_t", ec_output_config_from_c, _unwrap_uart_device(device))
 

@@ -4,6 +4,10 @@ All notable tracked changes to this rewrite will be recorded here.
 
 ## [Unreleased]
 
+### Fixed
+
+- EC and DO can read the reply to `RT` over UART: `ezo_ec_read_response_with_temp_comp_uart()` and `ezo_do_read_response_with_temp_comp_uart()`, and the matching Python functions, expect `*OK` and then the value, as the datasheets print it and as the pH helper already does. `read_response_uart` after `RT` returned `EZO_ERR_PROTOCOL`, so the UART EC and DO workflow examples now use the new helpers. Not yet run on a circuit (#44)
+
 ### Added
 
 - CO2, O2, RGB, PRS, FLO, PMP and PMP-L are recognized at the `METADATA` tier: `EZO_PRODUCT_CO2`, `_O2`, `_RGB`, `_PRS`, `_FLO`, `_PMP` and `_PMP_L` and the matching Python `ProductId` members, with default I2C address, timing, defaults and capability flags, and a page in `docs/ezo/products/` for each family. There are no typed reads. An `i` reply from one of these circuits now gives its product ID instead of `EZO_PRODUCT_UNKNOWN`, and its metadata lookups now succeed. On a Uno, a sketch that identifies a product from its short code, such as `inspect_device`, uses about 500 bytes more RAM

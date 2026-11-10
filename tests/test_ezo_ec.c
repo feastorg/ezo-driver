@@ -191,10 +191,34 @@ static void test_uart_helpers_cover_plain_read_and_query_sequences(void) {
   assert(calibration.level == 1U);
 }
 
+static void test_uart_read_with_temp_comp_expects_ok_before_the_value(void) {
+  static const uint8_t rt_response[] = {'*', 'O', 'K', '\r', '8', '.', '9', '1', '\r'};
+  static const uint8_t r_order_response[] = {'8', '.', '9', '1', '\r', '*', 'O', 'K', '\r'};
+  ezo_fake_uart_transport_t fake;
+  ezo_uart_device_t device;
+  ezo_timing_hint_t hint;
+  ezo_ec_reading_t reading;
+
+  ezo_fake_uart_transport_init(&fake);
+  assert(ezo_uart_device_init(&device, ezo_fake_uart_transport_vtable(), &fake) == EZO_OK);
+
+  ezo_fake_uart_transport_set_response(&fake, rt_response, sizeof(rt_response));
+  assert(ezo_ec_send_read_with_temp_comp_uart(&device, 19.5, 1, &hint) == EZO_OK);
+  assert(hint.wait_ms == 900);
+  assert(ezo_ec_read_response_with_temp_comp_uart(&device, EZO_EC_OUTPUT_CONDUCTIVITY, &reading) == EZO_OK);
+  assert(reading.present_mask == EZO_EC_OUTPUT_CONDUCTIVITY);
+  assert(reading.conductivity_us_cm > 8.90 && reading.conductivity_us_cm < 8.92);
+
+  ezo_fake_uart_transport_set_response(&fake, r_order_response, sizeof(r_order_response));
+  assert(ezo_ec_read_response_with_temp_comp_uart(&device, EZO_EC_OUTPUT_CONDUCTIVITY, &reading) ==
+         EZO_ERR_PROTOCOL);
+}
+
 int main(void) {
   test_parse_helpers_cover_reading_output_config_and_queries();
   test_command_builders_format_expected_commands();
   test_i2c_helpers_send_and_parse_typed_responses();
   test_uart_helpers_cover_plain_read_and_query_sequences();
+  test_uart_read_with_temp_comp_expects_ok_before_the_value();
   return 0;
 }
