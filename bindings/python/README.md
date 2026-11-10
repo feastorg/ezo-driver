@@ -59,7 +59,7 @@ Top-level `ezo_driver` exports only the stable transport constructors, exception
 
 ## Firmware checks
 
-`DeviceInfo.firmware` is a comparable `FirmwareVersion`, or `None` when the reported version is not a plain decimal. Versions compare as decimals, so `1.1` is above `1.05`. `product.firmware_has_feature()` and `product.firmware_has_issue()` answer from a table built from the vendor firmware changelogs; a feature or issue that does not apply to a product is `False`. No helper consults them, and the bindings behave the same on every version: read `i`, ask, and decide.
+`DeviceInfo.firmware` is a comparable `FirmwareVersion`, or `None` when the reported version is not a plain decimal. Versions compare as decimals, so `1.1` is above `1.05`. `product.firmware_has_feature()` and `product.firmware_has_issue()` answer from a table built from the vendor firmware changelogs; a feature or issue that does not apply to a product is `False`, and the table covers only the `FULL`-tier products. No helper consults them, and the bindings behave the same on every version: read `i`, ask, and decide.
 
 ## Split-phase reads
 

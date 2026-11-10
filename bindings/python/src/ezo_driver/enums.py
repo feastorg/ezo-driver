@@ -58,6 +58,13 @@ class ProductId(IntEnum):
     DO = _c.EZO_PRODUCT_DO
     RTD = _c.EZO_PRODUCT_RTD
     HUM = _c.EZO_PRODUCT_HUM
+    CO2 = _c.EZO_PRODUCT_CO2
+    O2 = _c.EZO_PRODUCT_O2
+    RGB = _c.EZO_PRODUCT_RGB
+    PRS = _c.EZO_PRODUCT_PRS
+    FLO = _c.EZO_PRODUCT_FLO
+    PMP = _c.EZO_PRODUCT_PMP
+    PMP_L = _c.EZO_PRODUCT_PMP_L
 
 
 class FirmwareFeature(IntEnum):

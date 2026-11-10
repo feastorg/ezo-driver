@@ -21,7 +21,7 @@ Cross-platform Atlas Scientific EZO driver with:
 Current implementation includes:
 
 - shared `ezo.h` surface for results, timing hints, and numeric parsing
-- product identity and metadata for the initial six documented EZO families
+- product identity and metadata for the initial six documented EZO families, and for CO2, O2, RGB, PRS, FLO, PMP and PMP-L
 - shared query/CSV parsing, UART sequence-state helpers, and canonical output schemas
 - shared control-plane helpers for identity, status, LED, UART response-code mode, sleep, factory reset, protocol lock, and mode switching
 - shared calibration-transfer helpers for export/import workflows
