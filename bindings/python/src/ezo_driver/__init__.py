@@ -15,6 +15,8 @@ from .errors import (
 from .enums import (
     CommandKind,
     DeviceStatus,
+    FirmwareFeature,
+    FirmwareIssue,
     MeasurementField,
     ProductId,
     ProductSupport,
@@ -24,6 +26,7 @@ from .enums import (
 from .i2c import LinuxI2CDevice
 from .types import (
     DeviceInfo,
+    FirmwareVersion,
     MultiOutputReading,
     OutputSchema,
     OutputValue,
@@ -58,6 +61,9 @@ __all__ = [
     "MeasurementField",
     "ProductTimingProfile",
     "DeviceInfo",
+    "FirmwareVersion",
+    "FirmwareFeature",
+    "FirmwareIssue",
     "ProductMetadata",
     "OutputValue",
     "ScalarReading",

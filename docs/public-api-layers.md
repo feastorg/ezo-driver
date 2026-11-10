@@ -37,6 +37,7 @@ Use this layer when you:
 
 - want to identify a device from `i` output
 - need default addresses, timing, support tiers, or capability flags
+- need to compare firmware versions, or ask whether a version has a feature or a known issue
 - want to branch logic by product family without hardcoding string parsing
 
 This layer is facts and lookups only. It does not send commands for you.

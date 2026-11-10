@@ -199,6 +199,171 @@ static void test_product_timing_lookup_uses_transport_specific_profiles(void) {
                                      &hint) == EZO_ERR_INVALID_ARGUMENT);
 }
 
+static ezo_firmware_version_t parsed_version(const char *text) {
+  ezo_firmware_version_t version;
+  assert(ezo_parse_firmware_version(text, strlen(text), &version) == EZO_OK);
+  return version;
+}
+
+static void test_parse_firmware_version_reads_tenths_and_hundredths(void) {
+  static const struct {
+    const char *text;
+    uint16_t major;
+    uint16_t minor_hundredths;
+  } cases[] = {
+      {"2.16", 2, 16}, {"1.98", 1, 98}, {"1.1", 1, 10},   {"1.10", 1, 10}, {"1.01", 1, 1},
+      {"1.0", 1, 0},   {"1.00", 1, 0},  {"19.7", 19, 70}, {"0.5", 0, 50},  {"65535.99", 65535, 99},
+  };
+  size_t i = 0;
+
+  for (i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
+    ezo_firmware_version_t version = parsed_version(cases[i].text);
+    assert(version.major == cases[i].major);
+    assert(version.minor_hundredths == cases[i].minor_hundredths);
+  }
+}
+
+static void test_parse_firmware_version_rejects_other_text(void) {
+  static const char *const cases[] = {"",    "2",    "2.",     ".5",       "2.x",   "x.2", "2.123",
+                                      "2.1.3", " 2.1", "2.1 ", "-1.0", "1.+", "65536.0"};
+  ezo_firmware_version_t version;
+  size_t i = 0;
+
+  for (i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
+    assert(ezo_parse_firmware_version(cases[i], strlen(cases[i]), &version) == EZO_ERR_PARSE);
+  }
+  assert(ezo_parse_firmware_version(NULL, 0, &version) == EZO_ERR_INVALID_ARGUMENT);
+  assert(ezo_parse_firmware_version("2.16", 4, NULL) == EZO_ERR_INVALID_ARGUMENT);
+}
+
+static void test_firmware_version_compare_is_decimal(void) {
+  static const struct {
+    const char *lower;
+    const char *higher;
+  } ordered[] = {
+      {"1.05", "1.1"}, {"1.01", "1.1"},  {"1.7", "1.95"}, {"2.01", "2.10"},
+      {"1.98", "2.10"}, {"2.15", "2.16"}, {"9.99", "10.0"},
+  };
+  size_t i = 0;
+
+  for (i = 0; i < sizeof(ordered) / sizeof(ordered[0]); ++i) {
+    ezo_firmware_version_t lower = parsed_version(ordered[i].lower);
+    ezo_firmware_version_t higher = parsed_version(ordered[i].higher);
+    assert(ezo_firmware_version_compare(&lower, &higher) < 0);
+    assert(ezo_firmware_version_compare(&higher, &lower) > 0);
+  }
+
+  {
+    ezo_firmware_version_t tenths = parsed_version("1.1");
+    ezo_firmware_version_t hundredths = parsed_version("1.10");
+    assert(ezo_firmware_version_compare(&tenths, &hundredths) == 0);
+  }
+}
+
+static void test_firmware_feature_thresholds(void) {
+  static const struct {
+    ezo_product_id_t product;
+    ezo_firmware_feature_t feature;
+    const char *below;
+    const char *at;
+  } cases[] = {
+      {EZO_PRODUCT_PH, EZO_FIRMWARE_FEATURE_PROTOCOL_LOCK, "1.94", "1.95"},
+      {EZO_PRODUCT_PH, EZO_FIRMWARE_FEATURE_FIND, "2.09", "2.10"},
+      {EZO_PRODUCT_PH, EZO_FIRMWARE_FEATURE_CALIBRATION_TRANSFER, "2.09", "2.10"},
+      {EZO_PRODUCT_PH, EZO_FIRMWARE_FEATURE_READ_WITH_TEMP_COMP, "2.11", "2.12"},
+      {EZO_PRODUCT_PH, EZO_FIRMWARE_FEATURE_EXTENDED_RANGE, "2.13", "2.14"},
+      {EZO_PRODUCT_ORP, EZO_FIRMWARE_FEATURE_PROTOCOL_LOCK, "1.94", "1.95"},
+      {EZO_PRODUCT_ORP, EZO_FIRMWARE_FEATURE_FIND, "2.09", "2.10"},
+      {EZO_PRODUCT_ORP, EZO_FIRMWARE_FEATURE_CALIBRATION_TRANSFER, "2.09", "2.10"},
+      {EZO_PRODUCT_ORP, EZO_FIRMWARE_FEATURE_EXTENDED_RANGE, "2.13", "2.14"},
+      {EZO_PRODUCT_EC, EZO_FIRMWARE_FEATURE_PROTOCOL_LOCK, "1.94", "1.95"},
+      {EZO_PRODUCT_EC, EZO_FIRMWARE_FEATURE_FIND, "2.09", "2.10"},
+      {EZO_PRODUCT_EC, EZO_FIRMWARE_FEATURE_CALIBRATION_TRANSFER, "2.09", "2.10"},
+      {EZO_PRODUCT_EC, EZO_FIRMWARE_FEATURE_READ_WITH_TEMP_COMP, "2.12", "2.13"},
+      {EZO_PRODUCT_DO, EZO_FIRMWARE_FEATURE_PROTOCOL_LOCK, "1.94", "1.95"},
+      {EZO_PRODUCT_DO, EZO_FIRMWARE_FEATURE_FIND, "2.09", "2.10"},
+      {EZO_PRODUCT_DO, EZO_FIRMWARE_FEATURE_CALIBRATION_TRANSFER, "2.09", "2.10"},
+      {EZO_PRODUCT_DO, EZO_FIRMWARE_FEATURE_READ_WITH_TEMP_COMP, "2.12", "2.13"},
+      {EZO_PRODUCT_RTD, EZO_FIRMWARE_FEATURE_PROTOCOL_LOCK, "1.01", "1.02"},
+      {EZO_PRODUCT_RTD, EZO_FIRMWARE_FEATURE_FIND, "2.09", "2.10"},
+      {EZO_PRODUCT_RTD, EZO_FIRMWARE_FEATURE_CALIBRATION_TRANSFER, "2.09", "2.10"},
+      {EZO_PRODUCT_HUM, EZO_FIRMWARE_FEATURE_PROTOCOL_LOCK, "0.99", "1.00"},
+      {EZO_PRODUCT_HUM, EZO_FIRMWARE_FEATURE_FIND, "0.99", "1.00"},
+      {EZO_PRODUCT_HUM, EZO_FIRMWARE_FEATURE_TEMPERATURE_CALIBRATION, "1.00", "1.01"},
+  };
+  size_t i = 0;
+
+  for (i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
+    ezo_firmware_version_t below = parsed_version(cases[i].below);
+    ezo_firmware_version_t at = parsed_version(cases[i].at);
+    ezo_firmware_version_t newer = parsed_version("9.99");
+    assert(!ezo_product_firmware_has_feature(cases[i].product, cases[i].feature, &below));
+    assert(ezo_product_firmware_has_feature(cases[i].product, cases[i].feature, &at));
+    assert(ezo_product_firmware_has_feature(cases[i].product, cases[i].feature, &newer));
+  }
+}
+
+static void test_firmware_feature_absent_from_product_is_false(void) {
+  ezo_firmware_version_t newest = parsed_version("9.99");
+  ezo_firmware_version_t hum_c = parsed_version("1.1");
+
+  assert(!ezo_product_firmware_has_feature(EZO_PRODUCT_ORP,
+                                           EZO_FIRMWARE_FEATURE_READ_WITH_TEMP_COMP, &newest));
+  assert(!ezo_product_firmware_has_feature(EZO_PRODUCT_EC, EZO_FIRMWARE_FEATURE_EXTENDED_RANGE,
+                                           &newest));
+  assert(!ezo_product_firmware_has_feature(EZO_PRODUCT_HUM,
+                                           EZO_FIRMWARE_FEATURE_CALIBRATION_TRANSFER, &newest));
+  assert(!ezo_product_firmware_has_feature(EZO_PRODUCT_PH,
+                                           EZO_FIRMWARE_FEATURE_TEMPERATURE_CALIBRATION, &newest));
+  assert(!ezo_product_firmware_has_feature(EZO_PRODUCT_UNKNOWN, EZO_FIRMWARE_FEATURE_FIND,
+                                           &newest));
+  assert(!ezo_product_firmware_has_feature(EZO_PRODUCT_PH, EZO_FIRMWARE_FEATURE_UNKNOWN, &newest));
+  assert(!ezo_product_firmware_has_feature(EZO_PRODUCT_PH, EZO_FIRMWARE_FEATURE_FIND, NULL));
+
+  /* The HUM-C changelog spells this release 1.1, the probe changelog 1.01. */
+  assert(ezo_product_firmware_has_feature(EZO_PRODUCT_HUM,
+                                          EZO_FIRMWARE_FEATURE_TEMPERATURE_CALIBRATION, &hum_c));
+}
+
+static void test_firmware_issue_thresholds(void) {
+  static const struct {
+    ezo_product_id_t product;
+    ezo_firmware_issue_t issue;
+    const char *affected;
+    const char *fixed;
+  } cases[] = {
+      {EZO_PRODUCT_PH, EZO_FIRMWARE_ISSUE_I2C_SLEEP_WAKE, "2.15", "2.16"},
+      {EZO_PRODUCT_ORP, EZO_FIRMWARE_ISSUE_I2C_SLEEP_WAKE, "2.12", "2.13"},
+      {EZO_PRODUCT_EC, EZO_FIRMWARE_ISSUE_I2C_SLEEP_WAKE, "2.11", "2.12"},
+      {EZO_PRODUCT_RTD, EZO_FIRMWARE_ISSUE_FIRST_READING_INVALID, "2.10", "2.11"},
+  };
+  size_t i = 0;
+
+  for (i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
+    ezo_firmware_version_t affected = parsed_version(cases[i].affected);
+    ezo_firmware_version_t fixed = parsed_version(cases[i].fixed);
+    ezo_firmware_version_t newer = parsed_version("9.99");
+    assert(ezo_product_firmware_has_issue(cases[i].product, cases[i].issue, &affected));
+    assert(!ezo_product_firmware_has_issue(cases[i].product, cases[i].issue, &fixed));
+    assert(!ezo_product_firmware_has_issue(cases[i].product, cases[i].issue, &newer));
+  }
+}
+
+static void test_firmware_issue_absent_from_product_is_false(void) {
+  ezo_firmware_version_t oldest = parsed_version("0.00");
+
+  assert(!ezo_product_firmware_has_issue(EZO_PRODUCT_DO, EZO_FIRMWARE_ISSUE_I2C_SLEEP_WAKE,
+                                         &oldest));
+  assert(!ezo_product_firmware_has_issue(EZO_PRODUCT_RTD, EZO_FIRMWARE_ISSUE_I2C_SLEEP_WAKE,
+                                         &oldest));
+  assert(!ezo_product_firmware_has_issue(EZO_PRODUCT_PH, EZO_FIRMWARE_ISSUE_FIRST_READING_INVALID,
+                                         &oldest));
+  assert(!ezo_product_firmware_has_issue(EZO_PRODUCT_UNKNOWN, EZO_FIRMWARE_ISSUE_I2C_SLEEP_WAKE,
+                                         &oldest));
+  assert(!ezo_product_firmware_has_issue(EZO_PRODUCT_PH, EZO_FIRMWARE_ISSUE_UNKNOWN, &oldest));
+  assert(!ezo_product_firmware_has_issue(EZO_PRODUCT_PH, EZO_FIRMWARE_ISSUE_I2C_SLEEP_WAKE, NULL));
+}
+
 int main(void) {
   test_parse_device_info_for_initial_products();
   test_parse_device_info_accepts_unrecognized_product_code();
@@ -209,5 +374,12 @@ int main(void) {
   test_product_lookup_by_short_code_returns_metadata();
   test_product_capability_and_family_lookups();
   test_product_timing_lookup_uses_transport_specific_profiles();
+  test_parse_firmware_version_reads_tenths_and_hundredths();
+  test_parse_firmware_version_rejects_other_text();
+  test_firmware_version_compare_is_decimal();
+  test_firmware_feature_thresholds();
+  test_firmware_feature_absent_from_product_is_false();
+  test_firmware_issue_thresholds();
+  test_firmware_issue_absent_from_product_is_false();
   return 0;
 }

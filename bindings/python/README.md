@@ -57,6 +57,10 @@ The shipped `ezo_driver._native` module holds the C core and the Linux transport
 
 Top-level `ezo_driver` exports only the stable transport constructors, exception hierarchy, and shared enums/types.
 
+## Firmware checks
+
+`DeviceInfo.firmware` is a comparable `FirmwareVersion`, or `None` when the reported version is not a plain decimal. Versions compare as decimals, so `1.1` is above `1.05`. `product.firmware_has_feature()` and `product.firmware_has_issue()` answer from a table built from the vendor firmware changelogs; a feature or issue that does not apply to a product is `False`. No helper consults them, and the bindings behave the same on every version: read `i`, ask, and decide.
+
 ## Split-phase reads
 
 Every exchange with a circuit has two halves. A `send_*` helper writes the command and returns how long the circuit needs, in milliseconds. The matching `read_*` helper fetches the reply. The bindings never sleep, so the caller waits in between, and the wait is the caller's to schedule: block a thread, or do other work and come back.

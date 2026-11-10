@@ -215,6 +215,27 @@ typedef struct {
 } ezo_device_info_t;
 
 typedef struct {
+  uint16_t major;
+  uint16_t minor_hundredths;
+} ezo_firmware_version_t;
+
+typedef enum {
+  EZO_FIRMWARE_FEATURE_UNKNOWN = 0,
+  EZO_FIRMWARE_FEATURE_FIND,
+  EZO_FIRMWARE_FEATURE_CALIBRATION_TRANSFER,
+  EZO_FIRMWARE_FEATURE_PROTOCOL_LOCK,
+  EZO_FIRMWARE_FEATURE_READ_WITH_TEMP_COMP,
+  EZO_FIRMWARE_FEATURE_EXTENDED_RANGE,
+  EZO_FIRMWARE_FEATURE_TEMPERATURE_CALIBRATION
+} ezo_firmware_feature_t;
+
+typedef enum {
+  EZO_FIRMWARE_ISSUE_UNKNOWN = 0,
+  EZO_FIRMWARE_ISSUE_I2C_SLEEP_WAKE,
+  EZO_FIRMWARE_ISSUE_FIRST_READING_INVALID
+} ezo_firmware_issue_t;
+
+typedef struct {
   ezo_product_id_t product_id;
   const char *family_name;
   const char *vendor_short_code;
@@ -251,6 +272,17 @@ ezo_result_t ezo_product_resolve_timing_hint(ezo_product_id_t product_id,
 ezo_product_support_t ezo_product_get_support_tier(ezo_product_id_t product_id);
 int ezo_product_supports_capability(ezo_product_id_t product_id, uint32_t capability_flag);
 int ezo_product_has_command_family(ezo_product_id_t product_id, uint32_t family_flag);
+ezo_result_t ezo_parse_firmware_version(const char *text,
+                                        size_t text_len,
+                                        ezo_firmware_version_t *version);
+int ezo_firmware_version_compare(const ezo_firmware_version_t *left,
+                                 const ezo_firmware_version_t *right);
+int ezo_product_firmware_has_feature(ezo_product_id_t product_id,
+                                     ezo_firmware_feature_t feature,
+                                     const ezo_firmware_version_t *version);
+int ezo_product_firmware_has_issue(ezo_product_id_t product_id,
+                                   ezo_firmware_issue_t issue,
+                                   const ezo_firmware_version_t *version);
 
 typedef struct {
   const char *text;

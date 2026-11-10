@@ -11,11 +11,19 @@ from __future__ import annotations
 from typing_extensions import assert_type
 
 import ezo_driver
-from ezo_driver import DeviceStatus, LinuxI2CDevice, LinuxUARTDevice, ProductId, UARTResponseKind
+from ezo_driver import (
+    DeviceStatus,
+    FirmwareFeature,
+    LinuxI2CDevice,
+    LinuxUARTDevice,
+    ProductId,
+    UARTResponseKind,
+)
 from ezo_driver import calibration_transfer, control, do, ec, hum, orp, ph, product, rtd, schema
 from ezo_driver.types import (
     CalibrationExportInfo,
     DeviceInfo,
+    FirmwareVersion,
     DoReading,
     EcReading,
     HumReading,
@@ -48,6 +56,14 @@ def check_i2c(dev: LinuxI2CDevice) -> None:
         assert_type(opened, LinuxI2CDevice)
         assert_type(control.send_info_query_i2c(opened, ProductId.PH), int)
         assert_type(control.read_info_i2c(opened), DeviceInfo)
+        assert_type(control.read_info_i2c(opened).firmware, FirmwareVersion | None)
+        assert_type(product.parse_firmware_version("2.16"), FirmwareVersion)
+        assert_type(
+            product.firmware_has_feature(
+                ProductId.PH, FirmwareFeature.FIND, FirmwareVersion(2, 16)
+            ),
+            bool,
+        )
         assert_type(ph.send_read_i2c(opened), int)
         assert_type(ph.read_response_i2c(opened), PhReading)
         assert_type(orp.read_response_i2c(opened), OrpReading)

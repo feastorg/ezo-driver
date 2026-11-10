@@ -1,9 +1,16 @@
 from __future__ import annotations
 
-from ._call import ascii_bytes, device_info_from_c, ffi, lib, product_metadata_from_c
+from ._call import (
+    ascii_bytes,
+    device_info_from_c,
+    ffi,
+    firmware_version_to_c,
+    lib,
+    product_metadata_from_c,
+)
 from .errors import raise_for_result
 from .enums import ProductId, ProductSupport
-from .types import DeviceInfo, ProductMetadata
+from .types import DeviceInfo, FirmwareVersion, ProductMetadata
 
 
 def product_id_from_short_code(short_code: str) -> ProductId:
@@ -53,3 +60,26 @@ def supports_capability(product_id, capability_flag) -> bool:
 
 def has_command_family(product_id, family_flag) -> bool:
     return bool(lib.ezo_product_has_command_family(int(product_id), int(family_flag)))
+
+
+def parse_firmware_version(text: str) -> FirmwareVersion:
+    payload = ascii_bytes(text)
+    out = ffi.new("ezo_firmware_version_t *")
+    raise_for_result(int(lib.ezo_parse_firmware_version(payload, len(payload), out)))
+    return FirmwareVersion(int(out.major), int(out.minor_hundredths))
+
+
+def firmware_has_feature(product_id, feature, version: FirmwareVersion) -> bool:
+    return bool(
+        lib.ezo_product_firmware_has_feature(
+            int(product_id), int(feature), firmware_version_to_c(version)
+        )
+    )
+
+
+def firmware_has_issue(product_id, issue, version: FirmwareVersion) -> bool:
+    return bool(
+        lib.ezo_product_firmware_has_issue(
+            int(product_id), int(issue), firmware_version_to_c(version)
+        )
+    )
