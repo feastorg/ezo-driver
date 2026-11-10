@@ -8,6 +8,7 @@ from .enums import (
     DeviceStatus,
     ECOutputMask,
     HUMOutputMask,
+    O2OutputMask,
     MeasurementField,
     ORPExtendedScale,
     PHCalibrationLevel,
@@ -281,6 +282,23 @@ class DoPressureCompensation:
 @dataclass(frozen=True)
 class DoCalibrationStatus:
     level: int
+
+
+@dataclass(frozen=True)
+class O2Reading:
+    present_mask: O2OutputMask
+    percent: float
+    parts_per_thousand: float
+
+
+@dataclass(frozen=True)
+class O2OutputConfig:
+    enabled_mask: O2OutputMask
+
+
+@dataclass(frozen=True)
+class O2TemperatureCompensation:
+    temperature_c: float
 
 
 @dataclass(frozen=True)

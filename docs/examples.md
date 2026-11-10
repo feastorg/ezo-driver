@@ -76,12 +76,14 @@ Use this page as the chooser.
 - I2C D.O.: [`examples/linux/i2c/typed/read_do.c`](../examples/linux/i2c/typed/read_do.c)
 - I2C RTD: [`examples/linux/i2c/typed/read_rtd.c`](../examples/linux/i2c/typed/read_rtd.c)
 - I2C HUM: [`examples/linux/i2c/typed/read_hum.c`](../examples/linux/i2c/typed/read_hum.c)
+- I2C O2: [`examples/linux/i2c/typed/read_o2.c`](../examples/linux/i2c/typed/read_o2.c)
 - UART pH: [`examples/linux/uart/typed/read_ph.c`](../examples/linux/uart/typed/read_ph.c)
 - UART ORP: [`examples/linux/uart/typed/read_orp.c`](../examples/linux/uart/typed/read_orp.c)
 - UART EC: [`examples/linux/uart/typed/read_ec.c`](../examples/linux/uart/typed/read_ec.c)
 - UART D.O.: [`examples/linux/uart/typed/read_do.c`](../examples/linux/uart/typed/read_do.c)
 - UART RTD: [`examples/linux/uart/typed/read_rtd.c`](../examples/linux/uart/typed/read_rtd.c)
 - UART HUM: [`examples/linux/uart/typed/read_hum.c`](../examples/linux/uart/typed/read_hum.c)
+- UART O2: [`examples/linux/uart/typed/read_o2.c`](../examples/linux/uart/typed/read_o2.c)
 
 ### Advanced
 

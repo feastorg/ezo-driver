@@ -34,6 +34,7 @@ set(EZO_PUBLIC_HEADERS
   src/ezo_do.h
   src/ezo_ec.h
   src/ezo_hum.h
+  src/ezo_o2.h
   src/ezo_i2c.h
   src/ezo_i2c.hpp
   src/ezo_i2c_arduino_wire.h
@@ -58,6 +59,7 @@ add_library(ezo_core STATIC
   src/ezo_do.c
   src/ezo_ec.c
   src/ezo_hum.c
+  src/ezo_o2.c
   src/ezo_i2c.c
   src/ezo_parse.c
   src/ezo_orp.c
@@ -329,6 +331,25 @@ if(EZO_BUILD_TESTS)
     COMMAND ezo_hum_tests
   )
 
+  add_executable(ezo_o2_tests
+    tests/fakes/ezo_fake_i2c_transport.c
+    tests/fakes/ezo_fake_uart_transport.c
+    tests/test_ezo_o2.c
+  )
+
+  target_include_directories(ezo_o2_tests
+    PRIVATE
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}/src
+  )
+
+  target_link_libraries(ezo_o2_tests PRIVATE ezo_core)
+
+  add_test(
+    NAME ezo_o2_tests
+    COMMAND ezo_o2_tests
+  )
+
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_executable(ezo_i2c_linux_adapter_tests
       tests/test_linux_adapter.c
@@ -395,6 +416,7 @@ if(EZO_BUILD_TESTS)
     ezo_ec_tests
     ezo_do_tests
     ezo_hum_tests
+    ezo_o2_tests
   )
 
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -546,6 +568,10 @@ if(EZO_BUILD_EXAMPLES AND EZO_BUILD_LINUX_ADAPTER)
     examples/linux/i2c/typed/read_hum.c
   )
   ezo_add_linux_i2c_example(
+    ezo_linux_i2c_read_o2_example
+    examples/linux/i2c/typed/read_o2.c
+  )
+  ezo_add_linux_i2c_example(
     ezo_linux_i2c_ph_workflow_example
     examples/linux/i2c/advanced/ph_workflow.c
   )
@@ -676,6 +702,10 @@ if(EZO_BUILD_EXAMPLES AND EZO_BUILD_POSIX_UART_ADAPTER AND CMAKE_SYSTEM_NAME STR
   ezo_add_linux_uart_example(
     ezo_linux_uart_read_hum_example
     examples/linux/uart/typed/read_hum.c
+  )
+  ezo_add_linux_uart_example(
+    ezo_linux_uart_read_o2_example
+    examples/linux/uart/typed/read_o2.c
   )
   ezo_add_linux_uart_example(
     ezo_linux_uart_ph_workflow_example

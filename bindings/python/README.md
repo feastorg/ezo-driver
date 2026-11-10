@@ -54,6 +54,7 @@ The shipped `ezo_driver._native` module holds the C core and the Linux transport
 - `ezo_driver.ec`
 - `ezo_driver.do`
 - `ezo_driver.hum`
+- `ezo_driver.o2`
 
 Top-level `ezo_driver` exports only the stable transport constructors, exception hierarchy, and shared enums/types.
 

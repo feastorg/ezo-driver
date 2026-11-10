@@ -8,6 +8,7 @@ from .enums import (
     DOSalinityUnit,
     ECOutputMask,
     HUMOutputMask,
+    O2OutputMask,
     MeasurementField,
     ORPExtendedScale,
     PHCalibrationLevel,
@@ -46,6 +47,9 @@ from .types import (
     EcTdsFactor,
     EcTemperatureCompensation,
     HumOutputConfig,
+    O2OutputConfig,
+    O2Reading,
+    O2TemperatureCompensation,
     HumReading,
     HumTemperatureCalibrationStatus,
     MultiOutputReading,
@@ -386,6 +390,22 @@ def do_calibration_status_from_c(raw) -> DoCalibrationStatus:
     return DoCalibrationStatus(level=int(raw.level))
 
 
+def o2_reading_from_c(raw) -> O2Reading:
+    return O2Reading(
+        present_mask=O2OutputMask(int(raw.present_mask)),
+        percent=float(raw.percent),
+        parts_per_thousand=float(raw.parts_per_thousand),
+    )
+
+
+def o2_output_config_from_c(raw) -> O2OutputConfig:
+    return O2OutputConfig(enabled_mask=O2OutputMask(int(raw.enabled_mask)))
+
+
+def o2_temperature_compensation_from_c(raw) -> O2TemperatureCompensation:
+    return O2TemperatureCompensation(temperature_c=float(raw.temperature_c))
+
+
 def hum_reading_from_c(raw) -> HumReading:
     return HumReading(
         present_mask=HUMOutputMask(int(raw.present_mask)),
@@ -457,6 +477,9 @@ __all__ = [
     "do_salinity_compensation_from_c",
     "do_pressure_compensation_from_c",
     "do_calibration_status_from_c",
+    "o2_reading_from_c",
+    "o2_output_config_from_c",
+    "o2_temperature_compensation_from_c",
     "hum_reading_from_c",
     "hum_output_config_from_c",
     "hum_temperature_calibration_status_from_c",

@@ -19,11 +19,12 @@ from ezo_driver import (
     ProductId,
     UARTResponseKind,
 )
-from ezo_driver import calibration_transfer, control, do, ec, hum, orp, ph, product, rtd, schema
+from ezo_driver import calibration_transfer, control, do, ec, hum, o2, orp, ph, product, rtd, schema
 from ezo_driver.types import (
     CalibrationExportInfo,
     DeviceInfo,
     FirmwareVersion,
+    O2Reading,
     DoReading,
     EcReading,
     HumReading,
@@ -70,6 +71,7 @@ def check_i2c(dev: LinuxI2CDevice) -> None:
         assert_type(ec.read_response_i2c(opened, 0x1), EcReading)
         assert_type(do.read_response_i2c(opened, 0x1), DoReading)
         assert_type(hum.read_response_i2c(opened, 0x1), HumReading)
+        assert_type(o2.read_response_i2c(opened, 0x1), O2Reading)
         assert_type(rtd.read_response_i2c(opened, 0), RtdReading)
         assert_type(rtd.read_memory_all_i2c(opened, 0), list[RtdMemoryValue])
         assert_type(calibration_transfer.read_export_info_i2c(opened), CalibrationExportInfo)
