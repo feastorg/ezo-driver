@@ -867,6 +867,7 @@ ezo_result_t ezo_ec_send_calibration_query_uart(ezo_uart_device_t *device, ezo_t
 ezo_result_t ezo_ec_send_calibration_uart(ezo_uart_device_t *device, ezo_ec_calibration_point_t point, double reference_value, uint8_t decimals, ezo_timing_hint_t *timing_hint);
 ezo_result_t ezo_ec_send_clear_calibration_uart(ezo_uart_device_t *device, ezo_timing_hint_t *timing_hint);
 ezo_result_t ezo_ec_read_response_uart(ezo_uart_device_t *device, ezo_ec_output_mask_t enabled_mask, ezo_ec_reading_t *reading_out);
+ezo_result_t ezo_ec_read_response_with_temp_comp_uart(ezo_uart_device_t *device, ezo_ec_output_mask_t enabled_mask, ezo_ec_reading_t *reading_out);
 ezo_result_t ezo_ec_read_output_config_uart(ezo_uart_device_t *device, ezo_ec_output_config_t *config_out);
 ezo_result_t ezo_ec_read_temperature_uart(ezo_uart_device_t *device, ezo_ec_temperature_compensation_t *temperature_out);
 ezo_result_t ezo_ec_read_probe_k_uart(ezo_uart_device_t *device, ezo_ec_probe_k_t *probe_k_out);
@@ -942,6 +943,7 @@ ezo_result_t ezo_do_send_calibration_query_uart(ezo_uart_device_t *device, ezo_t
 ezo_result_t ezo_do_send_calibration_uart(ezo_uart_device_t *device, ezo_do_calibration_point_t point, ezo_timing_hint_t *timing_hint);
 ezo_result_t ezo_do_send_clear_calibration_uart(ezo_uart_device_t *device, ezo_timing_hint_t *timing_hint);
 ezo_result_t ezo_do_read_response_uart(ezo_uart_device_t *device, ezo_do_output_mask_t enabled_mask, ezo_do_reading_t *reading_out);
+ezo_result_t ezo_do_read_response_with_temp_comp_uart(ezo_uart_device_t *device, ezo_do_output_mask_t enabled_mask, ezo_do_reading_t *reading_out);
 ezo_result_t ezo_do_read_output_config_uart(ezo_uart_device_t *device, ezo_do_output_config_t *config_out);
 ezo_result_t ezo_do_read_temperature_uart(ezo_uart_device_t *device, ezo_do_temperature_compensation_t *temperature_out);
 ezo_result_t ezo_do_read_salinity_uart(ezo_uart_device_t *device, ezo_do_salinity_compensation_t *salinity_out);

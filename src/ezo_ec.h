@@ -233,6 +233,10 @@ ezo_result_t ezo_ec_read_response_uart(ezo_uart_device_t *device,
                                        ezo_ec_output_mask_t enabled_mask,
                                        ezo_ec_reading_t *reading_out);
 
+ezo_result_t ezo_ec_read_response_with_temp_comp_uart(ezo_uart_device_t *device,
+                                                       ezo_ec_output_mask_t enabled_mask,
+                                                       ezo_ec_reading_t *reading_out);
+
 ezo_result_t ezo_ec_read_output_config_uart(ezo_uart_device_t *device,
                                             ezo_ec_output_config_t *config_out);
 

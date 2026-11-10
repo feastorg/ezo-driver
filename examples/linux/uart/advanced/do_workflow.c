@@ -164,9 +164,9 @@ int main(int argc, char **argv) {
   }
   if (result == EZO_OK) {
     ezo_example_wait_hint(&hint);
-    result = ezo_do_read_response_uart(&session.device,
-                                       output_config.enabled_mask,
-                                       &one_shot_reading);
+    result = ezo_do_read_response_with_temp_comp_uart(&session.device,
+                                                       output_config.enabled_mask,
+                                                       &one_shot_reading);
   }
 
   if (result != EZO_OK) {

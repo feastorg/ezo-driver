@@ -158,6 +158,18 @@ static ezo_result_t ezo_ec_read_uart_data_then_ok(ezo_uart_device_t *device,
   return ezo_uart_read_ok(device);
 }
 
+static ezo_result_t ezo_ec_read_uart_ok_then_data(ezo_uart_device_t *device,
+                                                  char *buffer,
+                                                  size_t buffer_len,
+                                                  size_t *response_len) {
+  ezo_result_t result = ezo_uart_read_ok(device);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  return ezo_ec_read_uart_data_line(device, buffer, buffer_len, response_len);
+}
+
 static ezo_result_t ezo_ec_parse_query_double(const char *buffer,
                                               size_t buffer_len,
                                               const char *prefix,
@@ -753,6 +765,20 @@ ezo_result_t ezo_ec_read_response_uart(ezo_uart_device_t *device,
   size_t response_len = 0;
   ezo_result_t result =
       ezo_ec_read_uart_data_then_ok(device, buffer, sizeof(buffer), &response_len);
+  if (result != EZO_OK) {
+    return result;
+  }
+
+  return ezo_ec_parse_reading(buffer, response_len, enabled_mask, reading_out);
+}
+
+ezo_result_t ezo_ec_read_response_with_temp_comp_uart(ezo_uart_device_t *device,
+                                                       ezo_ec_output_mask_t enabled_mask,
+                                                       ezo_ec_reading_t *reading_out) {
+  char buffer[EZO_EC_RESPONSE_BUFFER_LEN];
+  size_t response_len = 0;
+  ezo_result_t result =
+      ezo_ec_read_uart_ok_then_data(device, buffer, sizeof(buffer), &response_len);
   if (result != EZO_OK) {
     return result;
   }
