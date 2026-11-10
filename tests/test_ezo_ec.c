@@ -122,7 +122,7 @@ static void test_i2c_helpers_send_and_parse_typed_responses(void) {
                                      12880.0,
                                      0,
                                      &hint) == EZO_OK);
-  assert(hint.wait_ms == 1200);
+  assert(hint.wait_ms == 600);
   assert(memcmp(fake.last_tx_bytes, "Cal,low,12880", strlen("Cal,low,12880")) == 0);
 
   ezo_fake_i2c_transport_set_response(&fake, (const uint8_t[]){1, '?', 'C', 'a', 'l', ',', '2', 0},

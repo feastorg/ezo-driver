@@ -75,8 +75,8 @@ static const ezo_product_registry_entry_t ezo_product_registry[] = {
             EZO_PRODUCT_FAMILY_ACQUISITION | EZO_PRODUCT_FAMILY_CALIBRATION |
                 EZO_PRODUCT_FAMILY_CALIBRATION_TRANSFER | EZO_PRODUCT_FAMILY_IDENTITY |
                 EZO_PRODUCT_FAMILY_DEVICE_CONTROL | EZO_PRODUCT_FAMILY_PROTOCOL_CONTROL,
-            {300U, 600U, 900U, 1200U},
-            {300U, 600U, 900U, 1200U},
+            {300U, 600U, 900U, 600U},
+            {300U, 600U, 900U, 600U},
         },
     },
     {

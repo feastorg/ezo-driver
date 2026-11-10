@@ -124,8 +124,8 @@ Use `Slope,?` after the full calibration is complete. The slope report is the ma
 Interpret it at a high level like this:
 
 - the uncalibrated default is `100,100,0`, which is mathematically perfect and therefore suspicious in the real world
-- the neutral offset should be close to `0 mV`; a new probe is usually expected to land within roughly `-5 mV` to `+5 mV`
-- the acid and base slopes are percentages, and a new probe should typically be above `95%`
+- the neutral offset should be close to `0 mV`; a new probe is expected to show a low offset, about `15 mV` or lower
+- the acid and base slopes are percentages; a new probe should be above `90%`, and the two values should be similar to each other
 
 Do not over-interpret a poor slope result as automatic probe failure. Contaminated or incorrect buffer solution can produce a bad slope on an otherwise good probe.
 
