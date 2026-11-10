@@ -7,6 +7,11 @@ All notable tracked changes to this rewrite will be recorded here.
 ### Fixed
 
 - `ezo_parse_double()`, and every typed read built on it, returns the nearest double to the reply text: it gathers all the digits into one integer and scales it by a single multiplication or division by a power of ten, instead of adding each fractional digit times a running `0.1` scale. Replies such as `6.079`, `5.32`, `0.88` and `0.68` decoded one or two units in the last place off, so they printed digits the circuit never sent and failed an equality check against the reply text; about 27% of texts with up to seven significant digits and six decimals were affected. The result is exact for up to 15 significant digits and 22 decimal places, and the parser still does not use `strtod()` (#32)
+- the EC calibration timing hint is `600 ms` on both transports, matching EC datasheet V6.7 and `docs/ezo/products/ec.md`, instead of `1200 ms`. `ezo_ec_send_calibration_i2c()`, its UART counterpart and `ezo_product_get_timing_hint()` return the shorter wait, so a caller that waits the hint reads about 600 ms sooner. The datasheet prints 600 ms for I2C (page 49) and no delay for UART (page 22); UART follows I2C, as it does for the other products
+
+### Documentation
+
+- the pH slope guidance follows pH datasheet V6.2: a new probe is above 90 %, with the acid and base slopes similar, and an offset of about 15 mV or lower
 
 ## [0.8.0]
 

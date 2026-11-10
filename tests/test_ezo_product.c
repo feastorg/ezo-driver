@@ -159,6 +159,12 @@ static void test_product_timing_lookup_uses_transport_specific_profiles(void) {
                                      &hint) == EZO_OK);
   assert(hint.wait_ms == 300);
 
+  assert(ezo_product_get_timing_hint(EZO_PRODUCT_EC,
+                                     EZO_PRODUCT_TRANSPORT_UART,
+                                     EZO_COMMAND_CALIBRATION,
+                                     &hint) == EZO_OK);
+  assert(hint.wait_ms == 600);
+
   assert(ezo_product_get_timing_hint(EZO_PRODUCT_DO,
                                      EZO_PRODUCT_TRANSPORT_UART,
                                      EZO_COMMAND_CALIBRATION,

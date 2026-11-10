@@ -20,4 +20,4 @@ This sketch stages pH calibration one step at a time with preview reads and expl
 
 - Re-run `STEP_STATUS` after the final point and confirm the reported `post_calibration_level` and post-calibration slope output.
 - `STEP_MID` is not just another point: if you run midpoint calibration again after low or high, the vendor says the other points are cleared and full calibration must be redone.
-- After a full calibration, check the slope once at the end. A healthy probe should usually show acid and base slopes above about `95%`, and the neutral mV offset should stay reasonably close to `0`.
+- After a full calibration, check the slope once at the end. A healthy probe should usually show acid and base slopes above about `90%` and similar to each other, and the neutral mV offset should stay reasonably close to `0`.
