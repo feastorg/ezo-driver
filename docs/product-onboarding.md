@@ -131,4 +131,4 @@ If a family cannot clear a higher tier yet, land it at the lower tier explicitly
 
 ## Current Constraint
 
-Vendor source material outside this repo now covers the initial six families and CO2, O2, RGB, PRS, FLO, PMP and PMP-L. O2 is at the `TYPED_READ` tier and the other six are at `METADATA`. Raising one starts at the first step of the checklist above.
+Vendor source material outside this repo now covers the initial six families and CO2, O2, RGB, PRS, FLO, PMP and PMP-L. O2 and CO2 are at the `TYPED_READ` tier and the other five are at `METADATA`. Raising one starts at the first step of the checklist above.

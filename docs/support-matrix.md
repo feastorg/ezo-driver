@@ -40,7 +40,7 @@ Future family onboarding follows [`docs/product-onboarding.md`](./product-onboar
 | DO | `FULL` | yes | yes | yes | output config, temperature, salinity, pressure, calibration | `2.13` |
 | RTD | `FULL` | yes | yes | yes | scale, logger, sequential memory, bulk memory, calibration | `2.10` |
 | HUM | `FULL` | yes | yes | no | output config, temperature calibration | `1.1` |
-| CO2 | `METADATA` | no | no | no | none | none |
+| CO2 | `TYPED_READ` | yes | no | no | internal temperature output, warm-up | none |
 | O2 | `TYPED_READ` | yes | no | no | output config, temperature compensation | none |
 | RGB | `METADATA` | no | no | no | none | none |
 | PRS | `METADATA` | no | no | no | none | none |

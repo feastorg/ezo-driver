@@ -8,7 +8,7 @@ from ezo_driver import ProductId, ProductSupport, product
 @pytest.mark.parametrize(
     ("reply", "product_id", "address", "tier"),
     [
-        ("?i,CO2,1.0", ProductId.CO2, 105, ProductSupport.METADATA),
+        ("?i,CO2,1.0", ProductId.CO2, 105, ProductSupport.TYPED_READ),
         ("?i,O2,1.00", ProductId.O2, 108, ProductSupport.TYPED_READ),
         ("?i,RGB,2.1", ProductId.RGB, 112, ProductSupport.METADATA),
         ("?i,PRS, 1.0", ProductId.PRS, 106, ProductSupport.METADATA),

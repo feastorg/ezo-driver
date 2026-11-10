@@ -160,7 +160,7 @@ static const ezo_product_registry_entry_t ezo_product_metadata_tier_registry[] =
             EZO_PRODUCT_CO2,
             "Carbon Dioxide",
             "CO2",
-            EZO_PRODUCT_SUPPORT_METADATA,
+            EZO_PRODUCT_SUPPORT_TYPED_READ,
             EZO_PRODUCT_TRANSPORT_UART,
             105,
             EZO_PRODUCT_DEFAULT_ENABLED,

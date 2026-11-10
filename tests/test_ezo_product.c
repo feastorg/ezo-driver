@@ -192,7 +192,8 @@ static void test_metadata_tier_products_record_their_facts(void) {
 
     assert(metadata != NULL);
     assert(strcmp(metadata->vendor_short_code, cases[i].short_code) == 0);
-    assert(metadata->support_tier == (cases[i].product_id == EZO_PRODUCT_O2
+    assert(metadata->support_tier == (cases[i].product_id == EZO_PRODUCT_O2 ||
+                                              cases[i].product_id == EZO_PRODUCT_CO2
                                           ? EZO_PRODUCT_SUPPORT_TYPED_READ
                                           : EZO_PRODUCT_SUPPORT_METADATA));
     assert(metadata->default_transport == EZO_PRODUCT_TRANSPORT_UART);

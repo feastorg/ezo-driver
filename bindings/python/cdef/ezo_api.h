@@ -356,7 +356,9 @@ typedef enum {
   EZO_MEASUREMENT_FIELD_DEW_POINT,
   EZO_MEASUREMENT_FIELD_AIR_TEMPERATURE,
   EZO_MEASUREMENT_FIELD_OXYGEN_PERCENT,
-  EZO_MEASUREMENT_FIELD_OXYGEN_PPT
+  EZO_MEASUREMENT_FIELD_OXYGEN_PPT,
+  EZO_MEASUREMENT_FIELD_CO2_PPM,
+  EZO_MEASUREMENT_FIELD_INTERNAL_TEMPERATURE
 } ezo_measurement_field_t;
 
 typedef struct {
@@ -952,6 +954,24 @@ ezo_result_t ezo_do_read_salinity_uart(ezo_uart_device_t *device, ezo_do_salinit
 ezo_result_t ezo_do_read_pressure_uart(ezo_uart_device_t *device, ezo_do_pressure_compensation_t *pressure_out);
 ezo_result_t ezo_do_read_calibration_status_uart(ezo_uart_device_t *device, ezo_do_calibration_status_t *status_out);
 
+typedef uint32_t ezo_co2_output_mask_t;
+#define EZO_CO2_OUTPUT_PPM ...
+#define EZO_CO2_OUTPUT_INTERNAL_TEMPERATURE ...
+typedef struct { ezo_co2_output_mask_t present_mask; double ppm; double internal_temperature_c; uint8_t warming; } ezo_co2_reading_t;
+typedef struct { ezo_co2_output_mask_t enabled_mask; } ezo_co2_output_config_t;
+ezo_result_t ezo_co2_parse_reading(const char *buffer, size_t buffer_len, ezo_co2_output_mask_t enabled_mask, ezo_co2_reading_t *reading_out);
+ezo_result_t ezo_co2_parse_output_config(const char *buffer, size_t buffer_len, ezo_co2_output_config_t *config_out);
+ezo_result_t ezo_co2_build_output_command(char *buffer, size_t buffer_len, ezo_co2_output_mask_t output, uint8_t enabled);
+ezo_result_t ezo_co2_send_read_i2c(ezo_i2c_device_t *device, ezo_timing_hint_t *timing_hint);
+ezo_result_t ezo_co2_send_output_query_i2c(ezo_i2c_device_t *device, ezo_timing_hint_t *timing_hint);
+ezo_result_t ezo_co2_send_output_set_i2c(ezo_i2c_device_t *device, ezo_co2_output_mask_t output, uint8_t enabled, ezo_timing_hint_t *timing_hint);
+ezo_result_t ezo_co2_read_response_i2c(ezo_i2c_device_t *device, ezo_co2_output_mask_t enabled_mask, ezo_co2_reading_t *reading_out);
+ezo_result_t ezo_co2_read_output_config_i2c(ezo_i2c_device_t *device, ezo_co2_output_config_t *config_out);
+ezo_result_t ezo_co2_send_read_uart(ezo_uart_device_t *device, ezo_timing_hint_t *timing_hint);
+ezo_result_t ezo_co2_send_output_query_uart(ezo_uart_device_t *device, ezo_timing_hint_t *timing_hint);
+ezo_result_t ezo_co2_send_output_set_uart(ezo_uart_device_t *device, ezo_co2_output_mask_t output, uint8_t enabled, ezo_timing_hint_t *timing_hint);
+ezo_result_t ezo_co2_read_response_uart(ezo_uart_device_t *device, ezo_co2_output_mask_t enabled_mask, ezo_co2_reading_t *reading_out);
+ezo_result_t ezo_co2_read_output_config_uart(ezo_uart_device_t *device, ezo_co2_output_config_t *config_out);
 typedef uint32_t ezo_o2_output_mask_t;
 #define EZO_O2_OUTPUT_PERCENT ...
 #define EZO_O2_OUTPUT_PPT ...
