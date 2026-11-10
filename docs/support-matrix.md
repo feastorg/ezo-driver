@@ -40,6 +40,13 @@ Future family onboarding follows [`docs/product-onboarding.md`](./product-onboar
 | DO | `FULL` | yes | yes | yes | output config, temperature, salinity, pressure, calibration | `2.13` |
 | RTD | `FULL` | yes | yes | yes | scale, logger, sequential memory, bulk memory, calibration | `2.10` |
 | HUM | `FULL` | yes | yes | no | output config, temperature calibration | `1.1` |
+| CO2 | `METADATA` | no | no | no | none | none |
+| O2 | `METADATA` | no | no | no | none | none |
+| RGB | `METADATA` | no | no | no | none | none |
+| PRS | `METADATA` | no | no | no | none | none |
+| FLO | `METADATA` | no | no | no | none | none |
+| PMP | `METADATA` | no | no | no | none | none |
+| PMP-L | `METADATA` | no | no | no | none | none |
 
 The firmware column is the version the vendor's changelog gives for the newest command in that surface. Older firmware can still take readings. Each product page in [`docs/ezo/products/`](./ezo/products/) lists the minimum per helper and the known issues.
 

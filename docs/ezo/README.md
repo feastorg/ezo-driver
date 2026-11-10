@@ -32,6 +32,12 @@ Then use the relevant product page:
 - [products/do.md](./products/do.md)
 - [products/rtd.md](./products/rtd.md)
 - [products/hum.md](./products/hum.md)
+- [products/co2.md](./products/co2.md)
+- [products/o2.md](./products/o2.md)
+- [products/rgb.md](./products/rgb.md)
+- [products/prs.md](./products/prs.md)
+- [products/flo.md](./products/flo.md)
+- [products/pmp.md](./products/pmp.md)
 
 ## Structure Decision
 

@@ -6,6 +6,7 @@ All notable tracked changes to this rewrite will be recorded here.
 
 ### Added
 
+- CO2, O2, RGB, PRS, FLO, PMP and PMP-L are recognized at the `METADATA` tier: `EZO_PRODUCT_CO2`, `_O2`, `_RGB`, `_PRS`, `_FLO`, `_PMP` and `_PMP_L` and the matching Python `ProductId` members, with default I2C address, timing, defaults and capability flags, and a page in `docs/ezo/products/` for each family. There are no typed reads. An `i` reply from one of these circuits now gives its product ID instead of `EZO_PRODUCT_UNKNOWN`, and its metadata lookups now succeed. On a Uno, a sketch that identifies a product from its short code, such as `inspect_device`, uses about 500 bytes more RAM
 - `ezo_parse_firmware_version()` and `ezo_firmware_version_compare()` read and compare firmware versions as decimals, so `1.1` equals `1.10` and is above `1.05`; `ezo_product_firmware_has_feature()` and `ezo_product_firmware_has_issue()` answer from a table of the vendor firmware changelogs for Find, calibration export and import, protocol lock, `RT`, the extended pH and ORP ranges and HUM `Tcal`, and for the I2C sleep-wake bug on pH, ORP and EC and the RTD first-reading bug. A feature or issue that does not apply to a product is false. No send helper consults the table, so the core behaves the same on every version (#34)
 - Python: `FirmwareVersion`, `FirmwareFeature`, `FirmwareIssue`, `DeviceInfo.firmware` and `product.parse_firmware_version()`, `product.firmware_has_feature()` and `product.firmware_has_issue()` (#34)
 

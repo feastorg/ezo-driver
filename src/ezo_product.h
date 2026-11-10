@@ -20,7 +20,14 @@ typedef enum {
   EZO_PRODUCT_EC,
   EZO_PRODUCT_DO,
   EZO_PRODUCT_RTD,
-  EZO_PRODUCT_HUM
+  EZO_PRODUCT_HUM,
+  EZO_PRODUCT_CO2,
+  EZO_PRODUCT_O2,
+  EZO_PRODUCT_RGB,
+  EZO_PRODUCT_PRS,
+  EZO_PRODUCT_FLO,
+  EZO_PRODUCT_PMP,
+  EZO_PRODUCT_PMP_L
 } ezo_product_id_t;
 
 typedef enum {
@@ -164,7 +171,8 @@ ezo_result_t ezo_parse_firmware_version(const char *text,
 int ezo_firmware_version_compare(const ezo_firmware_version_t *left,
                                  const ezo_firmware_version_t *right);
 
-/* Facts from the vendor firmware changelogs. No send helper consults these; the caller decides. */
+/* Facts from the vendor firmware changelogs, for the FULL-tier products only. No send helper
+ * consults these; the caller decides. */
 int ezo_product_firmware_has_feature(ezo_product_id_t product_id,
                                      ezo_firmware_feature_t feature,
                                      const ezo_firmware_version_t *version);

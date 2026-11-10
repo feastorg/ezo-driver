@@ -151,9 +151,170 @@ static const ezo_product_registry_entry_t ezo_product_registry[] = {
     },
 };
 
+/* Kept apart from the rows above so that AVR builds can still fold a lookup of a FULL-tier
+ * product at compile time; one table of all the rows puts the whole of it in a Uno's RAM. */
+static const ezo_product_registry_entry_t ezo_product_metadata_tier_registry[] = {
+    {
+        "CO2",
+        {
+            EZO_PRODUCT_CO2,
+            "Carbon Dioxide",
+            "CO2",
+            EZO_PRODUCT_SUPPORT_METADATA,
+            EZO_PRODUCT_TRANSPORT_UART,
+            105,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_OUTPUT_SCHEMA_PRIMARY_ONLY,
+            1,
+            EZO_PRODUCT_CAP_MEASUREMENT | EZO_PRODUCT_CAP_CALIBRATION |
+                EZO_PRODUCT_CAP_OUTPUT_SELECTION,
+            EZO_PRODUCT_FAMILY_ACQUISITION | EZO_PRODUCT_FAMILY_CALIBRATION |
+                EZO_PRODUCT_FAMILY_IDENTITY | EZO_PRODUCT_FAMILY_DEVICE_CONTROL |
+                EZO_PRODUCT_FAMILY_PROTOCOL_CONTROL,
+            {300U, 900U, 0U, 900U},
+            {300U, 900U, 0U, 900U},
+        },
+    },
+    {
+        "O2",
+        {
+            EZO_PRODUCT_O2,
+            "Oxygen",
+            "O2",
+            EZO_PRODUCT_SUPPORT_METADATA,
+            EZO_PRODUCT_TRANSPORT_UART,
+            108,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_OUTPUT_SCHEMA_QUERY_REQUIRED,
+            0,
+            EZO_PRODUCT_CAP_MEASUREMENT | EZO_PRODUCT_CAP_CALIBRATION |
+                EZO_PRODUCT_CAP_TEMPERATURE_COMPENSATION | EZO_PRODUCT_CAP_OUTPUT_SELECTION,
+            EZO_PRODUCT_FAMILY_ACQUISITION | EZO_PRODUCT_FAMILY_CALIBRATION |
+                EZO_PRODUCT_FAMILY_IDENTITY | EZO_PRODUCT_FAMILY_DEVICE_CONTROL |
+                EZO_PRODUCT_FAMILY_PROTOCOL_CONTROL,
+            {300U, 900U, 900U, 1300U},
+            {300U, 900U, 900U, 1300U},
+        },
+    },
+    {
+        "RGB",
+        {
+            EZO_PRODUCT_RGB,
+            "Color",
+            "RGB",
+            EZO_PRODUCT_SUPPORT_METADATA,
+            EZO_PRODUCT_TRANSPORT_UART,
+            112,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_OUTPUT_SCHEMA_QUERY_REQUIRED,
+            0,
+            EZO_PRODUCT_CAP_MEASUREMENT | EZO_PRODUCT_CAP_CALIBRATION |
+                EZO_PRODUCT_CAP_OUTPUT_SELECTION,
+            EZO_PRODUCT_FAMILY_ACQUISITION | EZO_PRODUCT_FAMILY_CALIBRATION |
+                EZO_PRODUCT_FAMILY_IDENTITY | EZO_PRODUCT_FAMILY_DEVICE_CONTROL |
+                EZO_PRODUCT_FAMILY_PROTOCOL_CONTROL,
+            {300U, 300U, 0U, 300U},
+            {300U, 300U, 0U, 300U},
+        },
+    },
+    {
+        "PRS",
+        {
+            EZO_PRODUCT_PRS,
+            "Pressure",
+            "PRS",
+            EZO_PRODUCT_SUPPORT_METADATA,
+            EZO_PRODUCT_TRANSPORT_UART,
+            106,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_OUTPUT_SCHEMA_SCALAR_SINGLE,
+            1,
+            EZO_PRODUCT_CAP_MEASUREMENT | EZO_PRODUCT_CAP_CALIBRATION |
+                EZO_PRODUCT_CAP_SCALE_SELECTION,
+            EZO_PRODUCT_FAMILY_ACQUISITION | EZO_PRODUCT_FAMILY_CALIBRATION |
+                EZO_PRODUCT_FAMILY_IDENTITY | EZO_PRODUCT_FAMILY_DEVICE_CONTROL |
+                EZO_PRODUCT_FAMILY_PROTOCOL_CONTROL,
+            {300U, 900U, 0U, 900U},
+            {300U, 900U, 0U, 900U},
+        },
+    },
+    {
+        "FLO",
+        {
+            EZO_PRODUCT_FLO,
+            "Flow",
+            "FLO",
+            EZO_PRODUCT_SUPPORT_METADATA,
+            EZO_PRODUCT_TRANSPORT_UART,
+            104,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_OUTPUT_SCHEMA_QUERY_REQUIRED,
+            0,
+            EZO_PRODUCT_CAP_MEASUREMENT | EZO_PRODUCT_CAP_OUTPUT_SELECTION |
+                EZO_PRODUCT_CAP_PROBE_CONFIGURATION,
+            EZO_PRODUCT_FAMILY_ACQUISITION | EZO_PRODUCT_FAMILY_IDENTITY | EZO_PRODUCT_FAMILY_DEVICE_CONTROL |
+                EZO_PRODUCT_FAMILY_PROTOCOL_CONTROL,
+            {300U, 300U, 0U, 0U},
+            {300U, 300U, 0U, 0U},
+        },
+    },
+    {
+        "PMP",
+        {
+            EZO_PRODUCT_PMP,
+            "Dosing Pump",
+            "PMP",
+            EZO_PRODUCT_SUPPORT_METADATA,
+            EZO_PRODUCT_TRANSPORT_UART,
+            103,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_OUTPUT_SCHEMA_QUERY_REQUIRED,
+            0,
+            EZO_PRODUCT_CAP_CALIBRATION | EZO_PRODUCT_CAP_OUTPUT_SELECTION,
+            EZO_PRODUCT_FAMILY_ACQUISITION | EZO_PRODUCT_FAMILY_CALIBRATION |
+                EZO_PRODUCT_FAMILY_IDENTITY | EZO_PRODUCT_FAMILY_DEVICE_CONTROL |
+                EZO_PRODUCT_FAMILY_PROTOCOL_CONTROL,
+            {300U, 600U, 0U, 300U},
+            {300U, 600U, 0U, 300U},
+        },
+    },
+    {
+        "PMPL",
+        {
+            EZO_PRODUCT_PMP_L,
+            "Large Dosing Pump",
+            "PMPL",
+            EZO_PRODUCT_SUPPORT_METADATA,
+            EZO_PRODUCT_TRANSPORT_UART,
+            109,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_DEFAULT_ENABLED,
+            EZO_PRODUCT_OUTPUT_SCHEMA_QUERY_REQUIRED,
+            0,
+            EZO_PRODUCT_CAP_CALIBRATION | EZO_PRODUCT_CAP_OUTPUT_SELECTION,
+            EZO_PRODUCT_FAMILY_ACQUISITION | EZO_PRODUCT_FAMILY_CALIBRATION |
+                EZO_PRODUCT_FAMILY_IDENTITY | EZO_PRODUCT_FAMILY_DEVICE_CONTROL |
+                EZO_PRODUCT_FAMILY_PROTOCOL_CONTROL,
+            {300U, 600U, 0U, 300U},
+            {300U, 600U, 0U, 300U},
+        },
+    },
+};
+
 enum {
   EZO_PRODUCT_NORMALIZED_CODE_MAX_LEN = 8
 };
+
+static size_t ezo_product_metadata_tier_registry_count(void) {
+  return sizeof(ezo_product_metadata_tier_registry) /
+         sizeof(ezo_product_metadata_tier_registry[0]);
+}
 
 static size_t ezo_product_registry_count(void) {
   return sizeof(ezo_product_registry) / sizeof(ezo_product_registry[0]);
@@ -284,6 +445,12 @@ static const ezo_product_registry_entry_t *ezo_product_find_registry_entry(
     }
   }
 
+  for (i = 0; i < ezo_product_metadata_tier_registry_count(); ++i) {
+    if (ezo_product_metadata_tier_registry[i].metadata.product_id == product_id) {
+      return &ezo_product_metadata_tier_registry[i];
+    }
+  }
+
   return NULL;
 }
 
@@ -298,6 +465,12 @@ static const ezo_product_registry_entry_t *ezo_product_find_registry_entry_by_co
   for (i = 0; i < ezo_product_registry_count(); ++i) {
     if (ezo_product_streq(ezo_product_registry[i].normalized_code, normalized_code)) {
       return &ezo_product_registry[i];
+    }
+  }
+
+  for (i = 0; i < ezo_product_metadata_tier_registry_count(); ++i) {
+    if (ezo_product_streq(ezo_product_metadata_tier_registry[i].normalized_code, normalized_code)) {
+      return &ezo_product_metadata_tier_registry[i];
     }
   }
 

@@ -131,4 +131,4 @@ If a family cannot clear a higher tier yet, land it at the lower tier explicitly
 
 ## Current Constraint
 
-The current repo only carries vendor source material for the initial six supported families. Until new evidence is added outside this repo, this document is the close-out for growth readiness rather than a mandate to ship another family immediately.
+Vendor source material outside this repo now covers the initial six families and CO2, O2, RGB, PRS, FLO, PMP and PMP-L. Those seven are at the `METADATA` tier. Raising one to `TYPED_READ` starts at the first step of the checklist above.
